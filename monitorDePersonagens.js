@@ -1,60 +1,76 @@
-main()
+main();
 
 async function main() {
-
-  div = document.createElement('div');
+  div = document.createElement("div");
 
   Hooks.on("updateActor", onUpdateActor);
 
   let getResourceState = {
-    heathWillpower: (element, index) => (element.superficial > 0 && element.superficial != index && index < element.superficial)
-        ? {dataIndex: index, dataState: '/'}
-        : (element.aggravated > 0 && element.superficial + element.aggravated != index && index < element.superficial + element.aggravated)
-          ? {dataIndex: index, dataState: 'x'}
-          : {dataIndex: index, dataState: ''},
-    humanity: (element, index) => (element.value > index)
-    ? {dataIndex: index, dataState: '-'}
-    : (element.stains > 0 && element.value + element.stains != index && index < element.value + element.stains)
-      ? {dataIndex: index, dataState: '/'}
-      : {dataIndex: index, dataState: ''},
-    hunger: (actorResource, index) => index < actorResource ? {dataIndex: index, dataState: 'x'} : {dataIndex: index, dataState: ''}
+    heathWillpower: (element, index) =>
+      element.superficial > 0 &&
+      element.superficial != index &&
+      index < element.superficial
+        ? { dataIndex: index, dataState: "/" }
+        : element.aggravated > 0 &&
+          element.superficial + element.aggravated != index &&
+          index < element.superficial + element.aggravated
+        ? { dataIndex: index, dataState: "x" }
+        : { dataIndex: index, dataState: "" },
+    humanity: (element, index) =>
+      element.value > index
+        ? { dataIndex: index, dataState: "-" }
+        : element.stains > 0 &&
+          element.value + element.stains != index &&
+          index < element.value + element.stains
+        ? { dataIndex: index, dataState: "/" }
+        : { dataIndex: index, dataState: "" },
+    hunger: (actorResource, index) =>
+      index < actorResource
+        ? { dataIndex: index, dataState: "x" }
+        : { dataIndex: index, dataState: "" },
   };
 
-  function createResourceList (resourceState, actorResource) {
+  function createResourceList(resourceState, actorResource) {
     let resourceList = [];
-    let count = resourceState == 'heathWillpower' ? actorResource.max : resourceState == 'humanity' ? 10 : 5;
-    for (let index = 0; index < count; index++) resourceList.push(getResourceState[resourceState](actorResource, index))
-    return resourceList
-  }
-  
-  let getResourceList = {
-    heathWillpower: (actorResource) => createResourceList('heathWillpower',actorResource),
-    humanity: (actorResource) => createResourceList('humanity',actorResource),
-    hunger: (actorResource) => createResourceList('hunger',actorResource),
+    let count =
+      resourceState == "heathWillpower"
+        ? actorResource.max
+        : resourceState == "humanity"
+        ? 10
+        : 5;
+    for (let index = 0; index < count; index++)
+      resourceList.push(getResourceState[resourceState](actorResource, index));
+    return resourceList;
   }
 
+  let getResourceList = {
+    heathWillpower: (actorResource) =>
+      createResourceList("heathWillpower", actorResource),
+    humanity: (actorResource) => createResourceList("humanity", actorResource),
+    hunger: (actorResource) => createResourceList("hunger", actorResource),
+  };
+
   function createWrapper(className, resourcesGridWrapper) {
-    let wrapper = document.createElement('div');
+    let wrapper = document.createElement("div");
     wrapper.className = className;
     resourcesGridWrapper.appendChild(wrapper);
     return wrapper;
   }
 
   let getPlaceholder = {
-    ambition: game.i18n.localize('VTM5E.Ambition'),
-    concept: game.i18n.localize('VTM5E.Concept'),
-    desire: game.i18n.localize('VTM5E.Desire'),
-    health: game.i18n.localize('VTM5E.Health'),
-    willpower: game.i18n.localize('VTM5E.Willpower'),
-    humanity: game.i18n.localize('VTM5E.Humanity'),
-    bloodSurge: game.i18n.localize('VTM5E.BloodSurge'),
-    powerBonus: game.i18n.localize('VTM5E.PowerBonus'),
-    FeedingPenalty: game.i18n.localize('VTM5E.FeedingPenalty'),
-    MendAmount: game.i18n.localize('VTM5E.MendAmount'),
-    RouseReRoll: game.i18n.localize('VTM5E.RouseReRoll'),
-    BaneSeverity: game.i18n.localize('VTM5E.BaneSeverity'),
-  }
-
+    ambition: game.i18n.localize("VTM5E.Ambition"),
+    concept: game.i18n.localize("VTM5E.Concept"),
+    desire: game.i18n.localize("VTM5E.Desire"),
+    health: game.i18n.localize("VTM5E.Health"),
+    willpower: game.i18n.localize("VTM5E.Willpower"),
+    humanity: game.i18n.localize("VTM5E.Humanity"),
+    bloodSurge: game.i18n.localize("VTM5E.BloodSurge"),
+    powerBonus: game.i18n.localize("VTM5E.PowerBonus"),
+    FeedingPenalty: game.i18n.localize("VTM5E.FeedingPenalty"),
+    MendAmount: game.i18n.localize("VTM5E.MendAmount"),
+    RouseReRoll: game.i18n.localize("VTM5E.RouseReRoll"),
+    BaneSeverity: game.i18n.localize("VTM5E.BaneSeverity"),
+  };
   let getSvg = {
     drop: `
           <svg width="25px" viewbox="0 0 50 42">
@@ -83,136 +99,146 @@ async function main() {
                     fill="#fff" fill-opacity="1">
                   </path>
                 </g>
-              </svg>`
-  }
+              </svg>`,
+  };
   function getBloodPotencyText(level) {
     const BLOOD_POTENCY_TEXT = [
       {
-        surge: game.i18n.localize('VTM5E.Add1Dice'),
-        mend: game.i18n.localize('VTM5E.1SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.None'),
-        rouse: game.i18n.localize('VTM5E.None'),
-        bane: '0',
-        feeding: game.i18n.localize('VTM5E.NoEffect')
+        surge: game.i18n.localize("VTM5E.Add1Dice"),
+        mend: game.i18n.localize("VTM5E.1SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.None"),
+        rouse: game.i18n.localize("VTM5E.None"),
+        bane: "0",
+        feeding: game.i18n.localize("VTM5E.NoEffect"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add2Dice'),
-        mend: game.i18n.localize('VTM5E.1SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.None'),
-        rouse: game.i18n.localize('VTM5E.Level1'),
-        bane: '2',
-        feeding: game.i18n.localize('VTM5E.NoEffect')
+        surge: game.i18n.localize("VTM5E.Add2Dice"),
+        mend: game.i18n.localize("VTM5E.1SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.None"),
+        rouse: game.i18n.localize("VTM5E.Level1"),
+        bane: "2",
+        feeding: game.i18n.localize("VTM5E.NoEffect"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add2Dice'),
-        mend: game.i18n.localize('VTM5E.2SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add1Dice'),
-        rouse: game.i18n.localize('VTM5E.Level1'),
-        bane: '2',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty1')
+        surge: game.i18n.localize("VTM5E.Add2Dice"),
+        mend: game.i18n.localize("VTM5E.2SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add1Dice"),
+        rouse: game.i18n.localize("VTM5E.Level1"),
+        bane: "2",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty1"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add3Dice'),
-        mend: game.i18n.localize('VTM5E.2SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add1Dice'),
-        rouse: game.i18n.localize('VTM5E.Level2'),
-        bane: '3',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty2')
+        surge: game.i18n.localize("VTM5E.Add3Dice"),
+        mend: game.i18n.localize("VTM5E.2SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add1Dice"),
+        rouse: game.i18n.localize("VTM5E.Level2"),
+        bane: "3",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty2"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add3Dice'),
-        mend: game.i18n.localize('VTM5E.3SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add2Dice'),
-        rouse: game.i18n.localize('VTM5E.Level2'),
-        bane: '3',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty3')
+        surge: game.i18n.localize("VTM5E.Add3Dice"),
+        mend: game.i18n.localize("VTM5E.3SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add2Dice"),
+        rouse: game.i18n.localize("VTM5E.Level2"),
+        bane: "3",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty3"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add4Dice'),
-        mend: game.i18n.localize('VTM5E.3SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add2Dice'),
-        rouse: game.i18n.localize('VTM5E.Level3'),
-        bane: '4',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty4')
+        surge: game.i18n.localize("VTM5E.Add4Dice"),
+        mend: game.i18n.localize("VTM5E.3SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add2Dice"),
+        rouse: game.i18n.localize("VTM5E.Level3"),
+        bane: "4",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty4"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add4Dice'),
-        mend: game.i18n.localize('VTM5E.3SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add3Dice'),
-        rouse: game.i18n.localize('VTM5E.Level3'),
-        bane: '4',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty5')
+        surge: game.i18n.localize("VTM5E.Add4Dice"),
+        mend: game.i18n.localize("VTM5E.3SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add3Dice"),
+        rouse: game.i18n.localize("VTM5E.Level3"),
+        bane: "4",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty5"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add5Dice'),
-        mend: game.i18n.localize('VTM5E.3SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add3Dice'),
-        rouse: game.i18n.localize('VTM5E.Level4'),
-        bane: '5',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty5')
+        surge: game.i18n.localize("VTM5E.Add5Dice"),
+        mend: game.i18n.localize("VTM5E.3SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add3Dice"),
+        rouse: game.i18n.localize("VTM5E.Level4"),
+        bane: "5",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty5"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add5Dice'),
-        mend: game.i18n.localize('VTM5E.4SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add4Dice'),
-        rouse: game.i18n.localize('VTM5E.Level4'),
-        bane: '5',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty6')
+        surge: game.i18n.localize("VTM5E.Add5Dice"),
+        mend: game.i18n.localize("VTM5E.4SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add4Dice"),
+        rouse: game.i18n.localize("VTM5E.Level4"),
+        bane: "5",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty6"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add6Dice'),
-        mend: game.i18n.localize('VTM5E.4SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add4Dice'),
-        rouse: game.i18n.localize('VTM5E.Level5'),
-        bane: '6',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty6')
+        surge: game.i18n.localize("VTM5E.Add6Dice"),
+        mend: game.i18n.localize("VTM5E.4SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add4Dice"),
+        rouse: game.i18n.localize("VTM5E.Level5"),
+        bane: "6",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty6"),
       },
       {
-        surge: game.i18n.localize('VTM5E.Add6Dice'),
-        mend: game.i18n.localize('VTM5E.5SuperficialDamage'),
-        power: game.i18n.localize('VTM5E.Add5Dice'),
-        rouse: game.i18n.localize('VTM5E.Level5'),
-        bane: '6',
-        feeding: game.i18n.localize('VTM5E.FeedingPenalty7')
-      }
-    ]
-    return BLOOD_POTENCY_TEXT[level]
+        surge: game.i18n.localize("VTM5E.Add6Dice"),
+        mend: game.i18n.localize("VTM5E.5SuperficialDamage"),
+        power: game.i18n.localize("VTM5E.Add5Dice"),
+        rouse: game.i18n.localize("VTM5E.Level5"),
+        bane: "6",
+        feeding: game.i18n.localize("VTM5E.FeedingPenalty7"),
+      },
+    ];
+    return BLOOD_POTENCY_TEXT[level];
   }
 
   let createActorWrapper = (actor, resourcesGridWrapper) => {
-
     let { img: actorImg, data: actorData } = actor;
     let {
-        name: actorName,
-        data: {
-            hunger: { value: actorHunger },
-            health,
-            willpower,
-            humanity,
-            headers: { desire, ambition, concept, touchstones },
-        },
+      name: actorName,
+      data: {
+        hunger: { value: actorHunger },
+        health,
+        willpower,
+        humanity,
+        headers: { desire, ambition, concept, touchstones },
+      },
     } = actorData;
     let bloodPotencyValue = actorData.data.blood.potency;
 
     let bloodPotency = getBloodPotencyText(bloodPotencyValue);
     let headerWrapper = createWrapper("header-wrapper", resourcesGridWrapper);
-    let healthPoints = createWrapper("wrapper health-wrapper", resourcesGridWrapper);
-    let willpowerPoints = createWrapper("wrapper willpower-wrapper", resourcesGridWrapper);
-    let humanityPoints = createWrapper("wrapper humanity-wrapper", resourcesGridWrapper);
+    let healthPoints = createWrapper(
+      "wrapper health-wrapper",
+      resourcesGridWrapper
+    );
+    let willpowerPoints = createWrapper(
+      "wrapper willpower-wrapper",
+      resourcesGridWrapper
+    );
+    let humanityPoints = createWrapper(
+      "wrapper humanity-wrapper",
+      resourcesGridWrapper
+    );
 
     let hungerMarks = getResourceList.hunger(actorHunger);
     let healthMarks = getResourceList.heathWillpower(health);
     let willpowerMarks = getResourceList.heathWillpower(willpower);
-    let humanityMarks = getResourceList.humanity(humanity)    
+    let humanityMarks = getResourceList.humanity(humanity);
 
     let regex = /(<.*>)(.+)(; *)(.+)(<.*>)/gm;
 
     let touchstonesList = [];
     touchstones.replace(regex, (match, p1, p2, p3, p4, p5) => {
-      let img = game.journal.contents.filter(entry => entry.data.name === p4)[0]?.data.img;
+      let img = game.journal.contents.filter(
+        (entry) => entry.data.name === p4
+      )[0]?.data.img;
       let touchstoneImage = img != undefined ? img : "img";
-      touchstonesList.push({ conviction: p2, touchstone: p4, touchstoneImage})
-    })
+      touchstonesList.push({ conviction: p2, touchstone: p4, touchstoneImage });
+    });
 
     let getTooltip = {
       bloodPotency: `
@@ -249,15 +275,27 @@ async function main() {
       <div class="tooltip touchstones">
           ${getSvg.network}
           <div class="tooltip-body touchstones-body">
-              ${touchstonesList.map(tsConvic => `
+              ${touchstonesList
+                .map(
+                  (tsConvic) => `
               <div class="touchstones-content">
-                  ${tsConvic.touchstoneImage != "img" ? `<img class="image ts-convic-image" src=${tsConvic.touchstoneImage}/>` : getSvg.person}
-                  <span class="label-resources blood-gifts-label ts-name">${tsConvic.touchstone}</span>
+                  ${
+                    tsConvic.touchstoneImage != "img"
+                      ? `<img class="image ts-convic-image" src=${tsConvic.touchstoneImage}/>`
+                      : getSvg.person
+                  }
+                  <span class="label-resources blood-gifts-label ts-name">${
+                    tsConvic.touchstone
+                  }</span>
               </div>
-              <span class="ts-convic-conviction">"${tsConvic.conviction}"</span>`).join("")}
+              <span class="ts-convic-conviction">"${
+                tsConvic.conviction
+              }"</span>`
+                )
+                .join("")}
           </div>
-      </div>`
-    }
+      </div>`,
+    };
 
     headerWrapper.innerHTML += `
     <div class="blood-image-wrapper">
@@ -281,45 +319,69 @@ async function main() {
             </div>
         </div>
         <div class="hunger-wrapper">
-          ${hungerMarks.map(mark => `<div id="huger-${mark.dataIndex}" class="hunger-mark" data-state=${mark.dataState}></div>`)}
+          ${hungerMarks.map(
+            (mark) =>
+              `<div id="huger-${mark.dataIndex}" class="hunger-mark" data-state=${mark.dataState}></div>`
+          )}
         </div>
-    </div>`
+    </div>`;
 
     healthPoints.innerHTML += `
         <div class="flexrow">
           <label class="resources-label">${getPlaceholder.health}</label>
         </div>
-        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${health.max}" data-superficial="${health.superficial}" data-aggravated="${health.aggravated}" data-name="data.health">
-            ${healthMarks.map(mark => `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`)}
+        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
+          health.max
+        }" data-superficial="${health.superficial}" data-aggravated="${
+      health.aggravated
+    }" data-name="data.health">
+            ${healthMarks.map(
+              (mark) =>
+                `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
+            )}
         </div>`;
     willpowerPoints.innerHTML += `
         <div class="flexrow">
           <label class="resources-label">${getPlaceholder.willpower}</label>
         </div> 
-        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${willpower.max}" data-superficial="${willpower.superficial}" data-aggravated="${willpower.aggravated}" data-name="data.willpower">
-            ${willpowerMarks.map(mark => `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`)}
+        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
+          willpower.max
+        }" data-superficial="${willpower.superficial}" data-aggravated="${
+      willpower.aggravated
+    }" data-name="data.willpower">
+            ${willpowerMarks.map(
+              (mark) =>
+                `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
+            )}
         </div>`;
 
     humanityPoints.innerHTML += `
       <div class="flexrow">
         <label class="resources-label">${getPlaceholder.humanity}</label>
       </div>
-      <div class="resources-counter" data-states="/:stains,-:value" data-value="${humanity.value}" data-stains="${humanity.stains}"  data-name="data.humanity">
-          ${humanityMarks.map(mark => `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`)}
+      <div class="resources-counter" data-states="/:stains,-:value" data-value="${
+        humanity.value
+      }" data-stains="${humanity.stains}"  data-name="data.humanity">
+          ${humanityMarks.map(
+            (mark) =>
+              `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
+          )}
         </div>`;
-  }
+  };
 
-  let actors = game.actors.filter(actor => actor.type == "vampire" || actor.type == "character");
+  let actors = game.actors.filter(
+    (actor) => actor.type == "vampire" || actor.type == "character"
+  );
 
   let composeDialog = (actor) => {
-    let resourcesGridWrapper = document.createElement('div');
+    let resourcesGridWrapper = document.createElement("div");
     resourcesGridWrapper.className = "resources grid-column";
     resourcesGridWrapper.id = actor.id;
     div.appendChild(resourcesGridWrapper);
     createActorWrapper(actor, resourcesGridWrapper);
-  }
+  };
 
-  let storytellerDialog = () => actors.forEach(actor => composeDialog(actor));
+  let storytellerDialog = () => actors.forEach((actor) => composeDialog(actor));
 
   let playerDialog = () => composeDialog(game.user.character);
 
@@ -638,20 +700,20 @@ async function main() {
   <script>
       document.getElementById('monitor-container').appendChild(div);
   </script>
-  `
+  `;
   let dialog = new Dialog({
     title: "Monitor",
     content,
-    buttons: {}
+    buttons: {},
   });
   const conteiner = document.getElementById("monitor-container");
 
-  if (!conteiner) dialog.render(true)
+  if (!conteiner) dialog.render(true);
 
   //onUpdateActor(actor, updateData, options, userId)
   function onUpdateActor(actor) {
     let dialogElement = document.getElementById(actor.id);
-    dialogElement.innerHTML = '';
+    dialogElement.innerHTML = "";
     createActorWrapper(actor, dialogElement);
   }
-};
+}
