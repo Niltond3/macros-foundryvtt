@@ -200,15 +200,28 @@ async function main() {
     let willpowerMarks = getResourceList.heathWillpower(willpower);
     let humanityMarks = getResourceList.humanity(humanity);
 
-    let regex = /(<.*>)(.+)(; *)(.+)(<.*>)/gm;
+    function htmlDecode(input) {
+      let doc = new DOMParser().parseFromString(input, "text/html");
+      return doc.documentElement.textContent;
+    }
+
+
+    let regex = /(.+); *(.+)/gm;
+    
+    let decodeTouchstone = htmlDecode(touchstones)
 
     let touchstonesList = [];
-    touchstones.replace(regex, (match, p1, p2, p3, p4, p5) => {
+    decodeTouchstone.replace(regex, (match, p1, p2) => {
+      console.log(match)
+      console.log(p1)
+      console.log(p2)
+
       let img = game.journal.contents.filter(
-        (entry) => entry.data.name === p4
+        (entry) => entry.data.name === p2
       )[0]?.data.img;
       let touchstoneImage = img != undefined ? img : "img";
-      touchstonesList.push({ conviction: p2, touchstone: p4, touchstoneImage });
+      touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage });
+      console.log(touchstonesList)
     });
 
     let getTooltip = {
