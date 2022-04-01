@@ -4,3 +4,4 @@ node_modules
 commitlint.config.js
 package.json
 yarn.lock
+.prettierrc
