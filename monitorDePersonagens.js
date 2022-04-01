@@ -71,7 +71,7 @@ async function main() {
     RouseReRoll: game.i18n.localize("VTM5E.RouseReRoll"),
     BaneSeverity: game.i18n.localize("VTM5E.BaneSeverity"),
   };
-  
+
   function getBloodPotencyText(level) {
     const BLOOD_POTENCY_TEXT = [
       {
@@ -166,7 +166,7 @@ async function main() {
     return BLOOD_POTENCY_TEXT[level];
   }
 
-  let createActorWrapper = (actor, resourcesGridWrapper) => {
+  function createActorWrapper(actor, resourcesGridWrapper) {
     let { img: actorImg, data: actorData } = actor;
     let {
       name: actorName,
@@ -341,23 +341,29 @@ async function main() {
               `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
           )}
         </div>`;
-  };
+  }
 
-  let actors = game.actors.filter(
-    (actor) => actor.type == "vampire" || actor.type == "character"
-  );
-
-  let composeDialog = (actor) => {
+  function composeDialog(actor) {
     let resourcesGridWrapper = document.createElement("div");
     resourcesGridWrapper.className = "resources grid-column";
     resourcesGridWrapper.id = actor.id;
     div.appendChild(resourcesGridWrapper);
     createActorWrapper(actor, resourcesGridWrapper);
-  };
+  }
 
-  let storytellerDialog = () => actors.forEach((actor) => composeDialog(actor));
+  let storytellerDialog = () =>
+    game.actors
+      .filter((actor) => actor.type == "vampire" || actor.type == "character")
+      .forEach((actor) => composeDialog(actor));
 
-  let playerDialog = () => composeDialog(game.user.character);
+  let playerDialog = () =>
+    game.actors
+      .filter(
+        (actor) =>
+          (actor.type == "vampire" || actor.type == "character") &&
+          actor.data.permission[game.userId] != undefined
+      )
+      .forEach((actor) => composeDialog(actor));
 
   game.user.isGM ? storytellerDialog() : playerDialog();
 
@@ -369,12 +375,16 @@ async function main() {
   
   .tooltip {
     z-index: 1;
+    border-radius:100%;
     position: absolute;
     top: -10px;
   }
   
   .tooltip .tooltip-body {
+    z-index: -1;
     visibility: hidden;
+    opacity:0;
+    transition:opacity 0.3s ease-in-out;
     width: 300px;
     margin-top: 5px;
     border-bottom: 2px solid #790813;
@@ -384,11 +394,11 @@ async function main() {
   /* Position the tooltip */
     position: absolute;
     top: 12px;
-    z-index: 1;
   }
   
   .tooltip:hover .tooltip-body {
     visibility: visible;
+    opacity:1;
   }
   
   .touchstones-body {
@@ -421,6 +431,7 @@ async function main() {
   .ts-convic-conviction {
     display: flex;
     width: 95%;
+    min-height: 35px;
     padding-left: 5px;
   }
   
@@ -436,13 +447,13 @@ async function main() {
     font-weight: bold;
     left: 3.2px;
     top: 2px;
-    z-index: 1;
     pointer-events: none;
   }
 
   .touchstones {}
 
-  .bi {}
+  .bi {
+  }
 
   .bi-tooltip:hover {
     color:#740812;
@@ -459,7 +470,8 @@ async function main() {
     right: -25px;
     top: -18px;
     color:#740812;
-    background-color:#D8D6CA; 
+    background-color:rgba(224, 221, 212,0.8); 
+    border-radius:6px;
   }
 
   .resources-label {
