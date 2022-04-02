@@ -58,6 +58,11 @@ async function main() {
   }
 
   let getPlaceholder = {
+    touchstonesAndConvictions: game.i18n.localize(
+      "VTM5E.TouchstonesAndConvictions"
+    ),
+    bloodPotency: game.i18n.localize("VTM5E.BloodPotency"),
+    attributes: game.i18n.localize("VTM5E.Attributes"),
     ambition: game.i18n.localize("VTM5E.Ambition"),
     concept: game.i18n.localize("VTM5E.Concept"),
     desire: game.i18n.localize("VTM5E.Desire"),
@@ -205,60 +210,71 @@ async function main() {
       return doc.documentElement.textContent;
     }
 
-
     let regex = /(.+); *(.+)/gm;
-    
-    let decodeTouchstone = htmlDecode(touchstones)
+
+    let decodeTouchstone = htmlDecode(touchstones);
 
     let touchstonesList = [];
     decodeTouchstone.replace(regex, (match, p1, p2) => {
-      console.log(match)
-      console.log(p1)
-      console.log(p2)
+      console.log(match);
+      console.log(p1);
+      console.log(p2);
 
       let img = game.journal.contents.filter(
         (entry) => entry.data.name === p2
       )[0]?.data.img;
       let touchstoneImage = img != undefined ? img : "img";
       touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage });
-      console.log(touchstonesList)
+      console.log(touchstonesList);
     });
 
     let getTooltip = {
       bloodPotency: `
       <div class="tooltip blood-potency" data="${bloodPotencyValue}">
           <i class="bi bi-droplet-fill bi-tooltip"></i>
-          <div class="tooltip-body blood-potency-body">
+          <spam class="tooltip-hide-content tooltip-label">${getPlaceholder.bloodPotency}</spam>
+          <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.bloodSurge}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.bloodSurge}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.surge}</span>
               </div>
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.powerBonus}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.powerBonus}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.power}</span>
               </div>
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.FeedingPenalty}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.FeedingPenalty}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.feeding}</span>
               </div>
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.MendAmount}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.MendAmount}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.mend}</span>
               </div>
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.RouseReRoll}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.RouseReRoll}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.rouse}</span>
               </div>
               <div class="label-wrapper">
-                  <span class="label-resources blood-gifts-label">${getPlaceholder.BaneSeverity}</span>
+                  <span class="label-resources resources-placeholder blood-gifts-label" end="true">${getPlaceholder.BaneSeverity}</span>
                   <span class="label-resources blood-gifts-content">${bloodPotency.bane}</span>
               </div>
           </div>
       </div>`,
+      attributes: `
+      <div class="tooltip attributes">
+          <i class="bi bi-bookmarks-fill bi-tooltip"></i>
+          <spam class="tooltip-hide-content tooltip-label">${getPlaceholder.attributes}</spam>
+          <div class="wrapper-dialog tooltip-hide-content">
+          </div>
+      </div>
+      `,
       touchstones: `
       <div class="tooltip touchstones">
           <i class="bi bi-people-fill bi-tooltip"></i>
-          <div class="tooltip-body touchstones-body">
+          <spam class="tooltip-hide-content tooltip-label">${
+            getPlaceholder.touchstonesAndConvictions
+          }</spam>
+          <div class="wrapper-dialog tooltip-hide-content touchstones-body">
               ${touchstonesList
                 .map(
                   (tsConvic) => `
@@ -268,7 +284,7 @@ async function main() {
                       ? `<img class="image ts-convic-image" src=${tsConvic.touchstoneImage}/>`
                       : `<i class="bi bi-person-bounding-box"></i>`
                   }
-                  <span class="label-resources blood-gifts-label ts-name">${
+                  <span class="label-resources resources-placeholder blood-gifts-label ts-name">${
                     tsConvic.touchstone
                   }</span>
               </div>
@@ -279,30 +295,37 @@ async function main() {
                 .join("")}
           </div>
       </div>`,
-      attributes: `
-      
-      `,
     };
 
     headerWrapper.innerHTML += `
-    <div class="blood-image-wrapper">
-        ${getTooltip.bloodPotency} ${getTooltip.touchstones}
-        <img class="image" src=${actorImg} alt="img" />
+    <div class="tooltip-image-wrapper">
+        <div class="tooltips-wrapper">
+          ${getTooltip.bloodPotency} ${getTooltip.attributes} ${
+      getTooltip.touchstones
+    }
+        </div>
+        <img class="image actor-image" src=${actorImg} alt="img" />
     </div>
     <div class="header-Wrapper-content">
-        <div class="header-content">
+        <div class="wrapper-dialog">
             <h1 class="label-resources name">${actorName}</h1>
             <div class="label-wrapper">
-                <h3 class="label-resources core">${getPlaceholder.concept}</h3>
+                <h3 class="label-resources resources-placeholder">${
+                  getPlaceholder.concept
+                }</h3>
                 <h3 class="label-resources dialog-resources-content">${concept}</h3>
             </div>
             <div class="label-wrapper">
-                <h3 class="label-resources core">${getPlaceholder.ambition}</h3>
+                <h3 class="label-resources resources-placeholder">${
+                  getPlaceholder.ambition
+                }</h3>
                 <h3 class="label-resources dialog-resources-content">${ambition}</h3>
             </div>
             <div class="label-wrapper">
-                <h3 class="label-resources core">${getPlaceholder.desire}</h3>
-                <h3 class="label-resources dialog-resources-content">${desire}</h3>
+                <span class="label-resources resources-placeholder" end="true" >${
+                  getPlaceholder.desire
+                }</span>
+                <span class="label-resources dialog-resources-content" end="true">${desire}</span>
             </div>
         </div>
         <div class="hunger-wrapper">
@@ -315,7 +338,9 @@ async function main() {
 
     healthPoints.innerHTML += `
         <div class="flexrow">
-          <label class="resources-label">${getPlaceholder.health}</label>
+          <label class="wrapper-dialog resources-label">${
+            getPlaceholder.health
+          }</label>
         </div>
         <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
           health.max
@@ -329,7 +354,9 @@ async function main() {
         </div>`;
     willpowerPoints.innerHTML += `
         <div class="flexrow">
-          <label class="resources-label">${getPlaceholder.willpower}</label>
+          <label class="wrapper-dialog resources-label">${
+            getPlaceholder.willpower
+          }</label>
         </div> 
         <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
           willpower.max
@@ -382,34 +409,64 @@ async function main() {
 
   let content = `
   <style>
-  .blood-image-wrapper {
+  .tooltip-image-wrapper {
     position: relative;
+    width:70px;
+    height:100%;
+  }
+  .actor-image {
+    position:absolute;
+    top: 50%;  /* position the top  edge of the element at the middle of the parent */
+    left: 50%; /* position the left edge of the element at the middle of the parent */
+    transform: translate(-50%, -50%);
+  }
+
+  .tooltips-wrapper{
+    position: absolute;
+    height:18px;
+    width:100%;
+    box-shadow: inset 2px 3px 5px #000000, 0px 2px 2px #ccc;
+    background-color:#790813;
+    border-radius:10px 0 0 10px;
   }
   
   .tooltip {
     z-index: 1;
     border-radius:100%;
     position: absolute;
-    top: -10px;
+
+    top: 2px;
   }
-  
-  .tooltip .tooltip-body {
+
+  .tooltip-hide-content {
     z-index: -1;
     visibility: hidden;
     opacity:0;
     transition:opacity 0.3s ease-in-out;
     width: 300px;
-    margin-top: 5px;
-    border-bottom: 2px solid #790813;
-    border-left: 2px solid #790813;
-    border-radius: 0 10px 0 10px;
-    
+    margin-top: 5px;    
   /* Position the tooltip */
     position: absolute;
     top: 12px;
   }
   
-  .tooltip:hover .tooltip-body {
+  .tooltip-label {
+    display:flex;
+    justify-content:center;
+    width:175px;
+    font-size: 12px;
+    font-weight:bold;
+    color: #D8D6CA;
+    // box-shadow: inset 2px 3px 5px #000000, 0px 2px 2px #ccc;
+    background-color:#790813;
+    padding: 2px 5px;
+    border-radius:5px 5px 0 0;
+
+    top: -6px;
+    left:50px;
+  }
+
+  .tooltip:hover .tooltip-hide-content {
     visibility: visible;
     opacity:1;
   }
@@ -436,11 +493,6 @@ async function main() {
     top: -20px;
   }
   
-  .ts-convic-svg {
-    background: black;
-    border-radius: 50%;
-  }
-  
   .ts-convic-conviction {
     display: flex;
     width: 95%;
@@ -449,30 +501,45 @@ async function main() {
   }
   
   .blood-potency[data] {
-    left: 35px;
+    top: 2px;
+    left: 40px;
   }
   
   .blood-potency[data]::after {
     content: attr(data);
     position: absolute;
-    color: #DCDACE;
+    color: #740812;
     font-size: 12px;
     font-weight: bold;
     left: 3.2px;
     top: 2px;
     pointer-events: none;
   }
+  .blood-potency-hide-content {
+    border-top:2px solid #790813;
+  }
+  .blood-potency:hover::after {
+    color: #D8D6CA;
+  }
 
-  .touchstones {}
+  .touchstones {
+    left: 7px;
+  }
+  .attributes {
+    left: 24px;
+  }
 
   .bi {
   }
-
-  .bi-tooltip:hover {
-    color:#740812;
+  .bi-tooltip {
+    color:#D8D6CA;
     cursor: pointer;
   }
 
+  .bi-tooltip:hover {
+    color:#120000;
+  }
+  
   .bi-droplet-fill {}
 
   .bi-people-fill {}
@@ -489,9 +556,6 @@ async function main() {
 
   .resources-label {
     margin: 2px 0px;
-    border-bottom: 2px solid #790813;
-    border-left: 2px solid #790813;
-    border-radius: 0 0 0 10px;
     whidth: 100%;
     color: #790813;
     font-weight: bold;
@@ -510,13 +574,7 @@ async function main() {
     align-items: center;
     justify-content: flex-start;
   }
-  
-  .image {
-    width: 50px;
-    margin-right: 15px;
-    border: 0;
-  }
-  
+    
   .blood-label {
     width: 80px;
     font-size: 9px;
@@ -530,16 +588,8 @@ async function main() {
     width: 100%;
   }
   
-  .header-content {
-    border-bottom: 2px solid #790813;
-    border-left: 2px solid #790813;
-    border-radius: 0 0 0 10px;
-    margin-bottom: 5px;
-  }
-  
   .label-wrapper {
     display: flex;
-    flex-direction: row;
   }
   
   .label-resources {
@@ -552,14 +602,17 @@ async function main() {
     color: white;
   }
   
-  .core {
+  .resources-placeholder {
     background: #790813;
     width: 30%;
   }
-  
+
+  .resources-placeholder[end="true"] {
+    border-radius: 0 0 0 12%;
+  }
+
   .blood-gifts-label {
     border-top: 2px solid rgba(58,41,42,0.8);
-    background: #790813;
     width: 46%;
   }
   
@@ -570,10 +623,12 @@ async function main() {
   
   .dialog-resources-content {
     background: #94686c;
-    padding-left: 5px;
     border-radius: 0 10px 10px 0;
   }
-  
+  .dialog-resources-content[end="true"] {
+    border-radius: 0 10px 0 0;;
+  }
+
   .blood-gifts-content {
     border-top: 2px solid rgba(58,41,42,0.0);
     background-color: rgba(58,41,42,0.8);
@@ -592,25 +647,21 @@ async function main() {
     align-items: center;
     color: transparent;
   }
-  
-  .hunger-mark[data-state=""] {
+  .hunger-mark {
     display: inline-block;
     box-shadow: inset 2px 3px 5px #000000, 0px 1px 1px #333;
-    background-color: rgb(224, 221, 212);
     height: 15px;
     width: 15px;
     border-radius: 0% 50% 50% 50%;
     transform: rotate(45deg);
   }
+
+  .hunger-mark[data-state=""] {
+    background-color: rgb(224, 221, 212);
+  }
   
   .hunger-mark[data-state="x"] {
-    display: inline-block;
-    box-shadow: inset 2px 3px 5px #000000, 0px 1px 1px #333;
     background-color: #790813;
-    height: 15px;
-    width: 15px;
-    border-radius: 0% 50% 50% 50%;
-    transform: rotate(45deg);
   }
   
   .grid-column {
@@ -708,7 +759,20 @@ async function main() {
     font-weight: bold;
     font-size: 24px;
     color: #790813;
-  }   
+  }
+
+  .image {
+    width: 50px;
+    margin-right: 15px;
+    border: 0;
+  }
+
+  .wrapper-dialog {
+    border-bottom: 2px solid #790813;
+    border-left: 2px solid #790813;
+    border-radius: 0 0 0 10px;
+    margin-bottom: 5px;
+  }
   </style>
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
