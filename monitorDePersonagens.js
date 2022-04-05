@@ -228,36 +228,25 @@ async function main() {
       console.log(touchstonesList);
     });
 
+    let getBloodGiftHtml = (placeholder, bloodGift) => `
+    <div class="label-wrapper">
+        <span class="label-resources resources-placeholder blood-gifts-label">${placeholder}</span>
+        <span class="label-resources blood-gifts-content">${bloodGift}</span>
+    </div>
+    `
+
     let getTooltip = {
       bloodPotency: `
       <div class="tooltip blood-potency" data="${bloodPotencyValue}">
           <i class="bi bi-droplet-fill bi-tooltip"></i>
           <spam class="tooltip-hide-content tooltip-label">${getPlaceholder.bloodPotency}</spam>
           <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.bloodSurge}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.surge}</span>
-              </div>
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.powerBonus}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.power}</span>
-              </div>
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.FeedingPenalty}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.feeding}</span>
-              </div>
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.MendAmount}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.mend}</span>
-              </div>
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label">${getPlaceholder.RouseReRoll}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.rouse}</span>
-              </div>
-              <div class="label-wrapper">
-                  <span class="label-resources resources-placeholder blood-gifts-label" end="true">${getPlaceholder.BaneSeverity}</span>
-                  <span class="label-resources blood-gifts-content">${bloodPotency.bane}</span>
-              </div>
+              ${getBloodGiftHtml(getPlaceholder.bloodSurge,bloodPotency.surge)}
+              ${getBloodGiftHtml(getPlaceholder.powerBonus,bloodPotency.power)}
+              ${getBloodGiftHtml(getPlaceholder.FeedingPenalty,bloodPotency.feeding)}
+              ${getBloodGiftHtml(getPlaceholder.MendAmount,bloodPotency.mend)}
+              ${getBloodGiftHtml(getPlaceholder.RouseReRoll,bloodPotency.rouse)}
+              ${getBloodGiftHtml(getPlaceholder.BaneSeverity,bloodPotency.bane)}
           </div>
       </div>`,
       attributes: `
