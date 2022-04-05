@@ -336,51 +336,63 @@ async function main() {
         </div>
     </div>`;
 
-    healthPoints.innerHTML += `
-        <div class="flexrow">
-          <label class="wrapper-dialog resources-label">${
-            getPlaceholder.health
-          }</label>
-        </div>
-        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
-          health.max
-        }" data-superficial="${health.superficial}" data-aggravated="${
-      health.aggravated
-    }" data-name="data.health">
-            ${healthMarks.map(
-              (mark) =>
-                `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
-            )}
-        </div>`;
-    willpowerPoints.innerHTML += `
-        <div class="flexrow">
-          <label class="wrapper-dialog resources-label">${
-            getPlaceholder.willpower
-          }</label>
-        </div> 
-        <div class="resources-counter" data-states="/:superficial,x:aggravated" data-max="${
-          willpower.max
-        }" data-superficial="${willpower.superficial}" data-aggravated="${
-      willpower.aggravated
-    }" data-name="data.willpower">
-            ${willpowerMarks.map(
-              (mark) =>
-                `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
-            )}
-        </div>`;
+    let getResourcesInnerHtml = (
+      placeholder,
+      classState,
+      dataValue,
+      dataMax,
+      dataStains,
+      dataSuperficial,
+      dataAggravated,
+      dataName,
+      resourceMarks
+    ) => `
+    <div class="flexrow">
+      <label class="wrapper-dialog resources-label">${placeholder}</label>
+    </div>
+    <div class="resources-counter" data-states=${classState} data-value=${dataValue} data-max="${dataMax}" data-stains="${dataStains}" data-superficial="${dataSuperficial}" data-aggravated="${dataAggravated}" data-name=${dataName}>
+      ${resourceMarks.map(
+        (mark) => `
+        <span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
+      )}
+    </div>
+    `;
 
-    humanityPoints.innerHTML += `
-      <div class="flexrow">
-        <label class="resources-label">${getPlaceholder.humanity}</label>
-      </div>
-      <div class="resources-counter" data-states="/:stains,-:value" data-value="${
-        humanity.value
-      }" data-stains="${humanity.stains}"  data-name="data.humanity">
-          ${humanityMarks.map(
-            (mark) =>
-              `<span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
-          )}
-        </div>`;
+    healthPoints.innerHTML += getResourcesInnerHtml(
+      getPlaceholder.health,
+      "/:superficial,x:aggravated",
+      null,
+      health.max,
+      null,
+      health.superficial,
+      health.aggravated,
+      "data.health",
+      healthMarks
+    );
+
+    willpowerPoints.innerHTML += getResourcesInnerHtml(
+      getPlaceholder.willpower,
+      "/:superficial,x:aggravated",
+      null,
+      willpower.max,
+      null,
+      willpower.superficial,
+      willpower.aggravated,
+      "data.willpower",
+      willpowerMarks
+    );
+
+    humanityPoints.innerHTML += getResourcesInnerHtml(
+      getPlaceholder.humanity,
+      "/:stains,-:value",
+      humanity.value,
+      null,
+      humanity.stains,
+      null,
+      null,
+      "data.humanity",
+      humanityMarks
+    );
   }
 
   function composeDialog(actor) {
