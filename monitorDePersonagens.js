@@ -63,6 +63,7 @@ async function main() {
     ),
     bloodPotency: game.i18n.localize("VTM5E.BloodPotency"),
     attributes: game.i18n.localize("VTM5E.Attributes"),
+    skills: game.i18n.localize("VTM5E.Skills"),
     ambition: game.i18n.localize("VTM5E.Ambition"),
     concept: game.i18n.localize("VTM5E.Concept"),
     desire: game.i18n.localize("VTM5E.Desire"),
@@ -75,6 +76,15 @@ async function main() {
     MendAmount: game.i18n.localize("VTM5E.MendAmount"),
     RouseReRoll: game.i18n.localize("VTM5E.RouseReRoll"),
     BaneSeverity: game.i18n.localize("VTM5E.BaneSeverity"),
+    strength: game.i18n.localize("VTM5E.Strength"),
+    charisma: game.i18n.localize("VTM5E.Charisma"),
+    intelligence: game.i18n.localize("VTM5E.Intelligence"),
+    dexterity: game.i18n.localize("VTM5E.Dexterity"),
+    manipulation: game.i18n.localize("VTM5E.Manipulation"),
+    wits: game.i18n.localize("VTM5E.Wits"),
+    stamina: game.i18n.localize("VTM5E.Stamina"),
+    composure: game.i18n.localize("VTM5E.Composure"),
+    resolve: game.i18n.localize("VTM5E.Resolve"),
   };
 
   function getBloodPotencyText(level) {
@@ -172,10 +182,12 @@ async function main() {
   }
 
   function createActorWrapper(actor, resourcesGridWrapper) {
-    let { img: actorImg, data: actorData } = actor;
+    let { id: actorId, img: actorImg, data: actorData } = actor;
     let {
       name: actorName,
       data: {
+        abilities,
+        skills,
         hunger: { value: actorHunger },
         health,
         willpower,
@@ -184,7 +196,6 @@ async function main() {
       },
     } = actorData;
     let bloodPotencyValue = actorData.data.blood.potency;
-
     let bloodPotency = getBloodPotencyText(bloodPotencyValue);
     let headerWrapper = createWrapper("header-wrapper", resourcesGridWrapper);
     let healthPoints = createWrapper(
@@ -216,16 +227,11 @@ async function main() {
 
     let touchstonesList = [];
     decodeTouchstone.replace(regex, (match, p1, p2) => {
-      console.log(match);
-      console.log(p1);
-      console.log(p2);
-
       let img = game.journal.contents.filter(
         (entry) => entry.data.name === p2
       )[0]?.data.img;
       let touchstoneImage = img != undefined ? img : "img";
       touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage });
-      console.log(touchstonesList);
     });
 
     let getBloodGiftHtml = (placeholder, bloodGift) => `
@@ -233,27 +239,80 @@ async function main() {
         <span class="label-resources resources-placeholder blood-gifts-label">${placeholder}</span>
         <span class="label-resources blood-gifts-content">${bloodGift}</span>
     </div>
-    `
+    `;
+
+    function getResourcesActivity(abilityValue) {
+      let activityArray = [];
+      for (let index = 0; index < 5; index++)
+        index < abilityValue
+          ? activityArray.push({ index, active: true })
+          : activityArray.push({ index, active: false });
+      return activityArray;
+    }
+
+    let getStatsInnerHtml = (key, index, value, actorId) => ` 
+    <div class="attribute-resource-wrapper">
+    <span for="data.data.abilities.${key}.value" class="label-resources resources-placeholder attribute-placeholder vrollable" data-id=${actorId} data-roll=${value} data-label=${game.i18n.localize(
+      key
+    )}>${
+      // getPlaceholder[key]
+      game.i18n.localize(key)
+    }</span>
+      <div class="resource-activity" data-value=${index} data-name=${value}>
+        ${getResourcesActivity(value)
+          .map(
+            ({ index: thisIndex, active }) =>
+              `<span class="resource-activity-step" active=${active} data-index=${thisIndex}></span>`
+          )
+          .join("")}
+        </div>
+    </div>`;
 
     let getTooltip = {
       bloodPotency: `
       <div class="tooltip blood-potency" data="${bloodPotencyValue}">
           <i class="bi bi-droplet-fill bi-tooltip"></i>
-          <spam class="tooltip-hide-content tooltip-label">${getPlaceholder.bloodPotency}</spam>
+          <spam class="tooltip-hide-content tooltip-label">${
+            getPlaceholder.bloodPotency
+          }</spam>
           <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
-              ${getBloodGiftHtml(getPlaceholder.bloodSurge,bloodPotency.surge)}
-              ${getBloodGiftHtml(getPlaceholder.powerBonus,bloodPotency.power)}
-              ${getBloodGiftHtml(getPlaceholder.FeedingPenalty,bloodPotency.feeding)}
-              ${getBloodGiftHtml(getPlaceholder.MendAmount,bloodPotency.mend)}
-              ${getBloodGiftHtml(getPlaceholder.RouseReRoll,bloodPotency.rouse)}
-              ${getBloodGiftHtml(getPlaceholder.BaneSeverity,bloodPotency.bane)}
+              ${getBloodGiftHtml(getPlaceholder.bloodSurge, bloodPotency.surge)}
+              ${getBloodGiftHtml(getPlaceholder.powerBonus, bloodPotency.power)}
+              ${getBloodGiftHtml(
+                getPlaceholder.FeedingPenalty,
+                bloodPotency.feeding
+              )}
+              ${getBloodGiftHtml(getPlaceholder.MendAmount, bloodPotency.mend)}
+              ${getBloodGiftHtml(
+                getPlaceholder.RouseReRoll,
+                bloodPotency.rouse
+              )}
+              ${getBloodGiftHtml(
+                getPlaceholder.BaneSeverity,
+                bloodPotency.bane
+              )}
           </div>
       </div>`,
-      attributes: `
-      <div class="tooltip attributes">
-          <i class="bi bi-bookmarks-fill bi-tooltip"></i>
-          <spam class="tooltip-hide-content tooltip-label">${getPlaceholder.attributes}</spam>
-          <div class="wrapper-dialog tooltip-hide-content">
+      attribute: `
+      <div class="tooltip attribute">
+          <i id="image" class="bi bi-bookmarks-fill bi-tooltip"></i>
+          <spam class="tooltip-hide-content tooltip-label">${
+            getPlaceholder.attributes
+          } & ${getPlaceholder.skills}</spam>
+          <div id="attribute-content" class="wrapper-dialog tooltip-hide-content attribute-hide-content">
+                ${Object.keys(abilities)
+                  .map((key, index) => {
+                    let { value: abilityValue } = abilities[key];
+                    return getStatsInnerHtml(key, index, abilityValue, actorId);
+                  })
+                  .join("")}
+                ${Object.keys(skills)
+                  .filter((key) => skills[key].value > 0)
+                  .map((key, index) => {
+                    let { value: skillValue } = skills[key];
+                    return getStatsInnerHtml(key, index, skillValue, actorId);
+                  })
+                  .join("")}
           </div>
       </div>
       `,
@@ -289,7 +348,7 @@ async function main() {
     headerWrapper.innerHTML += `
     <div class="tooltip-image-wrapper">
         <div class="tooltips-wrapper">
-          ${getTooltip.bloodPotency} ${getTooltip.attributes} ${
+          ${getTooltip.bloodPotency} ${getTooltip.attribute} ${
       getTooltip.touchstones
     }
         </div>
@@ -408,6 +467,321 @@ async function main() {
 
   game.user.isGM ? storytellerDialog() : playerDialog();
 
+  _onRollDialog = (event) => {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const dataset = element.dataset;
+    let options = "";
+
+    let { id, roll, label } = dataset;
+
+    let actor = game.actors._source.find((act) => act._id == id);
+
+    let {
+      data: { abilities },
+    } = actor;
+
+    for (const [key, value] of Object.entries(abilities)) {
+      options = options.concat(
+        `<option value="${key}">${game.i18n.localize(value.name)}</option>`
+      );
+    }
+
+    const template = `
+      <form>
+          <div class="form-group">
+              <label>${game.i18n.localize("VTM5E.SelectAbility")}</label>
+              <select id="abilitySelect">${options}</select>
+          </div>  
+          <div class="form-group">
+              <label>${game.i18n.localize("VTM5E.Modifier")}</label>
+              <input type="text" id="inputMod" value="0">
+          </div>  
+          <div class="form-group">
+              <label>${game.i18n.localize("VTM5E.Difficulty")}</label>
+              <input type="text" min="0" id="inputDif" value="0">
+          </div>
+      </form>`;
+
+    async function rollDice(
+      numDice,
+      actor,
+      label = "",
+      difficulty = 0,
+      useHunger = true,
+      increaseHunger = false,
+      subtractWillpower = false
+    ) {
+      let {
+        data: { hunger, willpower },
+      } = actor;
+
+      // Define the actor's current hunger
+      let hungerDice;
+      useHunger
+        ? (hungerDice = Math.min(hunger.value, numDice))
+        : (hungerDice = 0);
+
+      // Roll defining and evaluating
+      const dice = numDice - hungerDice;
+      const roll = new Roll(
+        dice + "dvcs>5 + " + hungerDice + "dhcs>5",
+        actor.data
+      );
+      await roll.evaluate();
+
+      // Variable defining
+      let difficultyResult = "<span></span>";
+      let success = 0;
+      let hungerSuccess = 0;
+      let critSuccess = 0;
+      let hungerCritSuccess = 0;
+      let fail = 0;
+      let hungerFail = 0;
+      let hungerCritFail = 0;
+
+      // Defines the normal diceroll results
+      roll.terms[0].results.forEach((dice) => {
+        dice.success
+          ? dice.result === 10
+            ? critSuccess++
+            : success++
+          : fail++;
+      });
+
+      // Track number of hunger diceroll results
+      roll.terms[2].results.forEach((dice) => {
+        dice.success
+          ? dice.result === 10
+            ? hungerCritSuccess++
+            : hungerSuccess++
+          : dice.result === 1
+          ? hungerCritFail++
+          : hungerFail++;
+      });
+
+      // Success canculating
+      let totalCritSuccess = 0;
+      totalCritSuccess = Math.floor((critSuccess + hungerCritSuccess) / 2);
+      const totalSuccess =
+        totalCritSuccess * 2 +
+        success +
+        hungerSuccess +
+        critSuccess +
+        hungerCritSuccess;
+      let successRoll = false;
+
+      // Get the difficulty result
+      if (difficulty !== 0) {
+        successRoll = totalSuccess >= difficulty;
+        difficultyResult = `( <span class="danger">${game.i18n.localize(
+          "VTM5E.Fail"
+        )}</span> )`;
+        if (successRoll) {
+          difficultyResult = `( <span class="success">${game.i18n.localize(
+            "VTM5E.Success"
+          )}</span> )`;
+        }
+      }
+
+      // Define the contents of the ChatMessage
+      let chatMessage = `<p class="roll-label uppercase">${label}</p>`;
+
+      // Special critical/bestial failure messages
+          
+      if (hungerCritSuccess && totalCritSuccess) {
+        chatMessage =
+          chatMessage +
+          `<p class="roll-content result-critical result-messy">${game.i18n.localize(
+            "VTM5E.MessyCritical"
+          )}</p>`;
+      } else if (totalCritSuccess) {
+        chatMessage =
+          chatMessage +
+          `<p class="roll-content result-critical">${game.i18n.localize(
+            "VTM5E.CriticalSuccess"
+          )}</p>`;
+      }
+      if (hungerCritFail && !successRoll && difficulty > 0) {
+        chatMessage =
+          chatMessage +
+          `<p class="roll-content result-bestial">${game.i18n.localize(
+            "VTM5E.BestialFailure"
+          )}</p>`;
+      }
+      if (hungerCritFail && !successRoll && difficulty === 0) {
+        chatMessage =
+          chatMessage +
+          `<p class="roll-content result-bestial result-possible">${game.i18n.localize(
+            "VTM5E.PossibleBestialFailure"
+          )}</p>`;
+      }
+
+      // Total number of successes
+      chatMessage =
+        chatMessage +
+        `<p class="roll-label result-success">${game.i18n.localize(
+          "VTM5E.Successes"
+        )}: ${totalSuccess} ${difficultyResult}</p>`;
+
+      // Run through displaying the normal dice
+      for (let i = 0, j = critSuccess; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/normal-crit.png" alt="Normal Crit" class="roll-img normal-dice" />';
+      }
+      for (let i = 0, j = success; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/normal-success.png" alt="Normal Success" class="roll-img normal-dice" />';
+      }
+      for (let i = 0, j = fail; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/normal-fail.png" alt="Normal Fail" class="roll-img normal-dice" />';
+      }
+
+      // Separator
+      chatMessage = chatMessage + "<br>";
+
+      // Run through displaying hunger dice
+      for (let i = 0, j = hungerCritSuccess; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/red-crit.png" alt="Hunger Crit" class="roll-img hunger-dice" />';
+      }
+      for (let i = 0, j = hungerSuccess; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/red-success.png" alt="Hunger Success" class="roll-img hunger-dice" />';
+      }
+      for (let i = 0, j = hungerCritFail; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/bestial-fail.png" alt="Bestial Fail" class="roll-img hunger-dice" />';
+      }
+      for (let i = 0, j = hungerFail; i < j; i++) {
+        chatMessage =
+          chatMessage +
+          '<img src="systems/vtm5e/assets/images/red-fail.png" alt="Hunger Fail" class="roll-img hunger-dice" />';
+      }
+
+      // Post the message to the chat
+      roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor: actor }),
+        content: chatMessage,
+      });
+
+      // Automatically add hunger to the actor on a failure (for rouse checks)
+      if (increaseHunger && game.settings.get("vtm5e", "automatedRouse")) {
+        // Check if the roll failed (matters for discipline
+        // power-based rouse checks that roll 2 dice instead of 1)
+        if (
+          (difficulty === 0 && totalSuccess === 0) ||
+          totalSuccess < difficulty
+        ) {
+          const actorHunger = hunger.value;
+
+          // If hunger is greater than 4 (5, or somehow higher)
+          // then display that in the chat and don't increase hunger
+          if (actorHunger > 4) {
+            roll.toMessage({
+              speaker: ChatMessage.getSpeaker({ actor: actor }),
+              content: game.i18n.localize("VTM5E.HungerFull"),
+            });
+          } else {
+            // Define the new number of hunger points
+            const newHunger = hunger.value + 1;
+
+            // Push it to the actor's sheet
+            actor.update({ "data.hunger.value": newHunger });
+          }
+        }
+      }
+
+      // Automatically track willpower damage as a result of willpower rerolls
+      if (
+        subtractWillpower &&
+        game.settings.get("vtm5e", "automatedWillpower")
+      ) {
+        // Get the actor's willpower and define it for convenience
+        const actorWillpower = willpower;
+        const maxWillpower = actorWillpower.max;
+        const aggrWillpower = actorWillpower.aggravated;
+        const superWillpower = actorWillpower.superficial;
+
+        // If the willpower boxes are fully ticked with aggravated damage
+        // then tell the chat and don't increase any values.
+        if (aggrWillpower >= maxWillpower) {
+          roll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: actor }),
+            content: game.i18n.localize("VTM5E.WillpowerFull"),
+          });
+        } else {
+          // If the superficial willpower ticket isn't completely full, then add a point
+          if (superWillpower + aggrWillpower < maxWillpower) {
+            // If there are still superficial willpower boxes to tick, add it here
+
+            // Define the new number of superficial willpower damage
+            const newWillpower = superWillpower + 1;
+
+            // Update the actor sheet
+            actor.update({ "data.willpower.superficial": newWillpower });
+          } else {
+            // If there aren't any superficial boxes left, add an aggravated one
+
+            // Define the new number of aggravated willpower damage
+            // Superficial damage needs to be subtracted by 1 each time
+            // a point of aggravated is added
+            const newSuperWillpower = superWillpower - 1;
+            const newAggrWillpower = aggrWillpower + 1;
+
+            // Update the actor sheet
+            actor.update({ "data.willpower.superficial": newSuperWillpower });
+            actor.update({ "data.willpower.aggravated": newAggrWillpower });
+          }
+        }
+      }
+    }
+
+    let buttons = {};
+    buttons = {
+      draw: {
+        icon: '<i class="fas fa-check"></i>',
+        label: game.i18n.localize("VTM5E.Roll"),
+        callback: async (html) => {
+          const ability = html.find("#abilitySelect")[0].value;
+          const modifier = parseInt(html.find("#inputMod")[0].value || 0);
+          const difficulty = parseInt(html.find("#inputDif")[0].value || 0);
+          const abilityVal = abilities[ability].value;
+          const abilityName = game.i18n.localize(abilities[ability].name);
+          const numDice = abilityVal + parseInt(dataset.roll) + modifier;
+
+          rollDice(
+            numDice,
+            actor,
+            `${dataset.label} + ${abilityName}`,
+            difficulty,
+            true
+          );
+
+          // this._vampireRoll(numDice, this.actor, `${dataset.label} + ${abilityName}`, difficulty)
+        },
+      },
+      cancel: {
+        icon: '<i class="fas fa-times"></i>',
+        label: game.i18n.localize("VTM5E.Cancel"),
+      },
+    };
+
+    new Dialog({
+      title: game.i18n.localize("VTM5E.Rolling") + ` ${dataset.label}...`,
+      content: template,
+      buttons: buttons,
+      default: "draw",
+    }).render(true);
+  };
+
   let content = `
   <style>
   .tooltip-image-wrapper {
@@ -415,6 +789,7 @@ async function main() {
     width:70px;
     height:100%;
   }
+
   .actor-image {
     position:absolute;
     top: 50%;  /* position the top  edge of the element at the middle of the parent */
@@ -458,11 +833,9 @@ async function main() {
     font-size: 12px;
     font-weight:bold;
     color: #D8D6CA;
-    // box-shadow: inset 2px 3px 5px #000000, 0px 2px 2px #ccc;
     background-color:#790813;
     padding: 2px 5px;
     border-radius:5px 5px 0 0;
-
     top: -6px;
     left:50px;
   }
@@ -471,7 +844,7 @@ async function main() {
     visibility: visible;
     opacity:1;
   }
-  
+
   .touchstones-body {
     background-color: rgba(224, 221, 212,0.8);
   }
@@ -525,9 +898,6 @@ async function main() {
 
   .touchstones {
     left: 7px;
-  }
-  .attributes {
-    left: 24px;
   }
 
   .bi {
@@ -608,6 +978,40 @@ async function main() {
     width: 30%;
   }
 
+  .attribute {
+    left: 24px;
+  }
+
+  .break {
+    flex-basis: 100%;
+    height: 0;
+  }
+ 
+  .attribute-hide-content {
+    overflow-x: scroll;
+    display:flex;
+    flex-wrap: wrap;
+    align-content: space-between;
+    height: 190px;
+    width: 355px;
+    flex-direction:column;
+    border-top:2px solid #790813;
+    background-color: rgba(58,41,42,0.8);
+  }
+
+  .attribute-resource-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 160px;
+  }
+
+  .attribute-placeholder {
+    border-top: 2px solid rgba(58,41,42,0.8);
+    padding-left:2px;
+    margin-right:3px;
+    width:53%;
+  }
+  
   .resources-placeholder[end="true"] {
     border-radius: 0 0 0 12%;
   }
@@ -774,11 +1178,71 @@ async function main() {
     border-radius: 0 0 0 10px;
     margin-bottom: 5px;
   }
+  .resource-activity {
+  }
+
+  .resource-activity-step {
+    height: 14px;
+    width: 14px;
+    display: inline-block;
+    margin-top: 2px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: inset 2px 3px 5px #000000, 0px 1px 1px #333;
+  }
+
+  .resource-activity-step[active="false"] {
+  }
+
+  .resource-activity-step[active="true"] {
+    background-color: #790813;
+  }
+  
+  .resource-activity-empty {
+    height: 14px;
+    width: 14px;
+    border: 1px solid black;
+    display: inline-block;
+    border-radius: 50%;
+    cursor: pointer;
+    background:
+      linear-gradient(
+        45deg,
+        transparent 0%,
+        transparent 43%,
+        black 45%,
+        black 55%,
+        transparent 57%,
+        transparent 100%
+      ),
+      linear-gradient(
+        135deg,
+        transparent 0%,
+        transparent 43%,
+        black 45%,
+        black 55%,
+        transparent 57%,
+        transparent 100%
+      );
+  }
+
   </style>
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
     <script>
       document.getElementById('monitor-container').appendChild(div);
+      
+      $('.attribute').hover(function(){
+        var hideAttribute = $(this).find(".attribute-hide-content")[0]; // to fetch current current attribute-hide-content
+        hideAttribute.addEventListener("wheel", (evt) => {
+          evt.preventDefault();
+          hideAttribute.scrollLeft += evt.deltaY;
+        });
+      })
+
+      $('.attribute-placeholder').click(() => _onRollDialog(event))
+
     </script>
   </head>
   <h1 class="header-label">Characters Monitor</h1>
@@ -786,11 +1250,15 @@ async function main() {
       <div id="monitor-container" class="body-fields"></div>
   </body>
   `;
+
   let dialog = new Dialog({
+    allowMaximize: true,
+    width: 600,
     title: "Monitor",
     content,
     buttons: {},
   });
+
   const conteiner = document.getElementById("monitor-container");
 
   if (!conteiner) dialog.render(true);
