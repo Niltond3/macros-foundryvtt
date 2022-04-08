@@ -1,6 +1,9 @@
-node_modules
 .husky
+node_modules
+.editorconfig
+.eslintrc.json
+.prettierrc.js
 commitlint.config.js
+foundry.js
 package.json
 yarn.lock
-.prettierrc
