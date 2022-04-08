@@ -1,8 +1,5 @@
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-undef */
 main()
-//fome com bug que impede de rolagens acontecerem pra o personagem
-//dice hunger wrapper "<a></a>" accessible even icon hidden
+//! when macro hunger update sheet block ever onClick event on macro for that actor
 
 async function main() {
   div = document.createElement('div')
