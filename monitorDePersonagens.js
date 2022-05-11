@@ -3,89 +3,56 @@ main()
 async function main() {
   div = document.createElement('div')
 
-  const getResourceState = {
-    heathWillpower: (element, index) =>
-      element.superficial > 0 && element.superficial !== index && index < element.superficial
-        ? { dataIndex: index, dataState: '/' }
-        : element.aggravated > 0 &&
-          element.superficial + element.aggravated !== index &&
-          index < element.superficial + element.aggravated
-        ? { dataIndex: index, dataState: 'x' }
-        : { dataIndex: index, dataState: '' },
-    humanity: (element, index) =>
-      element.value > index
-        ? { dataIndex: index, dataState: '-' }
-        : element.stains > 0 && element.value + element.stains !== index && index < element.value + element.stains
-        ? { dataIndex: index, dataState: '/' }
-        : { dataIndex: index, dataState: '' },
-    hunger: (actorResource, index) =>
-      index < actorResource ? { dataIndex: index, dataState: true } : { dataIndex: index, dataState: false }
-  }
-
-  function createResourceList(resourceState, actorResource) {
-    const resourceList = []
-    const count = resourceState === 'heathWillpower' ? actorResource.max : resourceState === 'humanity' ? 10 : 5
-    for (let index = 0; index < count; index++) resourceList.push(getResourceState[resourceState](actorResource, index))
-    return resourceList
-  }
-
-  const getResourceList = {
-    heathWillpower: actorResource => createResourceList('heathWillpower', actorResource),
-    humanity: actorResource => createResourceList('humanity', actorResource),
-    hunger: actorResource => createResourceList('hunger', actorResource)
-  }
-
-  function createWrapper(className, resourcesGridWrapper) {
-    const wrapper = document.createElement('div')
-    wrapper.className = className
-    resourcesGridWrapper.appendChild(wrapper)
-    return wrapper
-  }
-
-  const getPlaceholder = {
-    rouse: game.i18n.localize('VTM5E.RollRouse'),
-    frenzy: game.i18n.localize('VTM5E.RollFrenzy'),
-    remorse: game.i18n.localize('VTM5E.RollRemorse'),
-    roll: game.i18n.localize('VTM5E.Roll'),
-    touchstonesAndConvictions: game.i18n.localize('VTM5E.TouchstonesAndConvictions'),
-    bloodPotency: game.i18n.localize('VTM5E.BloodPotency'),
-    attributes: game.i18n.localize('VTM5E.Attributes'),
-    skills: game.i18n.localize('VTM5E.Skills'),
+  const getLanguage = {
     ambition: game.i18n.localize('VTM5E.Ambition'),
+    attributes: game.i18n.localize('VTM5E.Attributes'),
+    baneSeverity: game.i18n.localize('VTM5E.BaneSeverity'),
+    bloodPotency: game.i18n.localize('VTM5E.BloodPotency'),
+    bloodSurge: game.i18n.localize('VTM5E.BloodSurge'),
     concept: game.i18n.localize('VTM5E.Concept'),
     desire: game.i18n.localize('VTM5E.Desire'),
-    health: game.i18n.localize('VTM5E.Health'),
-    willpower: game.i18n.localize('VTM5E.Willpower'),
-    humanity: game.i18n.localize('VTM5E.Humanity'),
-    bloodSurge: game.i18n.localize('VTM5E.BloodSurge'),
-    powerBonus: game.i18n.localize('VTM5E.PowerBonus'),
+    disciplines: game.i18n.localize('VTM5E.Disciplines'),
+    exp: game.i18n.localize('VTM5E.Exp'),
+    features: game.i18n.localize('VTM5E.Features'),
     FeedingPenalty: game.i18n.localize('VTM5E.FeedingPenalty'),
-    MendAmount: game.i18n.localize('VTM5E.MendAmount'),
-    RouseReRoll: game.i18n.localize('VTM5E.RouseReRoll'),
-    BaneSeverity: game.i18n.localize('VTM5E.BaneSeverity'),
-    strength: game.i18n.localize('VTM5E.Strength'),
-    charisma: game.i18n.localize('VTM5E.Charisma'),
+    frenzy: game.i18n.localize('VTM5E.Frenzy'),
+    health: game.i18n.localize('VTM5E.Health'),
+    humanity: game.i18n.localize('VTM5E.Humanity'),
+    hunger: game.i18n.localize('VTM5E.Hunger'),
+    hunting: game.i18n.lang === 'en' ? 'Hunting' : 'Caça',
     intelligence: game.i18n.localize('VTM5E.Intelligence'),
-    dexterity: game.i18n.localize('VTM5E.Dexterity'),
     manipulation: game.i18n.localize('VTM5E.Manipulation'),
-    wits: game.i18n.localize('VTM5E.Wits'),
-    stamina: game.i18n.localize('VTM5E.Stamina'),
-    composure: game.i18n.localize('VTM5E.Composure'),
-    resolve: game.i18n.localize('VTM5E.Resolve')
+    mendAmount: game.i18n.localize('VTM5E.MendAmount'),
+    openSheet: game.i18n.lang === 'en' ? 'Open Sheet' : 'Abrir Ficha',
+    powerBonus: game.i18n.localize('VTM5E.PowerBonus'),
+    predator: game.i18n.localize('VTM5E.Predator'),
+    remorse: game.i18n.localize('VTM5E.RollRemorse'),
+    resolve: game.i18n.localize('VTM5E.Resolve'),
+    roll: game.i18n.localize('VTM5E.Roll'),
+    rollFrenzy: game.i18n.localize('VTM5E.RollFrenzy'),
+    rollHunting: game.i18n.lang === 'en' ? 'Roll Hunting Check' : 'Rolar teste de caça',
+    rollWillpower: game.i18n.localize('VTM5E.RollWillpower'),
+    rouse: game.i18n.localize('VTM5E.RollRouse'),
+    rouseReRoll: game.i18n.localize('VTM5E.RouseReRoll'),
+    skills: game.i18n.localize('VTM5E.Skills'),
+    touchstonesAndConvictions: game.i18n.localize('VTM5E.TouchstonesAndConvictions'),
+    willpower: game.i18n.localize('VTM5E.Willpower'),
+    rollingRemorse: game.i18n.localize('VTM5E.RollingRemorse'),
+    resistingFrenzy: game.i18n.localize('VTM5E.ResistingFrenzy'),
+    rollingWillpower: game.i18n.localize('VTM5E.RollingWillpower'),
+    rolling: game.i18n.localize('VTM5E.Rolling'),
+    cancel: game.i18n.localize('VTM5E.Cancel'),
+    difficulty: game.i18n.localize('VTM5E.Difficulty'),
+    selectAbility: game.i18n.localize('VTM5E.SelectAbility'),
+    selectSkill: game.i18n.lang === 'en' ? 'Select Skill' : 'Escolher Habilidade',
+    modifier: game.i18n.localize('VTM5E.Modifier'),
+    merit: game.i18n.localize('VTM5E.Merit'),
+    flaw: game.i18n.localize('VTM5E.Flaw'),
+    background: game.i18n.localize('VTM5E.Background'),
+    abilities: game.i18n.localize('VTM5E.Abilities')
   }
 
-  /**
-   * It returns an object with the text for each of the Blood Potency effects
-   * @param level - The level of Blood Potency.
-   * @returns An object with the following properties:
-   *   surge: A string with the text for the surge effect
-   *   mend: A string with the text for the mend effect
-   *   power: A string with the text for the power effect
-   *   rouse: A string with the text for the rouse effect
-   *   bane: A string with the text for the bane effect
-   *   feeding: A string with the text for the feeding effect
-   */
-  function getBloodPotencyText(level) {
+  function getBloodPotency(level) {
     const BLOOD_POTENCY_TEXT = [
       {
         surge: game.i18n.localize('VTM5E.Add1Dice'),
@@ -176,76 +143,1189 @@ async function main() {
         feeding: game.i18n.localize('VTM5E.FeedingPenalty7')
       }
     ]
-    return BLOOD_POTENCY_TEXT[level]
+    const BLOOD_POTENCY_VALUE = [
+      {
+        surge: 1,
+        power: 0,
+        rouse: 0
+      },
+      {
+        surge: 2,
+        power: 0,
+        rouse: 1
+      },
+      {
+        surge: 2,
+        power: 1,
+        rouse: 1
+      },
+      {
+        surge: 3,
+        power: 1,
+        rouse: 2
+      },
+      {
+        surge: 3,
+        power: 2,
+        rouse: 2
+      },
+      {
+        surge: 4,
+        power: 2,
+        rouse: 3
+      },
+      {
+        surge: 4,
+        power: 3,
+        rouse: 3
+      },
+      {
+        surge: 5,
+        power: 3,
+        rouse: 4
+      },
+      {
+        surge: 5,
+        power: 4,
+        rouse: 4
+      },
+      {
+        surge: 6,
+        power: 4,
+        rouse: 5
+      },
+      {
+        surge: 6,
+        power: 5,
+        rouse: 5
+      }
+    ]
+
+    return {
+      text: BLOOD_POTENCY_TEXT[level],
+      value: BLOOD_POTENCY_VALUE[level]
+    }
   }
 
-  /**
-   * It takes an actor and a wrapper, and creates a wrapper for the actor's resources, and then creates
-   * the HTML for the actor's resources
-   * @param actor - The actor object
-   * @param resourcesGridWrapper - The wrapper that will contain the resources.
-   */
-  function createActorWrapper(actor, resourcesGridWrapper) {
-    const { id: actorId, img: actorImg, data: actorData } = actor
-    const {
-      name: actorName,
-      items,
-      data: {
+  window._handleMouseEvents = event => {
+    const { currentTarget } = event
+
+    const { dataset, parentNode } = currentTarget
+
+    if (dataset.id) {
+      const actor = game.actors.find(act => act.id === dataset.id)
+      const { items } = actor.data
+      const {
+        exp,
         abilities,
         skills,
-        hunger: { value: actorHunger },
-        health,
-        willpower,
-        humanity,
-        disciplines,
-        headers
+        hunger: { value: hungerValue },
+        willpower: { aggravated, max, superficial },
+        humanity: { value: humanityValue, stains },
+        blood: { potency },
+        headers: { predator }
+      } = actor.data.data
+
+      const { power, surge } = getBloodPotency(potency).value
+
+      const _rollDice = async (
+        numDice,
+        label = '',
+        difficulty = 0,
+        useHunger = true,
+        increaseHunger = false,
+        subtractWillpower = false,
+        changeHumanity = false
+      ) => {
+        // Define the actor's current hunger
+        let hungerDice
+        useHunger ? (hungerDice = Math.min(hungerValue, numDice)) : (hungerDice = 0)
+
+        // Roll defining and evaluating
+        const dice = numDice - hungerDice
+        const roll = new Roll(`${dice}dvcs>5 + ${hungerDice}dhcs>5`, actor.data.data)
+        await roll.evaluate()
+
+        // Variable defining
+        let difficultyResult = '<span></span>'
+        let success = 0
+        let hungerSuccess = 0
+        let critSuccess = 0
+        let hungerCritSuccess = 0
+        let fail = 0
+        let hungerFail = 0
+        let hungerCritFail = 0
+
+        // Defines the normal dice roll results
+        roll.terms[0].results.forEach(thisDice => {
+          if (!thisDice.success) return fail++
+          if (thisDice.result === 10) return critSuccess++
+          success++
+        })
+
+        // Track number of hunger diceroll results
+        roll.terms[2].results.forEach(thisDice => {
+          if (!thisDice.success && thisDice.result === 1) return hungerCritFail++
+          if (!thisDice.success) return hungerFail++
+          if (thisDice.result === 10) return hungerCritSuccess++
+          hungerSuccess++
+        })
+
+        // Success calculating
+        let totalCritSuccess = 0
+        totalCritSuccess = Math.floor((critSuccess + hungerCritSuccess) / 2)
+        const totalSuccess = totalCritSuccess * 2 + success + hungerSuccess + critSuccess + hungerCritSuccess
+        let successRoll = false
+
+        // Get the difficulty result
+        if (difficulty !== 0) {
+          successRoll = totalSuccess >= difficulty
+          difficultyResult = `( <span class="danger">${game.i18n.localize('VTM5E.Fail')}</span> )`
+          if (successRoll) {
+            difficultyResult = `( <span class="success">${game.i18n.localize('VTM5E.Success')}</span> )`
+          }
+        }
+
+        // Define the contents of the ChatMessage
+        let chatMessage = `<p class="roll-label uppercase">${label}</p>`
+
+        // Special critical/bestial failure messages
+        ;(() => {
+          if (hungerCritFail && !successRoll && difficulty === 0)
+            return (chatMessage += `<p class="roll-content result-bestial result-possible">${game.i18n.localize(
+              'VTM5E.PossibleBestialFailure'
+            )}</p>`)
+
+          if (hungerCritFail && !successRoll && difficulty > 0)
+            return (chatMessage += `<p class="roll-content result-bestial">${game.i18n.localize(
+              'VTM5E.BestialFailure'
+            )}</p>`)
+
+          if (!(hungerCritSuccess && totalCritSuccess) && totalCritSuccess)
+            return (chatMessage += `<p class="roll-content result-critical">${game.i18n.localize(
+              'VTM5E.CriticalSuccess'
+            )}</p>`)
+
+          if (hungerCritSuccess && totalCritSuccess)
+            chatMessage += `<p class="roll-content result-critical result-messy">${game.i18n.localize(
+              'VTM5E.MessyCritical'
+            )}</p>`
+        })()
+
+        // Total number of successes
+        chatMessage += `<p class="roll-label result-success">${game.i18n.localize(
+          'VTM5E.Successes'
+        )}: ${totalSuccess} ${difficultyResult}</p>`
+
+        // Run through displaying the normal dice
+        function displayDice(iterator, diceImg, htmlAlt, diceType) {
+          for (let i = 0, j = iterator; i < j; i++) {
+            chatMessage += `<img src="systems/vtm5e/assets/images/${diceImg}.png" alt=${htmlAlt} class="roll-img ${diceType}" />`
+          }
+        }
+        displayDice(critSuccess, 'normal-crit', 'normal Crit', 'normal-dice')
+        displayDice(success, 'normal-success', 'normal Success', 'normal-dice')
+        displayDice(fail, 'normal-fail', 'normal Fail', 'normal-dice')
+
+        // Separator
+        chatMessage += '<br>'
+
+        // Run through displaying hunger dice
+        displayDice(hungerCritSuccess, 'red-crit', 'Hunger Cri', 'hunger-dice')
+        displayDice(hungerSuccess, 'red-success', 'Hunger Success', 'hunger-dice')
+        displayDice(hungerCritFail, 'bestial-fail', 'Bestial Fail', 'hunger-dice')
+        displayDice(hungerFail, 'red-fail', 'Hunger Fail', 'hunger-dice')
+
+        // Post the message to the chat
+        roll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          content: chatMessage
+        })
+        // Automatically add hunger to the actor on a failure (for rouse checks)
+        if (increaseHunger && game.settings.get('vtm5e', 'automatedRouse')) {
+          // Check if the roll failed (matters for discipline
+          // power-based rouse checks that roll 2 dice instead of 1)
+          if ((difficulty === 0 && totalSuccess === 0) || totalSuccess < difficulty) {
+            // If hunger is greater than 4 (5, or somehow higher)
+            // then display that in the chat and don't increase hunger
+            if (hungerValue > 4) {
+              roll.toMessage({
+                speaker: ChatMessage.getSpeaker({ actor }),
+                content: game.i18n.localize('VTM5E.HungerFull')
+              })
+            } else {
+              // Define the new number of hunger points
+              const newHunger = hungerValue + 1
+
+              // Push it to the actor's sheet
+              actor.update({ 'data.hunger.value': newHunger })
+            }
+          }
+        }
+
+        if (changeHumanity) {
+          if (totalSuccess >= difficulty) return actor.update({ 'data.humanity.stains': 0 })
+          const newHumanity = humanity.value - 1
+          actor.update({ 'data.humanity.stains': 0 })
+          actor.update({ 'data.humanity.value': newHumanity })
+        }
+
+        // Automatically track willpower damage as a result of willpower rerolls
+        ;(() => {
+          if (subtractWillpower && game.settings.get('vtm5e', 'automatedWillpower')) {
+            // If the willpower boxes are fully ticked with aggravated damage
+            // then tell the chat and don't increase any values.
+            if (aggravated >= max)
+              return roll.toMessage({
+                speaker: ChatMessage.getSpeaker({ actor }),
+                content: game.i18n.localize('VTM5E.WillpowerFull')
+              })
+            if (superficial + aggravated < max) {
+              // If there are still superficial willpower boxes to tick, add it here
+
+              // Define the new number of superficial willpower damage
+              const newWillpower = superficial + 1
+
+              // Update the actor sheet
+              actor.update({ 'data.willpower.superficial': newWillpower })
+              return
+            }
+            // If there aren't any superficial boxes left, add an aggravated one
+
+            // Define the new number of aggravated willpower damage
+            // Superficial damage needs to be subtracted by 1 each time
+            // a point of aggravated is added
+            const newSuperWillpower = superficial - 1
+            const newAggrWillpower = aggravated + 1
+
+            // Update the actor sheet
+            actor.update({ 'data.willpower.superficial': newSuperWillpower })
+            actor.update({ 'data.willpower.aggravated': newAggrWillpower })
+          }
+        })()
       }
-    } = actorData
-    const { touchstones } = headers
+      const getSelector = (condition, object, label, selectId, className, objectKey) => {
+        let selector = ''
+        if (condition) {
+          let options = '<option value="">👁</option>'
+          for (const [key, value] of Object.entries(object))
+            options = options.concat(`<option value="${key}">${game.i18n.localize(value.name)}</option>`)
+          selector = `
+            <div class="form-group">
+              <label>${label}</label>
+              <select id="${selectId}" onchange="setRollCircleStep('${selectId}',${className}, ${objectKey})">
+                ${options}
+              </select>
+            </div>
+          `
+        }
 
-    const bloodPotencyValue = actorData.data.blood.potency
+        return selector
+      }
+      const rollDialog = (
+        titleLabel = '',
+        callback = {
+          header: '',
+          formGroups: '',
+          onRollCallback: () => ({ rouses: 0, addDices: [], rollLabel: '' })
+        },
+        rollLabel = { label: '', numDices: 0 },
+        isPowerBonus = false,
+        isAbilities = false,
+        isSkills = false
+      ) => {
+        const { header, formGroups, onRollCallback } = callback
+        const skillsSelector = getSelector(
+          isSkills,
+          skills,
+          getLanguage.selectSkill,
+          'skillSelect',
+          'roll-skill',
+          'skills'
+        )
+        const abilitiesSelector = getSelector(
+          isAbilities,
+          abilities,
+          getLanguage.selectAbility,
+          'abilitySelect',
+          'roll-ability',
+          'abilities'
+        )
+        window.getNumMarks = (numLoop, dataState = '-') => {
+          const marks = []
+          for (let index = 0; index < numLoop; index++) {
+            marks.push(htmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, dataState, 'circle'))
+          }
+          return marks.join('')
+        }
+        const getRollDices = () => `
+            <script>
+              $(document).ready(() => {
+                const numMarks = getNumMarks(${rollLabel.numDices})
+                const rollDicesValue = document.querySelector('#roll-dices-value')
+                rollDicesValue.innerHTML = numMarks
+              })
+            </script>
+            <style>
+              .wrapper-discipline-roll-dices {
+                display: flex;
+                transition: all 0.3s ease-in-out;
+              }
+              .wrapper-discipline-roll-dices div {
+                padding: 2px;
+                border-radius: 5px;
+                min-width: min-content;
+                transition: all 0.3s ease-in-out;
+              }
+            </style>
+            <div class="wrapper-discipline-roll-dices">
+              ${
+                isPowerBonus && power !== 0
+                  ? `<div class='title' data-title='${getLanguage.powerBonus}'>${getNumMarks(power)}</div>`
+                  : ''
+              }
+              <div class="title" data-title="${rollLabel.label}" id="roll-dices-value"></div>
+              <div class="title" data-title="${getLanguage.bloodSurge}" id="surge-dice-value"></div>
+              <div class="title" data-title="${getLanguage.modifier}" id="modifier-dice-value"></div>
+            </div>
+          `
+        getNewNumDices = dices => getNumMarks(rollLabel.numDices + dices)
 
-    const bloodPotency = getBloodPotencyText(bloodPotencyValue)
+        setRollCircleStep = (idSelect, className, objectKey) => {
+          const getStatValue = key =>
+            abilities[key] ? abilities[key] : skills[key] ? skills[key] : { name: '', value: 0 }
 
-    const headerWrapper = createWrapper('header-wrapper', resourcesGridWrapper)
-    const healthPoints = createWrapper('wrapper health-wrapper', resourcesGridWrapper)
-    const willpowerPoints = createWrapper('wrapper willpower-wrapper', resourcesGridWrapper)
-    const humanityPoints = createWrapper('wrapper humanity-wrapper', resourcesGridWrapper)
-    const featureWrapper = createWrapper('feature-wrapper hidden-content', resourcesGridWrapper)
+          const test = actor.data.data[objectKey]
 
-    const hungerMarks = getResourceList.hunger(actorHunger)
-    const healthMarks = getResourceList.heathWillpower(health)
-    const willpowerMarks = getResourceList.heathWillpower(willpower)
-    const humanityMarks = getResourceList.humanity(humanity)
+          console.log(test)
 
-    const actorDisciplines = Object.fromEntries(Object.entries(disciplines).filter(([, value]) => value.visible))
-    const actorPowers = items.filter(item => item.type === 'power')
+          if ($(`.${className}`)[0] === undefined) {
+            const wrapper = document.createElement('div')
+            wrapper.className = `${className} title`
+            $('.wrapper-discipline-roll-dices').prepend(wrapper)
+          }
 
-    Object.keys(actorDisciplines).forEach(discipline => {
-      actorDisciplines[discipline].powers = actorPowers.filter(power =>
-        actorDisciplines[discipline].name.toLowerCase().includes(power.data.data.discipline)
-      )
-    })
+          const circleWrapper = $(`.${className}`)
+          const resourceSelector = document.getElementById(idSelect).value
 
-    /**
-     * It takes a string, creates a new DOMParser, parses the string as HTML, and returns the text content
-     * of the document element
-     * @param input - The string to be decoded.
-     * @returns the text content of the document element.
-     */
-    function htmlDecode(input) {
-      const doc = new DOMParser().parseFromString(input, 'text/html')
-      return doc.documentElement.textContent
+          const { value, name } = getStatValue(resourceSelector)
+
+          console.log(abilities)
+          console.log(skills)
+          console.log(items._source.filter(item => item.type === 'feature'))
+
+          circleWrapper.prop('dataset').title = `${game.i18n.localize(name)}`
+          circleWrapper.css('margin-right', '5px')
+
+          circleWrapper[0].innerHTML = getNewNumDices(parseInt(value, 10))
+
+          $('.predator-wrapper :radio[name="radio-predator"]:checked')
+        }
+
+        const content = `
+          <script>
+            $(document).ready(() => {
+              const inputSurge = $('#inputSurge')
+              const inputMod = $('#inputMod')
+              const modifierDiceValue = document.getElementById('modifier-dice-value')
+              inputSurge.click(() => {
+                if (inputSurge.prop('checked')) {
+                  document.getElementById('surge-dice-value').innerHTML = getNumMarks(${surge})
+                  return
+                }
+                document.getElementById('surge-dice-value').innerHTML = ''
+              })
+              selectResourceChange = (event) => {
+                const { currentTarget } = event
+                const { dataset, parentNode } = currentTarget
+
+                console.log(currentTarget.value)
+
+                console.log(dataset)
+              }
+              inputMod.on('keyup', () => {
+                const value = parseInt(inputMod.prop('value') || 0, 10)
+                if (value != 0) {
+                  if (value < 0) {
+                    modifierDiceValue.innerHTML = getNumMarks(Math.abs(value), ${false})
+                    $('#modifier-dice-value .resources-counter-step').addClass('subtract-value')
+                    return
+                  }
+                  modifierDiceValue.innerHTML = getNumMarks(Math.abs(value))
+                  return
+                }
+                modifierDiceValue.innerHTML = ''
+              })
+
+              if (${isSkills}) setRollCircleStep('skillSelect', 'dice-skill', skills)
+              if (${isAbilities}) setRollCircleStep('abilitySelect', 'dice-ability', abilities)
+            })
+          </script>
+          <form id='roll-dialog'>
+            ${header !== undefined ? header : ''}
+            <div class="form-group">
+              <label>${getLanguage.bloodSurge}?</label>
+              <input type="checkbox" id="inputSurge" value="0" />
+            </div>
+            ${formGroups !== undefined ? formGroups : ''} ${abilitiesSelector} ${skillsSelector}
+            <div class="form-group">
+              <label>${getLanguage.modifier}</label>
+              <input type="text" id="inputMod" value="0" />
+            </div>
+            <div class="form-group">
+              <label>${getLanguage.difficulty}</label>
+              <input type="text" min="0" id="inputDif" value="0" />
+            </div>
+            <div class="form-group" id="form-roll">
+              <label>${getLanguage.roll}</label>
+              ${getRollDices()}
+            </div>
+          </form>
+        `
+        const buttons = {
+          draw: {
+            icon: '<i class="fas fa-check"></i>',
+            label: getLanguage.roll,
+            callback: async html => {
+              const getHtmlValue = id => html.find(id)[0].value
+
+              const getElement = (condition, id, object) => {
+                if (condition) {
+                  const value = getHtmlValue(id)
+                  if (value === '')
+                    return {
+                      label: '',
+                      value: 0
+                    }
+                  return {
+                    label: ` + ${game.i18n.localize(object[value].name)}`,
+                    value: object[value].value
+                  }
+                }
+                return {
+                  label: '',
+                  value: 0
+                }
+              }
+
+              const { label: abilityLabel, value: abilityValue } = getElement(isAbilities, '#abilitySelect', abilities)
+              const { label: skillLabel, value: skillValue } = getElement(isSkills, '#skillSelect', skills)
+
+              // const modifier = getHtmlValue('#inputMod')
+              const difficulty = getHtmlValue('#inputDif')
+              const isSurge = html.find('#inputSurge').prop('checked')
+
+              // const surgeDice = isSurge ? surge : 0
+
+              // const numDices = checks => {
+              //   let dices = 0
+              //   checks.forEach(value => (dices += parseInt(value, 10)))
+              //   return dices
+              // }
+
+              const { rouses, rollLabel: label } = onRollCallback(html)
+
+              // const numDice = numDices([abilityValue, skillValue, modifier, surgeDice].concat(addDices))
+
+              const ChatLabel = label.concat(`${abilityLabel}${skillLabel}`)
+
+              const testVal = $('.wrapper-discipline-roll-dices .resources-counter-step').length
+              const subtractVal = $('.wrapper-discipline-roll-dices .subtract-value').length * 2
+
+              if (isSurge) console.log(event.currentTarget)
+              for (let index = 0; index < rouses; index++) console.log('rouse check')
+              console.log(`numDice = ${testVal - subtractVal} ChatLabel = ${ChatLabel} Difficulty = ${difficulty}`)
+
+              // if (isSurge) _rollDice(1, getLanguage.rouse, 1, true, true)
+              // for (let index = 0; index < rouses; index++) _rollDice(1, getLanguage.rouse, 1, true, true)
+              // _rollDice(numDice, ChatLabel, difficulty, true)
+            }
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: getLanguage.cancel
+          }
+        }
+        new Dialog({
+          title: `${getLanguage.rolling} ${titleLabel}...`,
+          content,
+          buttons,
+          default: 'draw'
+        }).render(true)
+      }
+      return {
+        onOpenSheet: () => actor.sheet.render(true),
+        onOpenItem: () => actor.items.find(item => item.id === dataset.itemId).sheet.render(true),
+        onAddExp: () => actor.update({ 'data.exp.value': exp.value + 1 }),
+        onSubExp: () => actor.update({ 'data.exp.value': exp.value - 1 }),
+        onRollDiscipline: () => {
+          const {
+            id,
+            itemId,
+            dice1,
+            dice2,
+            disciplineLevel,
+            img,
+            name: powerName,
+            discipline: disciplineName,
+            level: powerLevel,
+            rouse: powerRouse
+          } = event.currentTarget.dataset
+
+          const headerRollDiscipline = `
+            <style>
+              .header-roll-discipline {
+                position: relative;
+                display: flex;
+              }
+              .header-roll-discipline h1,
+              p,
+              label {
+                font-family: var(--dialog-font-family);
+                font-weight: bold;
+              }
+              .header-roll-discipline img {
+                filter: invert(10%) sepia(10%) saturate(99999%) hue-rotate(6deg) brightness(90%) contrast(50%);
+                height: 28px;
+                width: 60px;
+                height: 60px;
+                margin-right: 10px;
+                border-radius: 50%;
+              }
+              .header-roll-discipline div {
+                display: flex;
+                flex-direction: column;
+              }
+              .header-roll-discipline div h1 {
+                font-size: 16px;
+                margin: 0.5rem 0 0;
+                min-width: min-content;
+                color: var(--dialog-red-primary);
+              }
+              .header-roll-discipline div p {
+                font-size: 12px;
+                color: var(--dialog-dark);
+              }
+              .header-roll-discipline .p-roll-discipline-power-level {
+                position: absolute;
+                display: flex;
+                color: var(--dialog-red-primary);
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                top: 0;
+                right: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                box-shadow: 4px 4px 5px var(--dialog-dark);
+              }
+            </style>
+            <div class="header-roll-discipline">
+              <img class="img-roll-discipline" src=${img} data-id="${id}" data-item-id${itemId} />
+              <div>
+                <h1 class="h1-roll-discipline-power-name">${powerName}</h1>
+                <p class="p-roll-discipline-discipline-name">${disciplineName}</p>
+              </div>
+              <p class="p-roll-discipline-power-level">${powerLevel}</p>
+            </div>
+          `
+          const rollRouse = `
+            <style>
+              .rouse-value {
+                color: var(--dialog-red-primary);
+                text-align: center;
+                font-weight: bold;
+                text-family: var(--dialog-font-primary);
+              }
+
+              input[type='range'] {
+                -webkit-appearance: none;
+                display: block;
+                margin: 0 auto;
+                outline: 0;
+              }
+              input[type='range']:focus {
+                outline: none;
+              }
+              input[type='range']::-webkit-slider-runnable-track {
+                height: 4px;
+                background: var(--dialog-primary-light);
+                border: 0;
+                transition: all 0.3s ease-in-out;
+                box-shadow: 0px 0px 0px #000;
+              }
+              input[type='range']::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                background-color: var(--dialog-red-primary);
+                min-width: 13px;
+                min-height: 13px;
+                border-radius: 0% 50% 50% 50%;
+                transform: rotate(45deg);
+                border: 2px solid var(--dialog-primary);
+                cursor: pointer;
+                transition: all 0.3s ease-in-out;
+                box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 1px 1px var(--dialog-dark);
+              }
+
+              input[type='range']:active::-webkit-slider-runnable-track {
+                background: var(--dialog-primary-light);
+              }
+              input[type='range']:focus::-webkit-slider-runnable-track {
+                background: var(--dialog-primary-light);
+              }
+
+              input[type='range']::-webkit-slider-thumb:hover {
+                background-color: var(--dialog-primary);
+                min-width: 14px;
+                min-height: 14px;
+                border: 0;
+              }
+              input[type='range']::-webkit-slider-thumb:active {
+                min-width: 16px;
+                min-height: 16px;
+              }
+            </style>
+            <script>
+              $(document).ready(() => {
+                onRouseInputChange = value => {
+                  document.querySelector('.rouse-value').innerHTML = value
+                }
+                $('.img-roll-discipline').click(() => _handleMouseEvents(${event}).onOpenItem())
+              })
+            </script>
+            <div class="form-group">
+              <label>${getLanguage.rouse}?</label>
+              <div class="range-rouse">
+                <div class="rouse-value">1</div>
+                <input
+                  class="rouse-input"
+                  type="range"
+                  id="inputRouse"
+                  min="1"
+                  max="5"
+                  step="1"
+                  value="0"
+                  onchange="onRouseInputChange(this.value)"
+                />
+              </div>
+            </div>
+          `
+          const formGroup = powerRouse === 'true' ? rollRouse : ''
+          const getRollDice = dice => {
+            if (dice === 'discipline') return parseInt(disciplineLevel, 10)
+
+            const ability = abilities[dice]
+            const skill = skills[dice]
+
+            if (ability) return parseInt(ability.value, 10)
+            return parseInt(skill.value, 10)
+          }
+          const rollDice1 = getRollDice(dice1)
+          const rollDice2 = getRollDice(dice2)
+
+          const rollCallback = html => {
+            const rouses = parseInt(html.find('#inputRouse').prop('value'), 10)
+            return {
+              rouses,
+              addDices: [power, rollDice1, rollDice2],
+              rollLabel: powerName.toLowerCase()
+            }
+          }
+
+          rollDialog(
+            powerName.toLowerCase(),
+            {
+              header: headerRollDiscipline,
+              formGroups: formGroup,
+              onRollCallback: rollCallback
+            },
+            { label: `${dice1} + ${dice2}`, numDices: rollDice1 + rollDice2 },
+            true
+          )
+        },
+        onRollAbility: () => {
+          rollDialog(
+            dataset.label,
+            {
+              onRollCallback: () => ({ addDices: dataset.roll, rollLabel: dataset.label })
+            },
+            { label: dataset.label, numDices: parseInt(dataset.roll, 10) },
+            false,
+            true
+          )
+        },
+        onRollFeature: () => {
+          const { name, level, type } = dataset
+          rollDialog(
+            name,
+            {
+              formGroups: `
+                <script>
+                  $(document).ready(() => {
+                    const abilitySelect = $('#abilitySelect')
+                    const skillSelect = $('#skillSelect')
+                    const inputSurge = $('#inputSurge')
+                    inputSurge.prop({disabled:true})
+
+                    abilitySelect.change(() => {
+                      $('#skillSelect option:contains(👁)').prop({ selected: true })
+                      inputSurge.prop({disabled:false})
+                      if(abilitySelect[0].value === '') inputSurge.prop({disabled:true})
+                    })
+
+                    skillSelect.change(() => {
+                      $('#abilitySelect option:contains(👁)').prop({ selected: true })
+                      inputSurge.prop({disabled:true})
+                    })
+
+                  })
+                </script>
+              `,
+              onRollCallback: () => ({ addDices: level, rollLabel: `${getLanguage.rolling} ${type}: ${name}` })
+            },
+            { label: name, numDices: parseInt(level, 10) },
+            false,
+            true,
+            true
+          )
+        },
+        onRollHunting: () => {
+          const getPercentMatchString = (string1, string2) => {
+            let matches = 0
+
+            // Exit early if either are empty.
+            if (string1.length === 0 || string2.length === 0) return 0
+
+            // Exit early if they're an exact match.
+            if (string1 === string2) return 1
+
+            const range = Math.floor(Math.max(string1.length, string2.length) / 2) - 1
+            const string1Matches = new Array(string1.length)
+            const string2Matches = new Array(string2.length)
+
+            for (let i = 0; i < string1.length; i++) {
+              const low = i >= range ? i - range : 0
+              const high = i + range <= string2.length ? i + range : string2.length - 1
+
+              for (let j = low; j <= high; j++) {
+                if (string1Matches[i] !== true && string2Matches[j] !== true && string1[i] === string2[j]) {
+                  ++matches
+                  string2Matches[j] = true
+                  string1Matches[i] = string2Matches[j]
+                  break
+                }
+              }
+            }
+
+            // Exit early if no matches were found.
+            if (matches === 0) return 0
+
+            // Count the transpositions.
+            let transpositions = 0
+            let k = transpositions
+
+            for (i = 0; i < string1.length; i++)
+              if (string1Matches[i] === true) {
+                for (j = k; j < string2.length; j++)
+                  if (string2Matches[j] === true) {
+                    k = j + 1
+                    break
+                  }
+                if (string1[i] !== string2[j]) ++transpositions
+              }
+
+            let weight =
+              (matches / string1.length + matches / string2.length + (matches - transpositions / 2) / matches) / 3
+            let l = 0
+            const p = 0.1
+
+            if (weight > 0.7) {
+              while (string1[l] === string2[l] && l < 4) ++l
+              weight += l * p * (1 - weight)
+            }
+            return weight
+          }
+
+          const predators = {
+            alleycat: {
+              name: 'Alleycat',
+              roll: [
+                {
+                  dice1: 'strength',
+                  dice2: 'brawl'
+                },
+                {
+                  dice1: 'wits',
+                  dice2: 'streetwise'
+                }
+              ]
+            },
+            bagger: {
+              name: 'Bagger',
+              roll: [
+                {
+                  dice1: 'intelligence',
+                  dice2: 'streetwise'
+                }
+              ]
+            },
+            bloodLeech: {
+              name: 'Blood Leech',
+              roll: []
+            },
+            cleaver: {
+              name: 'Cleaver',
+              roll: [
+                {
+                  dice1: 'manipulation',
+                  dice2: 'subterfuge'
+                }
+              ]
+            },
+            consensualist: {
+              name: 'Consensualist',
+              roll: [
+                {
+                  dice1: 'manipulation',
+                  dice2: 'persuasion'
+                }
+              ]
+            },
+            extortionist: {
+              name: 'Extortionist',
+              roll: [
+                {
+                  dice1: 'strength',
+                  dice2: 'intimidation'
+                },
+                {
+                  dice1: 'strength',
+                  dice2: 'intimidation'
+                }
+              ]
+            },
+            farmer: {
+              name: 'Farmer',
+              roll: [
+                {
+                  dice1: 'composure',
+                  dice2: 'animal ken'
+                }
+              ]
+            },
+            graverobber: {
+              name: 'Graverobber',
+              roll: [
+                {
+                  dice1: 'resolve',
+                  dice2: 'medicine'
+                },
+                {
+                  dice1: 'manipulation',
+                  dice2: 'insight'
+                }
+              ]
+            },
+            osiris: {
+              name: 'Osiris',
+              roll: [
+                {
+                  dice1: 'manipulation',
+                  dice2: 'subterfuge'
+                }
+              ]
+            },
+            roadsideKiller: {
+              name: 'Roadside Killer',
+              roll: [
+                {
+                  dice1: 'charisma',
+                  dice2: 'drive'
+                },
+                {
+                  dice1: 'dexterity',
+                  dice2: 'drive'
+                }
+              ]
+            },
+            sandman: {
+              name: 'Sandman',
+              roll: [
+                {
+                  dice1: 'dexterity',
+                  dice2: 'stealth'
+                }
+              ]
+            },
+            sceneQueen: {
+              name: 'Scene Queen',
+              roll: [
+                {
+                  dice1: 'manipulation',
+                  dice2: 'persuasion'
+                }
+              ]
+            },
+            siren: {
+              name: 'Siren',
+              roll: [
+                {
+                  dice1: 'charisma',
+                  dice2: 'subterfuge'
+                }
+              ]
+            }
+          }
+          getPredatorType = () => {
+            let predatorControl = { predator: '', matchPercent: 0 }
+            Object.keys(predators).forEach(key => {
+              const matching = getPercentMatchString(key, predator)
+              if (predatorControl.matchPercent < matching)
+                predatorControl = {
+                  predator: key,
+                  matchPercent: matching
+                }
+            })
+            const predatorType = predators[predatorControl.predator]
+            return { ...predatorType, key: predatorControl.predator }
+          }
+
+          const getOption = (selectOption, object) => {
+            const isSelect = selectOption === '' ? 'selected' : ''
+            let option = `<option value="" ${isSelect} >👁</option>`
+            for (const [key, value] of Object.entries(object)) {
+              const selected = selectOption === key ? 'selected' : ''
+              option = option.concat(`<option value="${key}" ${selected}>${game.i18n.localize(value.name)}</option>`)
+            }
+            return option
+          }
+
+          const getHtmlStat = (statLabel, selectId, options) => `
+            <div>
+              <p>${statLabel}</p>
+              <select id="select-${selectId}">
+                ${options}
+              </select>
+            </div>
+          `
+
+          handlePredatorStats = key => {
+            const getPredatorRolls = predatorType => {
+              const array =
+                predatorType !== undefined && predatorType.roll.length > 0
+                  ? predatorType
+                  : { name: '', roll: [{ dice1: '', dice2: '' }] }
+              const { roll, key: predatorKey } = array
+
+              return `
+                <style>
+                  .predator-roll-wrapper {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: baseline;
+                    justify-content: center;
+                  }
+                  .predator-roll-wrapper div {
+                    border: 0;
+                  }
+                  .predator-roll-wrapper div p {
+                    top: -25px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                  }
+                  .predator-roll-wrapper + div {
+                    margin-top: 12px;
+                  }
+                </style>
+                ${roll
+                  .map(
+                    (value, index) => `
+                        <div class="predator-roll-wrapper">
+                          ${getHtmlStat(getLanguage.abilities, `ability-${index}`, getOption(value.dice1, abilities))}
+                          ${getHtmlStat(getLanguage.skills, `skill-${index}`, getOption(value.dice2, skills))}
+                          <input type="radio" id="radio-${predatorKey}-${index}" name="radio-predator" value="${index}" data-predator=${predatorKey} onchange='handleRadioChange(event)'/>
+                        </div>
+                      `
+                  )
+                  .join('')}
+              `
+            }
+            const getPredatorWrapper = () => `
+              <style>
+                .predator-wrapper {
+                  display: flex;
+                  flex-direction: column;
+                  border: 1px solid var(--dialog-primary-dark);
+                  position: relative;
+                  padding: 15px;
+                }
+                .predator-wrapper p {
+                  z-index: 1;
+                  position: absolute;
+                  top: -17px;
+                  background: var(--dialog-primary);
+                  padding: 1px;
+                  border-radius: 4px;
+                }
+                .predator-wrapper div {
+                  position: relative;
+                  padding: 8px;
+                  border: 1px solid var(--dialog-primary-dark);
+                }
+              </style>
+              <div class="predator-wrapper">
+                <p>possible roll</p>
+                ${getPredatorRolls({ ...predators[key], key })}
+              </div>
+            `
+
+            return getPredatorWrapper()
+          }
+
+          handleRadioChange = radioEvent => {
+            const {
+              currentTarget: { value }
+            } = radioEvent
+
+            setRollCircleStep(`select-skill-${value}`, 'roll-skill', 'skills')
+            setRollCircleStep(`select-ability-${value}`, 'roll-ability', 'abilities')
+            $('.predator-roll-wrapper :radio[name="radio-predator"]:checked')
+              .siblings('div')
+              .find('select')
+              .change(changeEvent => selectResourceChange(changeEvent))
+          }
+          const selector = `
+            <script>
+              $(document).ready(() => {
+
+                const inputSurge = $('#inputSurge')
+                const predatorSelect = $('#predator-select')
+                const predatorGroup = $('#predator-group')
+                const dialog = $('#hunting-roll').parent().parent().parent().parent()
+                let dialogHeight = parseInt(dialog.css('height'), 10)
+
+                const predatorName = getPredatorType().name
+
+
+                handlePredatorSelect = event => {
+                  const predatorKey = predatorSelect[0].value
+                  predatorGroup[0].innerHTML = handlePredatorStats(predatorKey)
+                  let plusHeight = parseInt($('.predator-wrapper').css('height'), 10)
+                  let newHeight = (dialogHeight + plusHeight).toString() + 'px'
+                  dialog.css('min-height', newHeight)
+                  if($('.roll-skill')[0] !== undefined && $('.roll-ability')[0] !== undefined){
+                    $('.roll-skill')[0].innerHTML = ''
+                    $('.roll-ability')[0].innerHTML = ''
+                  }
+                }
+                handlePredatorSelect()
+              })
+
+            </script>
+            <div class="form-group" id="hunting-roll">
+              <label>Predator</label>
+              <select id="predator-select" onchange="handlePredatorSelect(event)">
+                ${getOption(getPredatorType().key, predators)}
+              </select>
+            </div>
+            <div class="form-group" id="predator-group"></div>
+          `
+          // selector
+          rollDialog(
+            'roll hunting',
+            {
+              header: '',
+              formGroups: selector,
+              onRollCallback: () => ({
+                rouses: 0,
+                addDices: [],
+                rollLabel: ''
+              })
+            },
+            { label: '', numDices: 0 }
+          )
+        },
+        onRollHunger: () => _rollDice(1, getLanguage.rouse, 1, true, true),
+        onRollWillpower: () => {
+          const numDice = max - superficial - aggravated
+          _rollDice(numDice, getLanguage.rollingWillpower, 0, false, false, false)
+        },
+        onRollFrenzy: () => {
+          const actualWillpower = max - aggravated - superficial
+          const humanityMod = Math.floor(humanityValue / 3)
+
+          const content = `
+            <form>
+              <div class="form-group">
+                <label>${getLanguage.modifier}</label>
+                <input type="text" id="inputMod" value="0" />
+              </div>
+              <div class="form-group">
+                <label>${getLanguage.difficulty}</label>
+                <input type="text" min="0" id="inputDif" value="0" />
+              </div>
+            </form>
+          `
+
+          const buttons = {
+            draw: {
+              icon: '<i class="fas fa-check"></i>',
+              label: getLanguage.roll,
+              callback: async html => {
+                const modifier = parseInt(html.find('#inputMod')[0].value || 0, 10)
+                const difficulty = parseInt(html.find('#inputDif')[0].value || 0, 10)
+
+                const numDice = actualWillpower + humanityMod + modifier
+
+                _rollDice(numDice, getLanguage.resistingFrenzy, difficulty, false)
+              }
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: getLanguage.cancel
+            }
+          }
+
+          new Dialog({
+            title: getLanguage.frenzy,
+            content,
+            buttons,
+            default: 'draw'
+          }).render(true)
+        },
+        onRollRemorse: () => {
+          const emptyHumanity = 10 - (humanityValue + stains)
+          const numDice = emptyHumanity === 0 ? 1 : emptyHumanity
+          _rollDice(numDice, getLanguage.rollingRemorse, 1, false, false, false, true)
+        }
+      }
     }
+    return {
+      onScrollLeft: () => {
+        const hideContent = $(currentTarget).find('.stats-hide-content')
+        hideContent[0].addEventListener('wheel', evt => {
+          evt.preventDefault()
+          // hideContent.animate({ scrollLeft: `+=${evt.deltaY}` }, 300)
+          hideContent[0].scrollLeft += evt.deltaY
+        })
+      },
+      onFeatureToggle: () => parentNode.classList.toggle('show-content'),
+      onCollapsibleToggle: () =>
+        $(currentTarget).closest('span').nextAll('.collapse')[0].classList.toggle('show-content')
+    }
+  }
 
-    const touchstonesList = []
+  function htmlElements(actor) {
+    const { _id: actorId, name: actorName, img: actorImg, data: actorData } = actor.data
+    const {
+      abilities: actorAbilities,
+      blood: { potency },
+      exp,
+      headers,
+      skills: actorSkills
+    } = actorData
 
-    /* Taking the touchstones string and parsing it into an array of objects. */
-    htmlDecode(touchstones).replace(/(.+); *(.+)/gm, (match, p1, p2) => {
-      const img = game.journal.contents.filter(entry => entry.data.name === p2)[0]?.data.img
-      const touchstoneImage = img !== undefined ? img : 'img'
-      touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage })
-    })
+    const bloodPotency = getBloodPotency(potency).text
 
     /**
      * It takes an integer and returns an array of objects with the same number of elements as the integer,
@@ -253,1443 +1333,1556 @@ async function main() {
      * @param abilityValue - The value of the ability score.
      * @returns An array of objects with two properties, index and active.
      */
-    function getResourcesActivity(abilityValue) {
+    const getResourcesActivity = abilityValue => {
       const activityArray = []
       for (let index = 0; index < 5; index++)
         index < abilityValue
-          ? activityArray.push({ index, isActive: true })
+          ? activityArray.push({ index, isActive: '-' })
           : activityArray.push({ index, isActive: false })
-      return activityArray.map(({ index, isActive }) => getHtmlElements.resourceMark(index, false, isActive)).join('')
+      return activityArray
+        .map(({ index, isActive }) => htmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, isActive, 'circle'))
+        .join('')
     }
 
-    const getHtmlElements = {
-      resourceMark: (index, isHunger = false, isActive = false) => `<style>
-          .resource-mark {
-            display: inline-block;
-            height: 14px;
-            width: 14px;
-            box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 1px 1px var(--dialog-dark);
-          }
-          .resource-mark[data-hunger='false'] {border-radius: 50%}
-          .resource-mark[data-hunger='true'] {
-            border-radius: 0% 50% 50% 50%;
-            transform: rotate(45deg);
-          }
-          .resource-mark[data-active='true'] {
-            background-color: var(--dialog-red-primary);
-          }
-        </style><span class='resource-mark' data-index='${index}' data-hunger='${isHunger}' data-active='${isActive}'></span>`,
-      statsWrapper: (name, key, index, value, idActor) => `
+    const dialogButton = (className, text, data, onClick) => `
       <style>
-          .stats-resource-wrapper {
-                    display: flex;
-                    align-items: center;
-                    flex-wrap: nowrap;
-                    width: 170px;
-                  }
+        .btn {
+          position: relative;
+          cursor: pointer;
+          user-select: none;
+          border-radius: 5px;
 
-                  .stats-resource-wrapper:hover .dice-icon{
-                    visibility: visible;
-                    opacity:1;
-                  }
+          text-transform: uppercase;
+          text-align: center;
+          text-decoration: none;
+          font-size: 10px;
+          font-family: var(--dialog-font-family);
+          /* Setting the white-space property to nowrap. */
+          transition: all 0.3s ease-in-out;
+        }
 
-                  .stats-resource-wrapper:nth-child(3n+2):nth-child(-n+18) {order: 1;}
+        .btn .text {
+          position: relative;
+          z-index: 10000;
+          font-family: var(--dialog-font-family);
+          text-transform: uppercase;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 10px;
+          transition: all 0.3s ease-in-out;
+        }
 
-                  .stats-resource-wrapper:nth-child(3n+1):nth-child(-n+18) {order: 2;}
+        .btn-type1 {
+          border: 2px solid var(--dialog-primary-light);
+          box-sizing: border-box;
+          display: inline-block;
+          outline: none;
+          overflow: visible;
+        }
 
-                  .stats-resource-wrapper:nth-child(3n+3):nth-child(-n+18) {order: 3;}
+        .btn-type1::before {
+          content: ' ';
+          position: absolute;
+          width: 12px;
+          height: 2px;
+          background: var(--dialog-red-primary);
+          bottom: 5px;
+          left: 5px;
+          transform: translateY(-50%);
+          transform-origin: center;
+          transition: all 0.3s;
+        }
 
-                  .stats-resource-wrapper:nth-child(n+20) {order: 4;}
+        .btn-type1 .text {
+          border: 0;
+          display: block;
+          text-align: left;
+          transition: all 0.3s ease-in-out;
+          text-decoration: none;
+          min-height: 32px;
+          width: 57px;
+        }
 
-                  .stats-resource-wrapper:nth-child(n+14):nth-child(-n+18) { margin-bottom:3px;}
+        .btn-type1 .top-key {
+          height: 2px;
+          width: 1.5625rem;
+          top: -2px;
+          left: 0.625rem;
+          position: absolute;
+          background: var(--dialog-primary);
+          transition: width 0.5s ease-out, left 0.3s ease-out;
+        }
 
-                  .stats-activity {
-                    position:relative;
-                  }
-                  .stats-activity .dice-icon {
-                    left:-12px;
+        .btn-type1 .bottom-key-1 {
+          height: 2px;
+          width: 1.5625rem;
+          right: 1.875rem;
+          bottom: -2px;
+          position: absolute;
+          background: var(--dialog-primary);
+          transition: width 0.5s ease-out, right 0.3s ease-out;
+        }
 
-                    visibility: hidden;
-                    opacity:0;
+        .btn-type1 .bottom-key-2 {
+          height: 2px;
+          width: 0.625rem;
+          right: 0.625rem;
+          bottom: -2px;
+          position: absolute;
+          background: var(--dialog-primary);
+          transition: width 0.5s ease-out, right 0.3s ease-out;
+        }
 
-                    transition:opacity 0.3s ease-in-out;
-                  }
+        .btn-type1:hover {
+          color: var(--dialog-primary);
+          background: var(--dialog-red-primary);
+          border: 2px solid var(--dialog-red-primary);
+        }
+
+        .btn-type1:hover::before {
+          width: 40px;
+          background: var(--dialog-primary);
+        }
+
+        .btn-type1:hover .text {
+          color: var(--dialog-primary);
+          padding-top: 8px;
+        }
+
+        .btn-type1:hover .top-key {
+          left: -2px;
+          width: 0px;
+        }
+
+        .btn-type1:hover .bottom-key-1,
+        .btn-type1:hover .bottom-key-2 {
+          right: 0;
+          width: 0;
+        }
+
+        .btn-type2 {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+          width: 140px;
+          min-height: 16px;
+          max-height: 16px;
+          border-bottom-left-radius: 0;
+
+          padding: 3px;
+        }
+
+        .btn-type2:hover {
+          transform: translateY(-3px);
+          background-color: var(--dialog-primary);
+          box-shadow: -8px 8px 23px -3px rgba(0, 0, 0, 0.53);
+          max-height: 100px;
+        }
+
+        .btn-type2 .text {
+          overflow: hidden;
+          white-space: normal;
+          overflow-wrap: break-word;
+        }
+        .btn-type2:hover .text {
+          overflow: auto;
+
+          color: var(--dialog-primary);
+        }
+        .btn-type2:active {
+          transform: translateY(-1px);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-type2::before {
+          z-index: 1;
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 700%;
+          width: 160%;
+          background: var(--dialog-red-primary);
+          -webkit-transition: all 0.5s ease-in-out;
+          transition: all 0.5s ease-in-out;
+          -webkit-transform: translateX(-78%) translateY(-30%) rotate(45deg);
+          transform: translateX(-78%) translateY(-30%) rotate(45deg);
+        }
+
+        .btn-type2:hover::before {
+          -webkit-transform: translateX(-20%) translateY(-40%) rotate(45deg);
+          transform: translateX(-20%) translateY(-40%) rotate(45deg);
+        }
+        .wrapper-btn {
+          position: relative;
+          display: flex;
+          align-items: center;
+          min-width: 165px;
+          margin-bottom: 5px;
+        }
+        .wrapper-btn a {
+          position: absolute;
+          visibility: hidden;
+          opacity: 0;
+          transition: all 0.5s;
+        }
+        .wrapper-btn .item-dice {
+          right: 50%;
+          top: -11px;
+          pointer-events: none;
+        }
+        .wrapper-btn:hover a {
+          visibility: visible;
+          opacity: 1;
+        }
+        .wrapper-btn .item-dice i {
+          user-select: none;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: var(--dialog-red-primary);
+          background: var(--dialog-primary);
+          font-size: 11px;
+          border-radius: 50%;
+          min-width: 17px;
+          min-height: 17px;
+          transition: all 0.5s;
+        }
+        .btn-type2:active ~ .item-dice i {
+          font-size: 12px;
+          min-width: 18px;
+          min-height: 18px;
+          transition: all 0.5s;
+        }
+      </style>
+
+      ${
+        data.type === '1'
+          ? `
+              <p class="btn btn-type1 ${className}" onclick='${onClick}' data-id=${actorId}>
+                <span class="top-key"></span>
+                <span class="resources-label text title" data-title="${data.title}" position="left"> ${text} </span>
+                <span class="bottom-key-1"></span>
+                <span class="bottom-key-2"></span>
+              </p>
+            `
+          : `
+              <div class="wrapper-btn">
+                <p class="btn btn-type2 ${className}" onclick='${onClick}' data-id=${actorId} ${data.addData}>
+                  <span class="text"> ${text} </span>
+                </p>
+                ${data.element}
+                ${
+                  data.rollable
+                    ? `
+                        <a class="item-dice">
+                          <i class="fas fa-dice-d20"></i>
+                        </a>
+                      `
+                    : ''
+                }
+              </div>
+            `
+      }
+    `
+    const dialogResourceCounterStep = (dataIndex, dataState, dataType) => `
+      <style>
+        .resources-counter-step {
+          display: inline-block;
+          height: 14px;
+          width: 14px;
+          margin: 4px 4px 0 0;
+          background-color: rgba(224, 221, 212, 0.3);
+          box-shadow: inset 2px 3px 5px var(--dialog-red-darker);
+        }
+
+        .resources-counter-step[data-state='-'] {
+          background-color: var(--dialog-red-primary);
+        }
+
+        .resources-counter-step[data-state='/'] {
+          background: linear-gradient(
+            135deg,
+            transparent 0%,
+            transparent 43%,
+            var(--dialog-red-darker),
+            var(--dialog-red-primary),
+            transparent 57%,
+            transparent 50%
+          );
+        }
+
+        .resources-counter-step[data-state='x'] {
+          background: linear-gradient(
+              45deg,
+              transparent 0%,
+              transparent 43%,
+              var(--dialog-red-darker),
+              var(--dialog-red-primary),
+              transparent 57%,
+              transparent 50%
+            ),
+            linear-gradient(
+              135deg,
+              transparent 0%,
+              transparent 43%,
+              var(--dialog-red-darker),
+              var(--dialog-red-primary),
+              transparent 57%,
+              transparent 50%
+            );
+        }
+        .resources-counter-step[data-type='circle'] {
+          margin: 0;
+          border-radius: 50%;
+        }
+        .resources-counter-step[data-type='hunger'] {
+          border-radius: 0% 50% 50% 50%;
+          transform: rotate(45deg);
+        }
+      </style>
+      <p class="resources-counter-step" data-index="${dataIndex}" data-state="${dataState}" data-type="${dataType}"></p>
+    `
+    const dialogResourcesContent = (placeholder, resourceMarks, title = '', onClick = '', hunger = '') => `
+      <p
+        class="resources-label ${onClick !== '' ? 'is-clickable' : ''} ${title !== '' ? 'title' : ''}"
+        onclick="${onClick}"
+        data-title="${title}"
+        data-id="${actorId}"
+      >
+        ${placeholder}
+      </p>
+      <div class="resources-counter">
+        ${resourceMarks
+          .map(({ dataIndex, dataState }) => dialogResourceCounterStep(dataIndex, dataState, hunger))
+          .join('')}
+      </div>
+    `
+    const dialogIconDice = (className = '', title = '') => `
+      <style>
+        .dice-icon {
+          position: absolute;
+          width: 20px;
+          filter: invert(100%) sepia(30%) saturate(621%) hue-rotate(316deg) brightness(88%) contrast(90%);
+          background: var(--dialog-primary-transparent);
+          border: 0;
+          border-radius: 50%;
+        }
+      </style>
+      <img
+        class="dice-icon ${className}"
+        data-title="${title}"
+        data-id=${actorId}
+        src="/systems/vtm5e/assets/images/dice.svg"
+      />
+    `
+    const dialogBloodGift = (placeholder, gift) => `
+      <style>
+        .wrapper-blood-gift-label {
+          background-color: var(--dialog-red-transparent);
+        }
+        .blood-gifts-content {
+          margin-left: 5px;
+        }
+        .blood-gifts-label {
+          border-top: 2px solid var(--dialog-red-transparent);
+          width: 46%;
+        }
+      </style>
+      <div class="header-label-wrapper wrapper-blood-gift-label">
+        <span class="header-label header-placeholder blood-gifts-label">${placeholder}</span>
+        <span class="header-label blood-gifts-content">${gift}</span>
+      </div>
+    `
+    const dialogHeaderLabelContent = (label, content) => `
+      <style>
+        .wrapper-label-content span {
+          min-height: 20px;
+        }
+        .wrapper-label-content .header-placeholder {
+          width: 75px;
+        }
+        .wrapper-label-content i {
+          color: var(--dialog-red-primary);
+          height: 100%;
+        }
+        .header-content {
+          color: var(--dialog-red-primary);
+        }
+      </style>
+      <div class="header-label-wrapper wrapper-label-content">
+        <span class="header-label header-placeholder">${label}</span>
+        <i class="fas fa-caret-right"></i>
+        <span class="header-label header-content">${content}</span>
+      </div>
+    `
+    /* -------------------------- dialogHeaderInnerContent --------------------------  */
+    const dialogToolTipBloodPotency = () => `
+    <style>
+      .blood-potency[data] {
+        top: 2px;
+        left: 40px;
+        transition: all 0.4s;
+      }
+      .blood-potency[data]::after {
+        content: attr(data);
+        position: absolute;
+        color: var(--dialog-red-primary);
+        font-size: 12px;
+        font-weight: bold;
+        left: 3.2px;
+        top: 2px;
+        pointer-events: none;
+      }
+      .blood-potency-hide-content {
+        border-top: 2px solid var(--dialog-red-primary);
+      }
+      .blood-potency:hover::after {
+        text-shadow: 0 0 10px white;
+        transition: all 0.4s;
+      }
+    </style>
+    <div class="tooltip blood-potency" data="${potency}">
+      <i class="bi bi-droplet-fill bi-tooltip"></i>
+      <span class="tooltip-hide-content tooltip-label">${getLanguage.bloodPotency}</span>
+      <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
+        ${dialogBloodGift(getLanguage.bloodSurge, bloodPotency.surge)}
+        ${dialogBloodGift(getLanguage.powerBonus, bloodPotency.power)}
+        ${dialogBloodGift(getLanguage.FeedingPenalty, bloodPotency.feeding)}
+        ${dialogBloodGift(getLanguage.mendAmount, bloodPotency.mend)}
+        ${dialogBloodGift(getLanguage.rouseReRoll, bloodPotency.rouse)}
+        ${dialogBloodGift(getLanguage.baneSeverity, bloodPotency.bane)}
+      </div>
+    </div>
+  `
+    const dialogStatsWrapper = (name, index, value) => `
+      <style>
+        .stats-resource-wrapper {
+          display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
+          width: 170px;
+        }
+        .stats-placeholder {
+          justify-content: center;
+          border-top: 2px solid var(--dialog-red-transparent);
+          padding-left: 2px;
+          margin-right: 3px;
+          width: 53%;
+        }
+        .stats-resource-wrapper:hover .dice-icon {
+          visibility: visible;
+          opacity: 1;
+        }
+        .stats-resource-wrapper:nth-child(3n + 2):nth-child(-n + 18) {
+          order: 1;
+        }
+        .stats-resource-wrapper:nth-child(3n + 1):nth-child(-n + 18) {
+          order: 2;
+        }
+        .stats-resource-wrapper:nth-child(3n + 3):nth-child(-n + 18) {
+          order: 3;
+        }
+        .stats-resource-wrapper:nth-child(n + 20) {
+          order: 4;
+        }
+        .stats-resource-wrapper:nth-child(n + 14):nth-child(-n + 18) {
+          margin-bottom: 3px;
+        }
+
+        .stats-resource-wrapper .resources-counter {
+          position: relative;
+        }
+        .stats-resource-wrapper .resources-counter .dice-icon {
+          left: -12px;
+
+          visibility: hidden;
+          opacity: 0;
+
+          transition: all 0.3s ease-in-out;
+        }
       </style>
       <div class="stats-resource-wrapper">
-          <span
-            for="data.data.abilities.${key}.value"
-            class="label-resources resources-placeholder stats-placeholder is-rollable"
-            data-id=${idActor}
-            data-roll=${value}
-            data-label=${game.i18n.localize(key)}>
-              ${game.i18n.localize(name)}
-          </span>
-          <div class="stats-activity" data-value=${index} data-name=${value}>
-              ${getResourcesActivity(value)} ${getHtmlElements.iconDice()}
-          </div>
-      </div>`,
-      bloodGift: (placeholder, bloodGift) => `
+        <span
+          for="data.data.abilities.${name}.value"
+          class="header-label header-placeholder stats-placeholder is-rollable"
+          onclick="_handleMouseEvents(event).onRollAbility()"
+          data-id=${actorId}
+          data-roll=${value}
+          data-label=${game.i18n.localize(name)}
+        >
+          ${game.i18n.localize(name)}
+        </span>
+        <div class="resources-counter" data-value=${index} data-name=${value}>
+          ${getResourcesActivity(value)} ${dialogIconDice(actorId)}
+        </div>
+      </div>
+    `
+    const dialogToolTipStats = () => `
       <style>
-          .blood-gifts-content {
-              border-top: 2px solid rgba(58,41,42,0.0);
-              background-color: var(--dialog-red-transparent);
-            }
-            .blood-gifts-label {
-              border-top: 2px solid var(--dialog-red-transparent);
-              width: 46%;
-            }
+        .stats-hide-content {
+          overflow-x: scroll;
+          display: flex;
+          flex-wrap: wrap;
+          align-content: space-between;
+          height: 199px;
+          width: 340px;
+          flex-direction: column;
+          background-color: var(--dialog-primary-transparent);
+        }
+
+        .tooltip-stats {
+          left: 24px;
+        }
       </style>
-      <div class="label-wrapper">
-          <span class="label-resources resources-placeholder blood-gifts-label">${placeholder}</span>
-          <span class="label-resources blood-gifts-content">${bloodGift}</span>
-      </div>`,
-      headerResourcesLabel: resource => `
-      <style>
-          .header-resources-wrapper {
-                align-items:center;
-              }
-              .header-resources-wrapper i{
-                color: var(--dialog-red-primary);
-              }
+      <div class="tooltip tooltip-stats" onmouseover="_handleMouseEvents(event).onScrollLeft()">
+        <i id="image" class="bi bi-bookmarks-fill bi-tooltip"></i>
+        <span class="tooltip-hide-content tooltip-label">${getLanguage.attributes} & ${getLanguage.skills}</span>
+        <div class="wrapper-dialog tooltip-hide-content stats-hide-content">
+          ${Object.keys(actorAbilities)
+            .map((key, index) => dialogStatsWrapper(key, index, actorAbilities[key].value))
+            .join('')}
+          ${Object.keys(actorSkills)
+            .filter(key => actorSkills[key].value > 0)
+            .map((key, index) => dialogStatsWrapper(key, index, actorSkills[key].value))
+            .join('')}
+        </div>
+      </div>
+    `
+    const dialogToolTipTouchstones = touchstonesList => `
+    <style>
+      .touchstones-body {
+        background-color: var(--dialog-primary-transparent);
+      }
 
-              .hr-content {
-                color: var(--dialog-red-primary);
-              }
-      </style>
-      <div class="label-wrapper header-resources-wrapper">
-          <span class="label-resources resources-placeholder">${getPlaceholder[resource]}</span>
-          <i class="fas fa-caret-right"></i>
-          <span class="label-resources hr-content">${headers[resource]}</span>
-      </div>`,
-      iconDice: (className, title) => `
-      <style>
-          .dice-icon {
-              position:absolute;
-              width:20px;
-              filter: invert(100%) sepia(30%) saturate(621%) hue-rotate(316deg) brightness(88%) contrast(90%);
-              background: var(--dialog-primary-transparent);
-              border: 0;
-              border-radius: 50%;
-            }
-      </style>
-      <img class="dice-icon ${className}" title="${title}"data-id=${actorId} src="/systems/vtm5e/assets/images/dice.svg"/>`,
-      featureDiscipline: () => `
-      <style>
-    .feature-body-discipline {
-        width: 192px;
-        overflow-y: auto;
-        overflow-x: visible;
-    }
-    .feature-body-discipline ol {
-        width: 170px;
-        list-style-type: none;
-        margin-left: 6px;
-        padding: 0;
-        overflow-y:clip;
-    }
-    .feature-body-discipline li {
-        display: grid;
-        grid-template-columns: 55% 45%;
-        grid-template-areas:
-            "discipline level"
-            "content content";
-
-        border:1px solid black;
-
-        border: 1px solid var(--dialog-light);
-        border-radius: 5px;
-        padding: 3px;
-        // border-bottom: 1px solid var(--dialog-primary);
-
-        margin-bottom: 5px;
-
-    }
-
-    .discipline-card span {
-        font-family: var(--dialog-font-family);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .discipline-name {
-        grid-area: discipline;
-        width: 90px;
-        text-transform: uppercase;
-        color: var(--dialog-red-primary);
-        font-weight: bold;
-        font-size: 12px;
-    }
-    .discipline-value {
-        grid-area: level;
-    }
-    .discipline-power-content {
-        grid-area: content;
+      .touchstones-content {
         position: relative;
         display: flex;
-        flex-direction: column;
-        white-space: nowrap;
+        flex-direction: row;
+      }
 
-        max-height: 0;
-        opacity: 0;
-        visibility: hidden;
-        transition: max-height 0.25s ease-out, visibility 0.35s linear, opacity 0.35s linear;
-    }
-    .power-wrapper {
-        overflow: hidden;
-        align-items: center;
-        padding: 5px;
-        min-width: 165px;
-        margin-bottom: 5px;
-    }
-    .power-wrapper .dice-icon {
-        filter: invert(14%) sepia(6%) saturate(172%) hue-rotate(22deg) brightness(91%) contrast(89%);
-        right: -10px;
-    }
-    .power-wrapper .dice-icon:hover {
-        box-shadow: 3px 2px 5px var(--dialog-darkest);
-        filter: invert(12%) sepia(72%) saturate(3018%) hue-rotate(352deg) brightness(97%) contrast(92%);
-    }
-    .power-wrapper img {
+      .touchstones-content + .touchstones-content::before {
+        display: inline-block;
+        white-space: pre;
+        content: '';
+      }
+
+      .bi-person-bounding-box {
+        font-size: 50px;
         position: absolute;
-        border-radius: 50%;
-        filter: invert(91%) sepia(12%) saturate(150%) hue-rotate(21deg) brightness(90%) contrast(79%);
-        box-shadow: 3px 2px 5px var(--dialog-darker);
-        transition: filter 0.3s ease-in-out;
-        transition: box-shadow 0.3s ease-in-out;
-        width: 20px;
-        cursor: pointer;
-        background: transparent;
-        border: none;
-    }
-    .discipline-image {
-        left: -10px;
-    }
-    .discipline-info {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-      width: 143px;
-      margin-left:5px;
+        right: -25px;
+        top: -18px;
+        color: var(--dialog-red-primary);
+        background-color: var(--dialog-primary-transparent);
+        border-radius: 6px;
+      }
 
-      overflow: hidden;
+      .ts-convic-image {
+        position: absolute;
+        right: -40px;
+        top: -20px;
+      }
 
-      transition: all .2s;
-      border-radius: 6px;
-    }
+      .ts-name {
+        border-top: 0;
+        width: 100%;
+      }
 
-    .discipline-info:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-     }
-     .discipline-info:active {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-     }
+      .ts-convic-conviction {
+        display: flex;
+        width: 95%;
+        min-height: 35px;
+        padding-left: 5px;
+      }
 
-     .discipline-info::after {
-      content: "";
-      display: inline-block;
-      height: 100%;
-      width: 100%;
-      border-radius: 100px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      transition: all .4s;
-     }
+      .touchstones {
+        left: 7px;
+      }
+    </style>
+    <div class="tooltip touchstones">
+      <i class="bi bi-people-fill bi-tooltip"></i>
+      <span class="tooltip-hide-content tooltip-label">${getLanguage.touchstonesAndConvictions}</span>
+      <div class="wrapper-dialog tooltip-hide-content touchstones-body">
+        ${touchstonesList
+          .map(
+            tsConvictions => `
+    <div class="touchstones-content">
+        ${
+          tsConvictions.touchstoneImage !== 'img'
+            ? `<img class="image ts-convic-image" src=${tsConvictions.touchstoneImage}/>`
+            : `<i class="bi bi-person-bounding-box"></i>`
+        }
+        <span class="header-label header-placeholder blood-gifts-label ts-name">${tsConvictions.touchstone}</span>
+    </div>
+    <span class="ts-convic-conviction">"${tsConvictions.conviction}"</span>`
+          )
+          .join('')}
+      </div>
+    </div>
+  `
+    const dialogHeaderInnerContent = touchstonesList => `
+      <style>
+        .grid-column .header-wrapper {
+          grid-column: header;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+        }
+        .tooltips-wrapper {
+          position: absolute;
+          height: 18px;
+          width: 100%;
+          box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 2px 2px var(--dialog-light);
+          background-color: var(--dialog-red-primary);
+          border-radius: 10px 0 0 10px;
+        }
 
-     .discipline-info:hover::after {
-      transform: scaleX(1.4) scaleY(1.6);
-      opacity: 0;
-     }
+        .header-Wrapper-content {
+          display: flex;
+          position: relative;
+          flex-direction: column;
+          width: 100%;
+        }
 
-    .discipline-info span{
-      font-size: 10px;
+        .header-label-wrapper {
+          display: flex;
+          align-items: center;
+        }
+        .header-placeholder {
+          background: var(--dialog-red-primary);
+          width: 30%;
+        }
 
-      // display: flex;
-      // justify-content: center;
-      // white-space: nowrap;
-    }
-    .power-name {
-      width: 143px;
-      padding-left: 5px;
+        .header-placeholder[end='true'] {
+          border-radius: 0 0 0 12%;
+        }
+        .wrapper-dialog {
+          border-bottom: 2px solid var(--dialog-red-primary);
+          border-left: 2px solid var(--dialog-red-primary);
+          border-radius: 0 0 0 10px;
+          margin-bottom: 7px;
+        }
+        .header-label {
+          display: flex;
+          align-items: center;
+          font-size: 12px;
+          padding: 2px 2px 2px 2px;
+          font-weight: bold;
+          width: 100%;
+          color: var(--dialog-primary);
+        }
+        .image {
+          width: 50px;
+          margin-right: 15px;
+          border: 0;
+        }
+        .tooltip-image-wrapper {
+          position: relative;
+          width: 70px;
+          height: 100%;
+        }
 
-      // display: flex;
-      // align-items: center;
-      // justify-content: center;
+        .actor-image {
+          position: absolute;
+          padding-top: 5px;
+          top: 50%; /* position the top  edge of the element at the middle of the parent */
+          left: 50%; /* position the left edge of the element at the middle of the parent */
+          transform: translate(-50%, -50%);
+        }
+        .actor-name {
+          color: black;
+          padding-left: 3px;
+          margin: 0;
+        }
 
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-weight: bold;
-    }
-    .collapsible {
-        cursor: pointer;
-    }
-</style>
-<div class="feature-body-discipline">
-    <ol>
+        .open-sheet {
+          position: absolute;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          top: -5px;
+          right: 0;
+        }
+        .open-sheet i {
+          color: black;
+          margin-top: 7px;
+          margin-left: 4px;
+        }
+        .open-sheet:hover i {
+          color: var(--dialog-primary);
+        }
+      </style>
+      <div class="tooltip-image-wrapper">
+        <div class="tooltips-wrapper">
+        ${dialogToolTipBloodPotency()}
+        ${dialogToolTipStats()}
+        ${dialogToolTipTouchstones(touchstonesList)}
+        </div>
+        <img class="image actor-image" src=${actorImg} alt="img" />
+      </div>
+      <div class="header-Wrapper-content">
+        <a
+          class="open-sheet is-clickable title"
+          onclick='${event => _handleMouseEvents(event).onOpenSheet()}'
+          data-id="${actorId}"
+          data-title="${getLanguage.openSheet}"
+        >
+          <i class="bi bi-file-earmark-text-fill open-sheet-icon"></i>
+        </a>
+        <div class="wrapper-dialog">
+          <h1 class="header-label actor-name">${actorName}</h1>
+          ${dialogHeaderLabelContent(getLanguage.concept, headers.concept)}
+          ${dialogHeaderLabelContent(getLanguage.ambition, headers.ambition)}
+          ${dialogHeaderLabelContent(getLanguage.desire, headers.desire)}
+        </div>
+      </div>
+    `
+    /* -------------------------- dialogResourcesInnerContent --------------------------  */
+    const dialogResourcesInnerContent = (hungerMarks, healthMarks, willpowerMarks, humanityMarks) => `
+      <style>
+        .resource-wrapper {
+          display: grid;
+          grid-gap: 3px;
+          grid-template-areas:
+            'exp hunger hunger hunger'
+            'frenzy health willpower humanity';
+        }
+        .resource-wrapper .wrapper {
+          border-radius: 4px;
+          padding: 3px;
+          background: var(--dialog-primary-transparent-dark);
+        }
+        .resources-label {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+
+          text-transform: uppercase;
+          color: var(--dialog-red-primary);
+          font-family: var(--dialog-font-family);
+          font-weight: bold;
+          font-size: 11px;
+
+          margin: auto;
+          padding: 2px;
+          border-bottom: 2px solid var(--dialog-red-primary);
+
+          min-height: 30px;
+        }
+        .exp-wrapper {
+          grid-area: exp;
+        }
+        .exp-wrapper div {
+          display: flex;
+        }
+        .exp-content {
+          padding-top: 5px;
+          position: relative;
+        }
+        .exp-value {
+          border: none;
+          font-size: 14px;
+          min-height: 0px;
+        }
+        .exp-controls {
+          position: absolute;
+          top: 1px;
+          right: -10px;
+          flex-direction: column;
+        }
+        .exp-controls a {
+          color: var(--dialog-red-primary);
+        }
+        .exp-controls:hover a {
+          color: var(--dialog-primary);
+        }
+        .frenzy-wrapper {
+          grid-area: frenzy;
+        }
+        .frenzy-wrapper p {
+          min-width: 60px;
+        }
+
+        .five-mark-resource {
+          width: 100px;
+        }
+
+        .hunger-wrapper {
+          grid-area: hunger;
+
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .hunger-wrapper p {
+          margin-bottom: 5px;
+        }
+
+        .health-wrapper {
+          grid-area: health;
+        }
+
+        .willpower-wrapper {
+          grid-area: willpower;
+        }
+
+        .humanity-wrapper {
+          grid-area: humanity;
+        }
+      </style>
+      <div class="exp-wrapper wrapper">
+        <p class="resources-label exp-label">${getLanguage.exp}</p>
+        <div class="exp-content">
+          <p class="resources-label exp-value">${exp.value}</p>
+          <div class="exp-controls">
+            <a class="is-clickable add-exp" onclick="_handleMouseEvents(event).onAddExp()" data-id=${actorId}>
+              <i class="fas fa-plus-circle"></i>
+            </a>
+            <a class="is-clickable sub-exp" onclick="_handleMouseEvents(event).onSubExp()" data-id=${actorId}>
+              <i class="fas fa-minus-circle"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="frenzy-wrapper wrapper">
+        ${dialogButton(
+          'frenzy-button',
+          getLanguage.frenzy,
+          {
+            type: '1',
+            title: getLanguage.rollFrenzy
+          },
+          '_handleMouseEvents(event).onRollFrenzy()'
+        )}
+        ${dialogButton(
+          'hunting-button',
+          getLanguage.hunting,
+          {
+            type: '1',
+            title: getLanguage.rollHunting
+          },
+          '_handleMouseEvents(event).onRollHunting()'
+        )}
+      </div>
+      <div class="hunger-wrapper wrapper">
+        ${dialogResourcesContent(
+          getLanguage.hunger,
+          hungerMarks,
+          getLanguage.rouse,
+          '_handleMouseEvents(event).onRollHunger()',
+          'hunger'
+        )}
+      </div>
+      <div class="health-wrapper wrapper five-mark-resource">
+        ${dialogResourcesContent(getLanguage.health, healthMarks)}
+      </div>
+      <div class="willpower-wrapper wrapper five-mark-resource">
+        ${dialogResourcesContent(
+          getLanguage.willpower,
+          willpowerMarks,
+          getLanguage.rollWillpower,
+          '_handleMouseEvents(event).onRollWillpower()'
+        )}
+      </div>
+      <div class="humanity-wrapper wrapper five-mark-resource">
+        ${dialogResourcesContent(
+          getLanguage.humanity,
+          humanityMarks,
+          getLanguage.remorse,
+          '_handleMouseEvents(event).onRollRemorse()'
+        )}
+      </div>
+    `
+    /* -------------------------- dialogFeatureInnerContent --------------------------  */
+    const dialogDisciplines = actorDisciplines => `
+      <style>
+        .card-discipline {
+          display: grid;
+          grid-template-columns: 55% 45%;
+          grid-template-areas:
+            'discipline level'
+            'content content';
+        }
+        .discipline-name {
+          grid-area: discipline;
+          width: 90px;
+        }
+        .discipline-value {
+          grid-area: level;
+        }
+        .power-container {
+          grid-area: content;
+        }
+        .icon-edit {
+          right: 0;
+          top: 50%;
+          color: var(--dialog-red-primary);
+          transform: translateY(-50%);
+          transition: all 0.5s;
+        }
+        .icon-edit:hover i {
+          color: var(--dialog-primary);
+        }
+        .icon-edit i {
+          font-size: 12px;
+          background: none;
+        }
+        .item-blood {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          bottom: -8px;
+        }
+
+        .btn-power .item-dice {
+          right: calc(50% + 20px);
+        }
+        .btn-power {
+          overflow: visible;
+        }
+        .btn-power:hover + .icon-edit {
+          top: calc(50% - 4px);
+        }
+        .btn-power[dices]::after {
+          content: attr(dices);
+          position: relative;
+          z-index: 10000;
+          display: flex;
+          justify-content: center;
+          text-transform: capitalize;
+          transition: all 0.3s ease-in-out;
+        }
+        .btn-power[dices]:hover::after {
+          color: var(--dialog-primary);
+        }
+      </style>
+      <ol>
         ${Object.keys(actorDisciplines)
           .map(discipline => {
             const { name: disciplineName, powers, value } = actorDisciplines[discipline]
             const localizeName = game.i18n.localize(disciplineName)
             return `
-        <li class="discipline-card">
-            <span class="discipline-name collapsible" title="${localizeName}">${localizeName}</span>
-            <div class="discipline-value">${getResourcesActivity(value)}</div>
-            <!-- Empty box (for setting back to 0), and then iterate through the rest of the discipline dots -->
-            <div class="discipline-power-content">
-                ${powers
-                  .map(power => {
-                    const {
-                      id,
-                      img,
-                      data: {
-                        name: powerName,
-                        data: { rollable, level, dice1, dice2 }
-                      }
-                    } = power
-                    return `
-                <div class="power-wrapper">
-                    <img class="discipline-image" src="${img}" title="${powerName}" alt="${powerName}" data-character-id="${actorId}" data-id="${id}" />
-                    ${getHtmlElements.iconDice()}
-                    <!-- Discipline power information -->
-                    <div class="discipline-info"><span class="power-name" power-level="${level}">${powerName}</span> ${
-                      rollable ? `<span>${dice1} + ${dice2}</span>` : ``
-                    }</div>
-                </div>
-                `
-                  })
-                  .join('')}
-            </div>
-        </li>
-        `
+                <li class="card-discipline">
+                  <span class="discipline-name collapsible" onclick='_handleMouseEvents(event).onCollapsibleToggle()' data-title="${localizeName}">${localizeName}</span>
+                  <div class="discipline-value resources-counter">${getResourcesActivity(value)}</div>
+                  <!-- Empty box (for setting back to 0), and then iterate through the rest of the discipline dots -->
+                  <div class="power-container collapse hidden-content">
+                    ${powers
+                      .map(power => {
+                        const {
+                          id,
+                          img,
+                          data: {
+                            name: powerName,
+                            data: { rollable, level, dice1, dice2, discipline: dataDiscipline, rouse }
+                          }
+                        } = power
+                        const isRollable = rollable
+                          ? {
+                              addData: `
+                                dices="${dice1} + ${dice2}"
+                                data-id="${actorId}"
+                                data-item-id="${id}"
+                                data-discipline="${dataDiscipline}"
+                                data-discipline-level="${value}"
+                                data-img="${img}"
+                                data-name="${powerName}"
+                                data-rouse="${rouse}"
+                                data-rollable=${rollable}
+                                data-level="${level}"
+                                data-dice1="${dice1}"
+                                data-dice2="${dice2}"
+                              `
+                            }
+                          : { addData: '' }
+                        const { addData } = isRollable
+                        return `
+                          <!-- Discipline power information -->
+                          ${dialogButton(
+                            'btn-power',
+                            powerName,
+                            {
+                              type: 2,
+                              addData,
+                              rollable,
+                              element: `
+                              ${
+                                rouse
+                                  ? `
+                                      <a class="item-blood item-dice">
+                                        <i class="fa fa-tint" aria-hidden="true"></i>
+                                      </a>
+                                    `
+                                  : ''
+                              }
+                              <a class="icon-edit is-clickable" onclick='_handleMouseEvents(event).onOpenItem()' data-id="${actorId}" data-item-id="${id}">
+                                <i class="fas fa-edit"></i>
+                              </a>
+                            `
+                            },
+                            '_handleMouseEvents(event).onRollDiscipline()'
+                          )}
+                        `
+                      })
+                      .join('')}
+                  </div>
+                </li>
+              `
           })
           .join('')}
-    </ol>
-</div>
-`
-    }
-
-    const getTooltip = {
-      bloodPotency: `
+      </ol>
+    `
+    const dialogFeatures = featuresTypes => `
       <style>
-
+        .card-feature {
+          display: flex;
+          flex-direction: column;
+        }
+        .wrapper-btn-feature {
+          position: relative;
+        }
+        .feature-level {
+          position: absolute;
+          right: 7px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--dialog-red-primary);
+          background-color: var(--dialog-primary);
+          text-align: center;
+          box-shadow: 3px 2px 5px var(--dialog-darkest);
+          font-family: var(--dialog-font-family);
+          font-size: 12px;
+          font-weight: bold;
+          height: 12px;
+          width: 12px;
+          border-radius: 50%;
+          transition: all 0.4s;
+        }
+        .btn-feature:hover + .feature-level {
+          top: calc(50% - 4px);
+        }
       </style>
-      <div class="tooltip blood-potency" data="${bloodPotencyValue}">
-          <i class="bi bi-droplet-fill bi-tooltip"></i>
-          <span class="tooltip-hide-content tooltip-label">${getPlaceholder.bloodPotency}</span>
-          <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
-              ${getHtmlElements.bloodGift(getPlaceholder.bloodSurge, bloodPotency.surge)}
-              ${getHtmlElements.bloodGift(getPlaceholder.powerBonus, bloodPotency.power)}
-              ${getHtmlElements.bloodGift(getPlaceholder.FeedingPenalty, bloodPotency.feeding)}
-              ${getHtmlElements.bloodGift(getPlaceholder.MendAmount, bloodPotency.mend)}
-              ${getHtmlElements.bloodGift(getPlaceholder.RouseReRoll, bloodPotency.rouse)}
-              ${getHtmlElements.bloodGift(getPlaceholder.BaneSeverity, bloodPotency.bane)}
-          </div>
-      </div>`,
-      stats: `
+      <ol>
+        ${featuresTypes
+          .map(
+            type => `
+                <li class="card-feature">
+                  <span class="collapsible" onclick='_handleMouseEvents(event).onCollapsibleToggle()'>${
+                    type.name
+                  }</span>
+                  <div class="collapse hidden-content">
+                    ${
+                      type.content.length === 0
+                        ? ``
+                        : type.content
+                            .map(feature =>
+                              (() => {
+                                const {
+                                  data: { points },
+                                  name
+                                } = feature
+                                return dialogButton(
+                                  'btn-feature',
+                                  name,
+                                  {
+                                    type: '2',
+                                    addData: `data-name='${name}' data-level=${points} data-type='${type.name}'`,
+                                    rollable: true,
+                                    element: `<span class="feature-level">${points}</span>`
+                                  },
+                                  '_handleMouseEvents(event).onRollFeature()'
+                                )
+                              })()
+                            )
+                            .join('')
+                    }
+                  </div>
+                </li>
+              `
+          )
+          .join('')}
+      </ol>
+    `
+    const dialogGetFeatureBody = (bodyType = { label: '', element: '' }) => `
       <style>
-      .stats-hide-content {
-        overflow-x: scroll;
-        display:flex;
-        flex-wrap: wrap;
-        align-content: space-between;
-        height: 206px;
-        width: 355px;
-        flex-direction:column;
-        border-top:2px solid var(--dialog-red-primary);
-        background-color: var(--dialog-red-transparent);
-      }
+        .feature-discipline-container {
+          position: relative;
+          min-width: 190px;
+          overflow-y: auto;
+        }
+        .feature-discipline-title {
+          position: absolute;
+          left: 0;
+          right: 0;
+          margin-left: auto;
+          margin-right: auto;
+          display: flex;
+          justify-content: center;
+          text-align: center;
+          width: min-content;
+          text-transform: uppercase;
+          font-family: var(--dialog-font-family);
+          font-weight: bold;
+          font-size: 12px;
+          color: var(--dialog-red-primary);
+          background-color: var(--dialog-primary);
+          box-shadow: -8px 8px 23px -3px rgba(0, 0, 0, 0.53);
+          border-radius: 5px;
+          padding: 3px;
+        }
+        .feature-discipline-container ol {
+          width: 170px;
+          list-style-type: none;
+          margin-top: 25px;
+          margin-left: 6px;
+          padding: 0;
+          overflow-y: clip;
+        }
+        .feature-discipline-container li {
+          border: 1px solid black;
+          border: 1px solid var(--dialog-light);
+          border-radius: 5px;
+          padding: 3px;
+          margin-bottom: 5px;
+        }
+        .collapsible {
+          cursor: pointer;
+          font-family: var(--dialog-font-family);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-transform: uppercase;
+          color: var(--dialog-red-primary);
+          font-weight: bold;
+          font-size: 12px;
+        }
+        .collapse {
+          border-left: 3px solid var(--dialog-red-primary);
+          padding-left: 2px;
 
-      .tooltip-stats {left: 24px}
-
-        .temp-show {
-          visibility: visible;
-          opacity:1;
+          pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+        }
+      </style>
+      <div class="feature-discipline-container">
+        <p class="feature-discipline-title">${bodyType.label}</p>
+        ${bodyType.element}
+      </div>
+    `
+    const dialogFeatureInnerContent = (actorDisciplines, featuresTypes) => `
+      <style>
+        .grid-column .feature-wrapper {
+          grid-column: feature;
+          min-height: 13px;
+          overflow: hidden;
         }
 
+        .feature-header {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .feature-header a {
+          position: absolute;
+          display: flex;
+          min-width: 0;
+          background: var(--dialog-primary);
+          min-height: 0;
+          border-radius: 7px 0 0 7px;
+          transition: all 0.55s ease-in-out;
+        }
+
+        .feature-header i {
+          z-index: 100;
+          color: var(--dialog-red-primary);
+          font-size: 14px;
+          cursor: pointer;
+          padding-left: 2px;
+          transition: all 0.55s ease-in-out;
+        }
+        .feature-header:hover a {
+          min-width: 100%;
+          min-height: 12px;
+          background: var(--dialog-red-primary);
+          transition: all 0.55s ease-in-out;
+        }
+
+        .feature-header:hover i {
+          color: var(--dialog-primary);
+          transition: all 0.55s ease-in-out;
+        }
+
+        .feature-body {
+          margin-top: 12px;
+          display: flex;
+          justify-content: space-between;
+          overflow: hidden;
+        }
+
+        .hidden-content {
+          display: flex;
+          flex-direction: column;
+          white-space: nowrap;
+
+          max-height: 2px;
+          transition: all 0.25s ease-in;
+        }
+        .show-content {
+          max-height: 250px;
+          pointer-events: auto !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          transition: all 0.4s linear;
+        }
       </style>
-      <div class="tooltip tooltip-stats">
-          <i id="image" class="bi bi-bookmarks-fill bi-tooltip"></i>
-          <span class="tooltip-hide-content tooltip-label">${getPlaceholder.attributes} & ${
-        getPlaceholder.skills
-      }</span>
-          <div class="wrapper-dialog tooltip-hide-content stats-hide-content">
-                ${Object.keys(abilities)
-                  .map((key, index) => {
-                    const { value: abilityValue, name } = abilities[key]
-                    return getHtmlElements.statsWrapper(name, key, index, abilityValue, actorId)
-                  })
-                  .join('')}
-                ${Object.keys(skills)
-                  .filter(key => skills[key].value > 0)
-                  .map((key, index) => {
-                    const { value: skillValue, name } = skills[key]
-                    return getHtmlElements.statsWrapper(name, key, index, skillValue, actorId)
-                  })
-                  .join('')}
-          </div>
-      </div>
-      `,
-      touchstones: `
-      <div class="tooltip touchstones">
-          <i class="bi bi-people-fill bi-tooltip"></i>
-          <span class="tooltip-hide-content tooltip-label">${getPlaceholder.touchstonesAndConvictions}</span>
-          <div class="wrapper-dialog tooltip-hide-content touchstones-body">
-              ${touchstonesList
-                .map(
-                  tsConvic => `
-              <div class="touchstones-content">
-                  ${
-                    tsConvic.touchstoneImage !== 'img'
-                      ? `<img class="image ts-convic-image" src=${tsConvic.touchstoneImage}/>`
-                      : `<i class="bi bi-person-bounding-box"></i>`
-                  }
-                  <span class="label-resources resources-placeholder blood-gifts-label ts-name">${
-                    tsConvic.touchstone
-                  }</span>
-              </div>
-              <span class="ts-convic-conviction">"${tsConvic.conviction}"</span>`
-                )
-                .join('')}
-          </div>
-      </div>`
-    }
-
-    const getResourcesInnerHtml = (
-      className,
-      placeholder,
-      classState,
-      dataValue,
-      dataMax,
-      dataStains,
-      dataSuperficial,
-      dataAggravated,
-      dataName,
-      resourceMarks,
-      title,
-      clickable = 'is-clickable'
-    ) => `<style>
-    .resources-label {
-      text-transform: uppercase;
-      margin: 2px 0px;
-      whidth: 100%;
-      color: var(--dialog-red-primary);
-      padding: 2px;
-
-      font-family: var(--dialog-font-family);
-      font-weight:bold;
-      font-size:12px;
-    }
-
-    .resources-counter {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      color: transparent;
-    }
-
-    .resources-counter .resources-counter-step {
-      height: 14px;
-      width: 14px;
-      border: 2px solid black;
-      margin-right: 2px;
-    }
-
-    .resources-counter .resources-counter-step[data-state="-"] {
-      background-color: black;
-    }
-
-    .resources-counter .resources-counter-step[data-state="/"] {
-      background: linear-gradient(
-            135deg,
-            transparent 0%,
-            transparent 43%,
-            black,
-            black,
-            transparent 57%,
-            transparent 100%
-            );
-    }
-
-    .resources-counter .resources-counter-step[data-state="x"] {
-      background: linear-gradient(
-            45deg,
-            transparent 0%,
-            transparent 43%,
-            black,
-            black,
-            transparent 57%,
-            transparent 100%
-            ),
-            linear-gradient(
-            135deg,
-            transparent 0%,
-            transparent 43%,
-            black,
-            black,
-            transparent 57%,
-            transparent 100%
-            );
-    }
-    </style><div class="flexrow">
-      <label class="wrapper-dialog resources-label ${clickable} ${className}" title="${title}"0 data-id="${actorId}">${placeholder}</label>
-    </div>
-    <div class="resources-counter" data-states=${classState} data-value=${dataValue} data-max="${dataMax}" data-stains="${dataStains}" data-superficial="${dataSuperficial}" data-aggravated="${dataAggravated}" data-name=${dataName}>
-      ${resourceMarks.map(
-        mark => `
-        <span class="resources-counter-step" data-index=${mark.dataIndex} data-state=${mark.dataState}></span>`
-      )}
-    </div>
-    `
-
-    headerWrapper.innerHTML += `
-    <style>
-    hunger-wrapper {
-      position:relative;
-      width:90px;
-      margin-bottom: 5px;
-      color: transparent;
-    }
-
-    .hunger-wrapper img {
-      /* color of svg: */
-      filter: invert(91%) sepia(12%) saturate(150%) hue-rotate(21deg) brightness(90%) contrast(79%);
-      box-shadow: 3px 2px 5px var(--dialog-darker);
-
-      transition:filter 0.3s ease-in-out;
-      transition:box-shadow 0.3s ease-in-out;
-
-      width:22px;
-      cursor:pointer;
-      background: transparent;
-
-      bottom: 1px;
-      left: 90px;
-    }
-
-    .header-Wrapper-content {
-      display: flex;
-      position:relative;
-      flex-direction: column;
-      width: 100%;
-    }
-
-    .actor-name {
-      color: black;
-      padding-left: 3px;
-      margin:0;
-    }
-
-    .hunger-wrapper img:hover {
-      filter: invert(12%) sepia(72%) saturate(3018%) hue-rotate(352deg) brightness(97%) contrast(92%);
-      box-shadow: 3px 2px 5px var(--dialog-darkest);
-    }
-    </style>
-    <div class="tooltip-image-wrapper">
-      <div class="tooltips-wrapper">${getTooltip.bloodPotency} ${getTooltip.stats} ${getTooltip.touchstones}</div>
-      <img class="image actor-image" src=${actorImg} alt="img" />
-    </div>
-    <div class="header-Wrapper-content">
-      <a class="open-sheet is-clickable">
-        <p>Abrir Ficha</p>
-        <i class="bi bi-file-earmark-text-fill open-sheet-icon" data-id=${actorId}></i>
-      </a>
-      <div class="wrapper-dialog">
-        <h1 class="label-resources actor-name">${actorName}</h1>
-        ${getHtmlElements.headerResourcesLabel('concept', 'false')}
-        ${getHtmlElements.headerResourcesLabel('ambition', 'false')}
-        ${getHtmlElements.headerResourcesLabel('desire', 'true')}
-      </div>
-      <div class="hunger-wrapper">
-        ${getHtmlElements.iconDice('dice-hunger', getPlaceholder.rouse)}
-        ${hungerMarks
-          .map(({ dataIndex, dataState }) => getHtmlElements.resourceMark(dataIndex, true, dataState))
-          .join(' ')}</div>
-    </div>`
-
-    healthPoints.innerHTML += getResourcesInnerHtml(
-      'healthPoints',
-      getPlaceholder.health,
-      '/:superficial,x:aggravated',
-      null,
-      health.max,
-      null,
-      health.superficial,
-      health.aggravated,
-      'data.health',
-      healthMarks,
-      getPlaceholder.health,
-      ''
-    )
-
-    willpowerPoints.innerHTML += getResourcesInnerHtml(
-      'willpower-points',
-      getPlaceholder.willpower,
-      '/:superficial,x:aggravated',
-      null,
-      willpower.max,
-      null,
-      willpower.superficial,
-      willpower.aggravated,
-      'data.willpower',
-      willpowerMarks,
-      getPlaceholder.frenzy
-    )
-
-    humanityPoints.innerHTML += getResourcesInnerHtml(
-      'humanity-points',
-      getPlaceholder.humanity,
-      '/:stains,-:value',
-      humanity.value,
-      null,
-      humanity.stains,
-      null,
-      null,
-      'data.humanity',
-      humanityMarks,
-      getPlaceholder.remorse
-    )
-
-    featureWrapper.innerHTML += `
-    <style>
-    .feature-header {
-      display: flex;
-      flex-direction: column;
-      align-items:center;
-    }
-
-    .feature-header a {
-      display:flex;
-      width:100%;
-      background: var(--dialog-red-primary);;
-      justify-content:center;
-    }
-
-    .feature-header i {
-      color: var(--dialog-light);;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .feature-header h1 {
-      color: var(--dialog-red-primary);
-      font-weight:bold;
-      font-size: 12px;
-
-      margin-top:2px;
-      border:0;
-    }
-
-    .feature-body {
-      display:flex;
-      justify-content:space-between;
-      overflow:hidden;
-    }
-    </style>
-      <div class="feature-header">
+      <div class="feature-header" onclick="_handleMouseEvents(event).onFeatureToggle()">
         <a>
-        <i class="fas fa-caret-down toggle-arrow"></i>
+          <i class="fas fa-solid fa-eye toggle-arrow"></i>
         </a>
-        <h1>${game.i18n.localize('VTM5E.Disciplines')} & ${game.i18n.localize('VTM5E.Features')}</h1>
       </div>
       <div class="feature-body">
-        ${getHtmlElements.featureDiscipline()}
-        <div class="feature-body-feature">
-          <p>feature</p>
-        </div>
+        ${dialogGetFeatureBody({
+          label: getLanguage.disciplines,
+          element: dialogDisciplines(actorDisciplines)
+        })}
+        ${dialogGetFeatureBody({
+          label: getLanguage.features,
+          element: dialogFeatures(featuresTypes)
+        })}
       </div>
-`
+    `
+    return {
+      DIALOG__RESOURCE_COUNTER_STEP: dialogResourceCounterStep,
+      DIALOG__HEADER_INNER_CONTENT: dialogHeaderInnerContent,
+      DIALOG__RESOURCES_INNER_CONTENT: dialogResourcesInnerContent,
+      DIALOG__FEATURE_INNER_CONTENT: dialogFeatureInnerContent
+    }
+  }
+  const createWrapper = (className, resourcesGridWrapper) => {
+    const wrapper = document.createElement('div')
+    wrapper.className = className
+    resourcesGridWrapper.appendChild(wrapper)
+    return wrapper
+  }
+  /**
+   * It takes an actor and a wrapper, and creates a wrapper for the actor's resources, and then creates
+   * the HTML for the actor's resources
+   * @param actor - The actor object
+   * @param resourcesGridWrapper - The wrapper that will contain the resources.
+   */
+  function createActorWrapper(actor, resourcesGridWrapper) {
+    const { data: actorData } = actor
+    const {
+      items: actorItems,
+      data: {
+        headers: { touchstones }
+      }
+    } = actorData
+
+    const headerWrapper = createWrapper('header-wrapper', resourcesGridWrapper)
+    const resourcesWrapper = createWrapper('resource-wrapper', resourcesGridWrapper)
+    const featureWrapper = createWrapper('feature-wrapper hidden-content', resourcesGridWrapper)
+
+    headerWrapper.innerHTML += (() => {
+      /**
+       * It takes a string, creates a new DOMParser, parses the string as HTML, and returns the text content
+       * of the document element
+       * @param input - The string to be decoded.
+       * @returns the text content of the document element.
+       */
+      function htmlDecode(input) {
+        const doc = new DOMParser().parseFromString(input, 'text/html')
+        return doc.documentElement.textContent
+      }
+
+      const touchstonesList = []
+
+      /* Taking the touchstones string and parsing it into an array of objects. */
+      htmlDecode(touchstones).replace(/(.+); *(.+)/gm, (match, p1, p2) => {
+        const img = game.journal.contents.filter(entry => entry.data.name === p2)[0]?.data.img
+        const touchstoneImage = img !== undefined ? img : 'img'
+        touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage })
+      })
+
+      return htmlElements(actor).DIALOG__HEADER_INNER_CONTENT(touchstonesList)
+    })()
+
+    resourcesWrapper.innerHTML += (() => {
+      const {
+        data: { health, willpower, humanity, hunger }
+      } = actorData
+
+      const createResourceList = actorResource => {
+        const isDifferent = compare => actorResource[compare] !== undefined
+        const resourceList = []
+        let options = { count: 0, option: 1 }
+
+        const getResourceState = {
+          1: index =>
+            actorResource.superficial > 0 && actorResource.superficial !== index && index < actorResource.superficial
+              ? { dataIndex: index, dataState: '/' }
+              : actorResource.aggravated > 0 &&
+                actorResource.superficial + actorResource.aggravated !== index &&
+                index < actorResource.superficial + actorResource.aggravated
+              ? { dataIndex: index, dataState: 'x' }
+              : { dataIndex: index, dataState: '' },
+          2: index =>
+            actorResource.value > index
+              ? { dataIndex: index, dataState: '-' }
+              : actorResource.stains > 0 &&
+                actorResource.value + actorResource.stains !== index &&
+                index < actorResource.value + actorResource.stains
+              ? { dataIndex: index, dataState: '/' }
+              : { dataIndex: index, dataState: '' },
+          3: index =>
+            index < actorResource ? { dataIndex: index, dataState: '-' } : { dataIndex: index, dataState: false }
+        }
+
+        isDifferent('max')
+          ? (options = { count: actorResource.max, option: 1 })
+          : isDifferent('stains')
+          ? (options = { count: 10, option: 2 })
+          : (options = { count: 5, option: 3 })
+
+        for (let index = 0; index < options.count; index++) resourceList.push(getResourceState[options.option](index))
+        return resourceList
+      }
+
+      const hungerStep = createResourceList(hunger.value)
+      const healthStep = createResourceList(health)
+      const willpowerStep = createResourceList(willpower)
+      const humanityStep = createResourceList(humanity)
+
+      return htmlElements(actor).DIALOG__RESOURCES_INNER_CONTENT(hungerStep, healthStep, willpowerStep, humanityStep)
+    })()
+
+    featureWrapper.innerHTML += (() => {
+      const getFeatureType = type =>
+        actorItems._source.filter(item => item.type === 'feature' && item.data.featuretype === type)
+      const background = {
+        name: getLanguage.background,
+        content: getFeatureType('background')
+      }
+      const merit = {
+        name: getLanguage.merit,
+        content: getFeatureType('merit')
+      }
+      const flaw = {
+        name: getLanguage.flaw,
+        content: getFeatureType('flaw')
+      }
+      const featuresTypes = [background, merit, flaw]
+
+      const { disciplines } = actorData.data
+      const actorDisciplines = Object.fromEntries(Object.entries(disciplines).filter(([, value]) => value.visible))
+      const actorPowers = actorItems.filter(item => item.type === 'power')
+      Object.keys(actorDisciplines).forEach(discipline => {
+        actorDisciplines[discipline].powers = actorPowers.filter(power =>
+          actorDisciplines[discipline].name.toLowerCase().includes(power.data.data.discipline)
+        )
+      })
+      return htmlElements(actor).DIALOG__FEATURE_INNER_CONTENT(actorDisciplines, featuresTypes)
+    })()
   }
 
   /**
    * It creates a wrapper for the actor's resources and then creates the actor's wrapper
    * @param actor - The actor object that is being created.
    */
+  /**
+   * `composeDialog` creates a wrapper for the actor's resources and then calls `createActorWrapper` to
+   * create the actor's wrapper.
+   * @param actor - The actor object that is being created.
+   */
   function composeDialog(actor) {
-    const resourcesGridWrapper = document.createElement('div')
-    resourcesGridWrapper.className = 'resources grid-column'
+    const resourcesGridWrapper = createWrapper('resources grid-column', div)
     resourcesGridWrapper.id = actor.id
-    div.appendChild(resourcesGridWrapper)
     createActorWrapper(actor, resourcesGridWrapper)
   }
 
-  /**
-   * It loops through all the actors in the game and calls the composeDialog function for each one
-   */
-  const storytellerDialog = () =>
-    game.actors
-      .filter(actor => actor.type === 'vampire' || actor.type === 'character')
-      .forEach(actor => composeDialog(actor))
-
-  /**
-   * It creates a dialog for each actor that is either a vampire or a character and that the current user
-   * has permission to control
-   */
-  const playerDialog = () =>
-    game.actors
-      .filter(
-        actor =>
-          (actor.type === 'vampire' || actor.type === 'character') && actor.data.permission[game.userId] !== undefined
-      )
-      .forEach(actor => composeDialog(actor))
-
-  game.user.isGM ? storytellerDialog() : playerDialog()
-
-  /**
-   * It rolls a number of dice, and then displays the results in the chat
-   * @param numDice - The number of dice to roll.
-   * @param thisActor - The actor that is rolling the dice.
-   * @param [label] - The label of the roll.
-   * @param [difficulty=0] - The difficulty of the roll. If this is 0, then the roll is assumed to be a
-   * rouse check.
-   * @param [useHunger=true] - Whether or not to use hunger dice in the roll.
-   * @param [increaseHunger=false] - If true, the actor's hunger will increase by 1 on a failure.
-   * @param [subtractWillpower=false] - If true, the actor's willpower will be automatically reduced by 1
-   * point.
-   */
-  const _rollDice = async (
-    numDice,
-    thisActor,
-    label = '',
-    difficulty = 0,
-    useHunger = true,
-    increaseHunger = false,
-    subtractWillpower = false
-  ) => {
-    const { data } = thisActor
-    const {
-      data: { hunger, willpower }
-    } = data
-
-    // Define the actor's current hunger
-    let hungerDice
-    useHunger ? (hungerDice = Math.min(hunger.value, numDice)) : (hungerDice = 0)
-
-    // Roll defining and evaluating
-    const dice = numDice - hungerDice
-    const roll = new Roll(`${dice}dvcs>5 + ${hungerDice}dhcs>5`, thisActor.data.data)
-    await roll.evaluate()
-
-    // Variable defining
-    let difficultyResult = '<span></span>'
-    let success = 0
-    let hungerSuccess = 0
-    let critSuccess = 0
-    let hungerCritSuccess = 0
-    let fail = 0
-    let hungerFail = 0
-    let hungerCritFail = 0
-
-    // Defines the normal diceroll results
-    roll.terms[0].results.forEach(thisDice => {
-      if (!thisDice.success) return fail++
-      if (thisDice.result === 10) return critSuccess++
-      success++
-    })
-
-    // Track number of hunger diceroll results
-    roll.terms[2].results.forEach(thisDice => {
-      if (!thisDice.success && thisDice.result === 1) return hungerCritFail++
-      if (!thisDice.success) return hungerFail++
-      if (thisDice.result === 10) return hungerCritSuccess++
-      hungerSuccess++
-    })
-
-    // Success canculating
-    let totalCritSuccess = 0
-    totalCritSuccess = Math.floor((critSuccess + hungerCritSuccess) / 2)
-    const totalSuccess = totalCritSuccess * 2 + success + hungerSuccess + critSuccess + hungerCritSuccess
-    let successRoll = false
-
-    // Get the difficulty result
-    if (difficulty !== 0) {
-      successRoll = totalSuccess >= difficulty
-      difficultyResult = `( <span class="danger">${game.i18n.localize('VTM5E.Fail')}</span> )`
-      if (successRoll) {
-        difficultyResult = `( <span class="success">${game.i18n.localize('VTM5E.Success')}</span> )`
-      }
-    }
-
-    // Define the contents of the ChatMessage
-    let chatMessage = `<p class="roll-label uppercase">${label}</p>`
-
-    // Special critical/bestial failure messages
-    ;(() => {
-      if (hungerCritFail && !successRoll && difficulty === 0)
-        return (chatMessage += `<p class="roll-content result-bestial result-possible">${game.i18n.localize(
-          'VTM5E.PossibleBestialFailure'
-        )}</p>`)
-
-      if (hungerCritFail && !successRoll && difficulty > 0)
-        return (chatMessage += `<p class="roll-content result-bestial">${game.i18n.localize(
-          'VTM5E.BestialFailure'
-        )}</p>`)
-
-      if (!(hungerCritSuccess && totalCritSuccess) && totalCritSuccess)
-        return (chatMessage += `<p class="roll-content result-critical">${game.i18n.localize(
-          'VTM5E.CriticalSuccess'
-        )}</p>`)
-
-      if (hungerCritSuccess && totalCritSuccess)
-        chatMessage += `<p class="roll-content result-critical result-messy">${game.i18n.localize(
-          'VTM5E.MessyCritical'
-        )}</p>`
-    })()
-
-    // Total number of successes
-    chatMessage += `<p class="roll-label result-success">${game.i18n.localize(
-      'VTM5E.Successes'
-    )}: ${totalSuccess} ${difficultyResult}</p>`
-
-    // Run through displaying the normal dice
-
-    function displayDice(interator, diceImg, htmlAlt, diceType) {
-      for (let i = 0, j = interator; i < j; i++) {
-        chatMessage += `<img src="systems/vtm5e/assets/images/${diceImg}.png" alt=${htmlAlt} class="roll-img ${diceType}" />`
-      }
-    }
-    displayDice(critSuccess, 'normal-crit', 'normal Crit', 'normal-dice')
-    displayDice(success, 'normal-success', 'normal Success', 'normal-dice')
-    displayDice(fail, 'normal-fail', 'normal Fail', 'normal-dice')
-
-    // Separator
-    chatMessage += '<br>'
-
-    // Run through displaying hunger dice
-    displayDice(hungerCritSuccess, 'red-crit', 'Hunger Cri', 'hunger-dice')
-    displayDice(hungerSuccess, 'red-success', 'Hunger Success', 'hunger-dice')
-    displayDice(hungerCritFail, 'bestial-fail', 'Bestial Fail', 'hunger-dice')
-    displayDice(hungerFail, 'red-fail', 'Hunger Fail', 'hunger-dice')
-
-    // Post the message to the chat
-    roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ thisActor }),
-      content: chatMessage
-    })
-    // Automatically add hunger to the actor on a failure (for rouse checks)
-    if (increaseHunger && game.settings.get('vtm5e', 'automatedRouse')) {
-      // Check if the roll failed (matters for discipline
-      // power-based rouse checks that roll 2 dice instead of 1)
-      if ((difficulty === 0 && totalSuccess === 0) || totalSuccess < difficulty) {
-        const actorHunger = hunger.value
-
-        // If hunger is greater than 4 (5, or somehow higher)
-        // then display that in the chat and don't increase hunger
-        if (actorHunger > 4) {
-          roll.toMessage({
-            speaker: ChatMessage.getSpeaker({ thisActor }),
-            content: game.i18n.localize('VTM5E.HungerFull')
-          })
-        } else {
-          // Define the new number of hunger points
-          const newHunger = hunger.value + 1
-
-          // Push it to the actor's sheet
-          thisActor.update({ 'data.hunger.value': newHunger })
-        }
-      }
-    }
-
-    // Automatically track willpower damage as a result of willpower rerolls
-    ;(() => {
-      if (subtractWillpower && game.settings.get('vtm5e', 'automatedWillpower')) {
-        // Get the actor's willpower and define it for convenience
-        const actorWillpower = willpower
-        const maxWillpower = actorWillpower.max
-        const aggrWillpower = actorWillpower.aggravated
-        const superWillpower = actorWillpower.superficial
-        // If the willpower boxes are fully ticked with aggravated damage
-        // then tell the chat and don't increase any values.
-        if (aggrWillpower >= maxWillpower)
-          return roll.toMessage({
-            speaker: ChatMessage.getSpeaker({ actor }),
-            content: game.i18n.localize('VTM5E.WillpowerFull')
-          })
-        if (superWillpower + aggrWillpower < maxWillpower) {
-          // If there are still superficial willpower boxes to tick, add it here
-
-          // Define the new number of superficial willpower damage
-          const newWillpower = superWillpower + 1
-
-          // Update the actor sheet
-          actor.update({ 'data.willpower.superficial': newWillpower })
-          return
-        }
-        // If there aren't any superficial boxes left, add an aggravated one
-
-        // Define the new number of aggravated willpower damage
-        // Superficial damage needs to be subtracted by 1 each time
-        // a point of aggravated is added
-        const newSuperWillpower = superWillpower - 1
-        const newAggrWillpower = aggrWillpower + 1
-
-        // Update the actor sheet
-        actor.update({ 'data.willpower.superficial': newSuperWillpower })
-        actor.update({ 'data.willpower.aggravated': newAggrWillpower })
-      }
-    })()
-  }
-
-  const getActorOnEvent = event => {
-    const {
-      dataset: { id }
-    } = event.currentTarget
-
-    return game.actors.find(act => act.id === id)
-  }
-
-  /* Creating a new object called _onClick. This object has two properties, onOpenScheet and
-onRollDialog. Each property has a function assigned to it. */
-  _onClick = {
-    /* A function that is called when the sheet is opened. It is getting the actor on the event and
-    then rendering the sheet. */
-    onOpenScheet: event => getActorOnEvent(event).sheet.render(true),
-    /* Creating a dialog box that allows the user to select an ability and then roll the dice. */
-    onOpenItem: event => {
-      const {
-        dataset: { id, characterId }
-      } = event.currentTarget
-      game.actors
-        .find(act => act.id === characterId)
-        .items.find(item => item.id === id)
-        .sheet.render(true)
-    },
-    onRollDialog: event => {
-      event.preventDefault()
-      let options = ''
-      const { dataset } = event.currentTarget
-      const actor = getActorOnEvent(event)
-      const {
-        data: {
-          data: { abilities }
-        }
-      } = actor
-
-      for (const [key, value] of Object.entries(abilities)) {
-        options = options.concat(`<option value="${key}">${game.i18n.localize(value.name)}</option>`)
-      }
-
-      const template = `
-        <form>
-            <div class="form-group">
-                <label>${game.i18n.localize('VTM5E.SelectAbility')}</label>
-                <select id="abilitySelect">${options}</select>
-            </div>
-            <div class="form-group">
-                <label>${game.i18n.localize('VTM5E.Modifier')}</label>
-                <input type="text" id="inputMod" value="0">
-            </div>
-            <div class="form-group">
-                <label>${game.i18n.localize('VTM5E.Difficulty')}</label>
-                <input type="text" min="0" id="inputDif" value="0">
-            </div>
-        </form>`
-
-      let buttons = {}
-      buttons = {
-        draw: {
-          icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize('VTM5E.Roll'),
-          callback: async html => {
-            const ability = html.find('#abilitySelect')[0].value
-            const modifier = parseInt(html.find('#inputMod')[0].value || 0, 10)
-            const difficulty = parseInt(html.find('#inputDif')[0].value || 0, 10)
-            const abilityVal = abilities[ability].value
-            const abilityName = game.i18n.localize(abilities[ability].name)
-            const numDice = abilityVal + parseInt(dataset.roll, 10) + modifier
-
-            _rollDice(numDice, actor, `${dataset.label} + ${abilityName}`, difficulty, true)
-            // this._vampireRoll(numDice, this.actor, `${dataset.label} + ${abilityName}`, difficulty)
-          }
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize('VTM5E.Cancel')
-        }
-      }
-
-      new Dialog({
-        title: `${game.i18n.localize('VTM5E.Rolling')} ${dataset.label}...`,
-        content: template,
-        buttons,
-        default: 'draw'
-      }).render(true)
-    },
-    /* Creating a new button in the Actor sheet that will roll a Hunger check. */
-    onRollHunger: event => {
-      event.preventDefault()
-      const actor = getActorOnEvent(event)
-      // _rollDice (numDice, thisActor, label = '', difficulty = 0, useHunger = true,increaseHunger = false,subtractWillpower = false)
-      _rollDice(1, actor, game.i18n.localize('VTM5E.Rouse'), 1, true, true)
-    },
-    onRollFrenzy: event => {
-      event.preventDefault()
-      const actor = getActorOnEvent(event)
-      const {
-        data: {
-          data: { willpower, humanity }
-        }
-      } = actor
-      const { aggravated, max, superficial } = willpower
-      const { value } = humanity
-
-      const actualWillpower = max - aggravated - superficial
-      const humanityMod = Math.floor(value / 3)
-
-      const template = `
-      <form>
-          <div class="form-group">
-              <label>${game.i18n.localize('VTM5E.Modifier')}</label>
-              <input type="text" id="inputMod" value="0">
-          </div>
-          <div class="form-group">
-              <label>${game.i18n.localize('VTM5E.Difficulty')}</label>
-              <input type="text" min="0" id="inputDif" value="0">
-          </div>
-      </form>`
-
-      let buttons = {}
-      buttons = {
-        draw: {
-          icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize('VTM5E.Roll'),
-          callback: async html => {
-            const modifier = parseInt(html.find('#inputMod')[0].value || 0, 10)
-            const difficulty = parseInt(html.find('#inputDif')[0].value || 0, 10)
-
-            const numDice = actualWillpower + humanityMod + modifier
-
-            _rollDice(numDice, actor, game.i18n.localize('VTM5E.ResistingFrenzy'), difficulty, false)
-            // this._vampireRoll(numDice, this.actor, `${dataset.label} + ${abilityName}`, difficulty)
-          }
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize('VTM5E.Cancel')
-        }
-      }
-
-      new Dialog({
-        title: getPlaceholder.frenzy,
-        content: template,
-        buttons,
-        default: 'draw'
-      }).render(true)
-
-      // força de vontade + 1/3 da humanidade
-      // _rollDice (numDice, thisActor, label = '', difficulty = 0, useHunger = true,increaseHunger = false,subtractWillpower = false)
-      // _rollDice(1, actor, game.i18n.localize('VTM5E.Rouse'), 1, true, true)
-    },
-    onRollRemorse: event => {
-      event.preventDefault()
-      const actor = getActorOnEvent(event)
-
-      // dados iguais a humanidade não marcada: if sucesso remove all Stains / if frasso -1 de humanidade remove all stains
-      // _rollDice (numDice, thisActor, label = '', difficulty = 0, useHunger = true,increaseHunger = false,subtractWillpower = false)
-      // _rollDice(1, actor, game.i18n.localize('VTM5E.Rouse'), 1, true, true)
-    },
-    onFeatureShowContent: event => {
-      const featureWrapper = event.currentTarget.parentNode
-      featureWrapper.classList.toggle('show-content')
-    },
-    onCollapsibleShowContent: event => {
-      const content = event.currentTarget
-      const hiddenContent = $(content).closest('span').nextAll('.discipline-power-content')[0]
-      // hiddenContent.classList.toggle('show-content')
-      function toggleVisibility(maxHeight, visibility, opacity, transition) {
-        hiddenContent.style.maxHeight = maxHeight
-        hiddenContent.style.visibility = visibility
-        hiddenContent.style.opacity = opacity
-        hiddenContent.style.transition = transition
-      }
-
-      if (hiddenContent.style.visibility === 'visible')
-        return toggleVisibility('0', 'hidden', 0, 'visibility 0.15 ease-in, max-height 0.25s ease-in')
-      toggleVisibility('1000px', 'visible', 1, 'visibility 0.15 ease-out, max-height 0.25s ease-out')
-    }
-  }
+  const gmFilter = actor => actor.type === 'vampire' || actor.type === 'character'
+  const playerFilter = actor => gmFilter(actor) && actor.data.permission[game.userId] !== undefined
+  const filter = game.user.isGM ? gmFilter : playerFilter
+  game.actors.filter(actor => filter(actor)).forEach(actor => composeDialog(actor))
 
   const content = `
-  <style>
-  :root {
-    --dialog-font-family: 'Playfair Display', serif !important;
+    <style>
+      :root {
+        --dialog-font-family: 'Playfair Display', serif !important;
+        --dialog-primary: rgb(224, 221, 212);
+        --dialog-primary-dark: rgb(204, 196, 175);
+        --dialog-primary-light: #f2eee1;
+        --dialog-primary-transparent: rgba(224, 221, 212, 0.8);
+        --dialog-primary-transparent-dark: rgba(224, 221, 212, 0.96);
+        --dialog-red-primary: #790813;
+        --dialog-red-dark: #5a0813;
+        --dialog-red-darker: #3c0813;
+        --dialog-red-darkest: #30070c;
+        --dialog-red-transparent: rgba(54, 29, 29, 0.8);
+        --dialog-darkest: #000;
+        --dialog-darker: #444;
+        --dialog-dark: #888;
+        --dialog-light: #ccc;
+      }
+      .tooltip {
+        border-radius: 100%;
+        position: absolute;
+        top: 2px;
+      }
 
-    --dialog-primary: rgb(224, 221, 212);
-    --dialog-primary-transparent: rgba(224, 221, 212,0.8);
-    --dialog-red-primary: #790813;
-    --dialog-red-transparent: rgba(58,41,42,0.8);
-    --dialog-darkest: #000;
-    --dialog-darker:#444;
-    --dialog-dark:#888;
-    --dialog-light: #ccc;
-  }
+      .tooltip-hide-content {
+        z-index: 1000;
+        visibility: hidden;
+        opacity: 0;
+        width: 300px;
+        margin-top: 5px;
+        box-shadow: 4px 4px 5px var(--dialog-dark);
 
-  .tooltip-image-wrapper {
-    position: relative;
-    width:70px;
-    height:100%;
-  }
+        transition: all .4s;
 
-  .actor-image {
-    position:absolute;
-    top: 50%;  /* position the top  edge of the element at the middle of the parent */
-    left: 50%; /* position the left edge of the element at the middle of the parent */
-    transform: translate(-50%, -50%);
-  }
+        /* Position the tooltip */
+        position: absolute;
+        top: 11px;
+      }
 
-  .tooltips-wrapper{
-    position: absolute;
-    height:18px;
-    width:100%;
-    box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 2px 2px var(--dialog-light);
-    background-color: var(--dialog-red-primary);
-    border-radius:10px 0 0 10px;
-  }
+      .tooltip:hover .tooltip-hide-content {
+        visibility: visible;
+        opacity: 1;
 
-  .tooltip {
-    border-radius:100%;
-    position: absolute;
+        transition: all .3s;
+      }
 
-    top: 2px;
-  }
+      .tooltip-label {
+        display: flex;
+        justify-content: center;
+        width: 175px;
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--dialog-primary);
+        background-color: var(--dialog-red-primary);
+        padding: 2px 5px;
+        border-radius: 5px 5px 0 0;
+        top: -6px;
+        left: 50px;
+      }
 
-  .tooltip-hide-content {
-    z-index:1000;
-    visibility: hidden;
-    opacity:0;
-    width: 300px;
-    margin-top: 5px;
-    box-shadow: 4px 4px 5px var(--dialog-dark);
+      .bi-tooltip {
+        color: var(--dialog-primary);
+        cursor: pointer;
+      }
 
-    transition:opacity 0.3s ease-in, visibility 0.3s ease-in;
+      .bi-tooltip:hover {
+        color: white;
+      }
 
-  /* Position the tooltip */
-    position: absolute;
-    top: 11px;
-  }
+      .grid-column {
+        border-bottom: 2px solid var(--dialog-light);
+        margin-bottom: 5px;
+        display: grid;
+        grid-template-areas:
+          'header header header'
+          'feature feature feature';
+      }
 
-  .tooltip:hover .tooltip-hide-content {
-    visibility: visible;
-    opacity:1;
+      .title-label {
+        font-family: var(--dialog-font-family);
+        font-weight: bold;
+        font-size: 24px;
+        color: var(--dialog-red-primary);
+      }
 
-    transition:opacity 0.14s ease-out, visibility 0.14s ease-out;
-  }
+      .is-rollable:hover {
+        color: var(--dialog-light);
+        text-shadow: 0 0 10px white;
+        cursor: pointer;
+      }
 
-  .tooltip-label {
-    display:flex;
-    justify-content:center;
-    width:175px;
-    font-size: 12px;
-    font-weight:bold;
-    color: var(--dialog-primary);
-    background-color:var(--dialog-red-primary);
-    padding: 2px 5px;
-    border-radius:5px 5px 0 0;
-    top: -6px;
-    left:50px;
-  }
+      .is-clickable {
+        cursor: pointer;
+        transition: all 0.3s ease-in;
+      }
 
-  .touchstones-body {
-    background-color: var(--dialog-primary-transparent);
-  }
+      .is-clickable:hover {
+        color: var(--dialog-primary);
+        text-shadow: 0 0 8px var(--dialog-red-primary);
+        transition: all 0.3s ease-out;
+      }
 
-  .touchstones-content {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-  }
+      .title {
+        position: relative;
+      }
+      .title[position='right']::after {
+        right: 0;
+      }
+      .title[position='left']::after {
+        left: 0;
+      }
 
-  .touchstones-content + .touchstones-content::before {
-    display: inline-block;
-    white-space: pre;
-    content: "";
-  }
+      .title[data-title]::after {
+        z-index: 10000;
+        content: attr(data-title);
+        position: absolute;
+        top: -16px;
+        right: 0;
 
-  .ts-convic-image {
-    position: absolute;
-    right: -40px;
-    top: -20px;
-  }
+        text-transform: uppercase;
+        font-family: var(--dialog-font-family);
+        font-weight: bold;
+        font-size: 12px;
 
-  .ts-convic-conviction {
-    display: flex;
-    width: 95%;
-    min-height: 35px;
-    padding-left: 5px;
-  }
+        font-size: 10px;
+        color: var(--dialog-red-primary);
+        background-color: var(--dialog-primary);
+        box-shadow: -10px 10px 23px -3px rgba(0, 0, 0, 0.53);
+        border-radius: 5px;
+        padding: 3px;
 
-  .blood-potency[data] {
-    top: 2px;
-    left: 40px;
-  }
+        width: min-content;
+        white-space: nowrap;
+        overflow: visible;
 
-  .blood-potency[data]::after {
-    content: attr(data);
-    position: absolute;
-    color: var(--dialog-red-primary);
-    font-size: 12px;
-    font-weight: bold;
-    left: 3.2px;
-    top: 2px;
-    pointer-events: none;
-  }
-  .blood-potency-hide-content {
-    border-top:2px solid var(--dialog-red-primary);
-  }
-  .blood-potency:hover::after {
-    color: var(--dialog-primary);
-  }
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.35s ease-in-out;
+      }
 
-  .touchstones {
-    left: 7px;
-  }
+      .body-monitor {
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+      }
 
-  .bi-tooltip {
-    color:var(--dialog-primary);
-    cursor: pointer;
-  }
+      .title:hover::after {
+        visibility: visible;
+        opacity: 1;
+        transition: all 1s ease-in-out;
+      }
 
-  .bi-tooltip:hover {
-    color: white;
-  }
-
-  .bi-person-bounding-box{
-    font-size:50px;
-    position: absolute;
-    right: -25px;
-    top: -18px;
-    color:var(--dialog-red-primary);
-    background-color: var(--dialog-primary-transparent);
-    border-radius:6px;
-  }
-
-  .wrapper {
-    width: 100px;
-    margin-bottom: 5px;
-  }
-
-  .grid-column .header-wrapper {
-    grid-column: header;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .hidden-content {
-    display: flex;
-    flex-direction: column;
-    white-space: nowrap;
-
-    max-height: 2px;
-    transition: max-height 0.25s ease-in;
-  }
-
-  .show-content {
-    max-height: 250px;
-    opacity: 1;
-    visibility: visible;
-    transition: max-height 0.25s ease-out, visibility 0.35s linear, opacity 0.35s linear;
-  }
-
-  .grid-column .feature-wrapper{
-    grid-column: feature;
-    border-bottom: 3px solid var(--dialog-red-primary);
-    border-radius: 0 0 12px 12px;
-    min-height:13px;
-
-    overflow: hidden;
-  }
-
-  .blood-label {
-    width: 80px;
-    font-size: 9px;
-    align-items: center;
-    font-weight: bold;
-  }
-
-  .label-wrapper {
-    display: flex;
-  }
-
-  .label-resources {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-    padding: 2px 2px 2px 2px;
-    font-weight: bold;
-    width: 100%;
-    color: var(--dialog-primary);
-  }
-
-  .resources-placeholder {
-    background:var(--dialog-red-primary);
-    width: 30%;
-  }
-
-  .break {
-    flex-basis: 100%;
-    height: 0;
-  }
-
-  .resources-placeholder[end="true"] {
-    border-radius: 0 0 0 12%;
-  }
-
-  .ts-name {
-    border-top: 0;
-    width: 100%;
-  }
-
-  .grid-column {
-    border-bottom: 2px solid var(--dialog-light);
-    margin-bottom: 5px;
-    display: grid;
-    grid-template-areas: "header header header"
-                      "health willpower humanity"
-                      "feature feature feature";
-  }
-
-  .grid-column .health-wrapper {
-    grid-column-start: health;
-    grid-column-end: health;
-  }
-
-  .grid-column .willpower-wrapper {
-    grid-column-start: willpower;
-    grid-column-end: willpower;
-  }
-
-  .grid-column .humanity-wrapper {
-    grid-column-start: humanity;
-    grid-column-end: humanity;
-  }
-
-  .body-monitor {
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-  }
-
-  .body-fields .resource {
-    border: 0;
-    height: 100%;
-  }
-
-  .header-label {
-    font-family: var(--dialog-font-family);
-    font-weight: bold;
-    font-size: 24px;
-    color: var(--dialog-red-primary);
-  }
-
-  .image {
-    width: 50px;
-    margin-right: 15px;
-    border: 0;
-  }
-
-  .wrapper-dialog {
-    border-bottom: 2px solid var(--dialog-red-primary);
-    border-left: 2px solid var(--dialog-red-primary);
-    border-radius: 0 0 0 10px;
-    margin-bottom: 7px;
-  }
-
-  .open-sheet {
-    position:absolute;
-    display:flex;
-    justify-content: center;
-    align-items:center;
-
-    top:-5px;
-    right:0;
-  }
-  .open-sheet i {
-    color: black;
-    margin-left:4px;
-  }
-
-  .open-sheet p {
-    visibility: hidden;
-    opacity:0;
-    transition:opacity 0.3s ease-in-out;
-
-    font-family: var(--dialog-font-family);
-    font-style: normal;
-    font-weight: bold;
-    font-size: 13px;
-    color: var(--dialog-primary);
-  }
-
-  .open-sheet:hover i{
-    color: var(--dialog-primary);
-  }
-
-  .open-sheet:hover p{
-    visibility: visible;
-    opacity:1;
-  }
-
-  .stats-placeholder {
-    justify-content:center;
-    border-top: 2px solid var(--dialog-red-transparent);
-    padding-left:2px;
-    margin-right:3px;
-    width:53%;
-  }
-
-  .is-rollable:hover {
-    color: var(--dialog-light);
-    text-shadow: 0 0 10px white;
-    cursor: pointer;
-  }
-
-  .is-clickable {
-    cursor:pointer;
-    transition:text-shadow 0.2s ease-in, color 0.2s ease-in;
-  }
-
-  .is-clickable:hover {
-    color: var(--dialog-primary);
-    text-shadow: 0 0 8px var(--dialog-red-primary);
-    transition: color 0.2s ease-out, text-shadow 0.2s ease-out;
-  }
-  </style>
-  <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <script>
-      document.getElementById('monitor-container').appendChild(div);
-
-      $('.tooltip-stats').hover(function(){
-        var hideStats = $(this).find(".stats-hide-content")[0]; // to fetch current current stats-hide-content
-        hideStats.addEventListener("wheel", (evt) => {
-          evt.preventDefault();
-          hideStats.scrollLeft += evt.deltaY;
-        });
-      })
-
-      $('.collapsible').click(() => _onClick.onCollapsibleShowContent(event))
-      $('.feature-header').click(() => _onClick.onFeatureShowContent(event))
-      $('.discipline-image').click(() => _onClick.onOpenItem(event))
-      $('.open-sheet-icon').click(() => _onClick.onOpenScheet(event))
-      $('.stats-placeholder').click(()=> _onClick.onRollDialog(event))
-      $('.dice-hunger').click(() => _onClick.onRollHunger(event))
-      $('.willpower-points').click(()=> _onClick.onRollFrenzy(event))
-      $('.humanity-points').click(()=> _onClick.onRollRemorse(event))
-
-    </script>
-  </head>
-  <h1 class="header-label">Characters Monitor</h1>
-  <body id="body" class="body-monitor">
-      <div id="monitor-container" class="body-fields"></div>
-  </body>
+      .resources-counter {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+    </style>
+    <head>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+      <script type="text/javascript">
+        document.getElementById('monitor-container').appendChild(div)
+      </script>
+    </head>
+    <h1 class="title-label">Characters Monitor</h1>
+    <body id="body" class="body-monitor">
+      <div id="monitor-container"></div>
+    </body>
   `
   const dialog = new Dialog({
     allowMaximize: true,
@@ -1699,45 +2892,14 @@ onRollDialog. Each property has a function assigned to it. */
     buttons: {}
   })
 
-  const conteiner = document.getElementById('monitor-container')
+  const container = document.getElementById('monitor-container')
 
-  if (!conteiner) dialog.render(true)
+  if (!container) dialog.render(true)
 
   // onUpdateActor(actor, updateData, options, userId)
   Hooks.on('updateActor', actor => {
     const dialogElement = document.getElementById(actor.id)
-
     dialogElement.innerHTML = ''
-
     createActorWrapper(actor, dialogElement)
-
-    const willpowerPoints = dialogElement.getElementsByClassName('willpower-points')[0]
-    const humanityPoints = dialogElement.getElementsByClassName('humanity-points')[0]
-    const tooltipStats = dialogElement.getElementsByClassName('tooltip-stats')[0]
-    const featureHeader = dialogElement.getElementsByClassName('feature-header')[0]
-    const openSheetIcon = dialogElement.getElementsByClassName('open-sheet-icon')[0]
-    const statsPlaceholder = dialogElement.getElementsByClassName('stats-placeholder')[0]
-    const diceHunger = dialogElement.getElementsByClassName('dice-hunger')[0]
-
-    tooltipStats.onhover = () => {
-      const hideStats = $(this).find('.stats-hide-content')[0]
-      hideStats.addEventListener('wheel', evt => {
-        evt.preventDefault()
-        hideStats.scrollLeft += evt.deltaY
-      })
-    }
-    ;[...dialogElement.getElementsByClassName('collapsible')].forEach(
-      collapsible => (collapsible.onclick = event => _onClick.onCollapsibleShowContent(event))
-    )
-    ;[...dialogElement.getElementsByClassName('discipline-image')].forEach(
-      disciplineImage => (disciplineImage.onclick = event => _onClick.onOpenItem(event))
-    )
-
-    willpowerPoints.onclick = event => _onClick.onRollFrenzy(event)
-    humanityPoints.onclick = event => _onClick.onRollRemorse(event)
-    featureHeader.onclick = event => _onClick.onFeatureShowContent(event)
-    openSheetIcon.onclick = event => _onClick.onOpenScheet(event)
-    statsPlaceholder.onclick = event => _onClick.onRollDialog(event)
-    diceHunger.onclick = event => _onClick.onRollHunger(event)
   })
 }
