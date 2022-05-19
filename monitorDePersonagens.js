@@ -1,9 +1,25 @@
+/* eslint-disable no-multi-assign */
+
+// add features option to hunting Check
+// add specialties select
+// add resources state change + or -
+// add clã logo and disciplines
+// stats to menu
+
 main()
-
 async function main() {
-  div = document.createElement('div')
-
+  const createWrapper = (className, resourcesGridWrapper = null) => {
+    const wrapper = document.createElement('div')
+    wrapper.className = className
+    !resourcesGridWrapper || resourcesGridWrapper.appendChild(wrapper)
+    return wrapper
+  }
+  const monitorContent = (window.monitorContent = createWrapper('monitor-content'))
+  const getActor = id => game.actors.find(actor => actor.id === id)
   const getLanguage = {
+    rollingHunting: game.i18n.lang === 'en' ? 'hunting' : 'Caçando',
+    actualWillpower: game.i18n.lang === 'en' ? 'Actual Willpower' : 'Força de Vontade Atual',
+    humanityMod: game.i18n.lang === 'en' ? 'Humanity Modifier' : 'Modificador De Humanidade',
     ambition: game.i18n.localize('VTM5E.Ambition'),
     attributes: game.i18n.localize('VTM5E.Attributes'),
     baneSeverity: game.i18n.localize('VTM5E.BaneSeverity'),
@@ -19,9 +35,12 @@ async function main() {
     health: game.i18n.localize('VTM5E.Health'),
     humanity: game.i18n.localize('VTM5E.Humanity'),
     hunger: game.i18n.localize('VTM5E.Hunger'),
-    hunting: game.i18n.lang === 'en' ? 'Hunting' : 'Caça',
+    hunting: game.i18n.lang === 'en' ? 'hunt' : 'Caça',
     intelligence: game.i18n.localize('VTM5E.Intelligence'),
     manipulation: game.i18n.localize('VTM5E.Manipulation'),
+    rollingRiseCheck: game.i18n.lang === 'en' ? 'Rolling Rise Check' : 'Rolando Teste de Despertar',
+    rollMendAmount: game.i18n.lang === 'en' ? 'Roll Mend Amount Check' : 'Rolar Teste de Quantidade Recuperada',
+    rollingMendAmount: game.i18n.lang === 'en' ? 'Rolling Mend Amount Check' : 'Rolando Teste de Quantidade Recuperada',
     mendAmount: game.i18n.localize('VTM5E.MendAmount'),
     openSheet: game.i18n.lang === 'en' ? 'Open Sheet' : 'Abrir Ficha',
     powerBonus: game.i18n.localize('VTM5E.PowerBonus'),
@@ -30,7 +49,7 @@ async function main() {
     resolve: game.i18n.localize('VTM5E.Resolve'),
     roll: game.i18n.localize('VTM5E.Roll'),
     rollFrenzy: game.i18n.localize('VTM5E.RollFrenzy'),
-    rollHunting: game.i18n.lang === 'en' ? 'Roll Hunting Check' : 'Rolar teste de caça',
+    rollHunting: game.i18n.lang === 'en' ? 'Hunting Check' : 'teste de caça',
     rollWillpower: game.i18n.localize('VTM5E.RollWillpower'),
     rouse: game.i18n.localize('VTM5E.RollRouse'),
     rouseReRoll: game.i18n.localize('VTM5E.RouseReRoll'),
@@ -49,9 +68,9 @@ async function main() {
     merit: game.i18n.localize('VTM5E.Merit'),
     flaw: game.i18n.localize('VTM5E.Flaw'),
     background: game.i18n.localize('VTM5E.Background'),
-    abilities: game.i18n.localize('VTM5E.Abilities')
+    abilities: game.i18n.localize('VTM5E.Abilities'),
+    charactersMonitor: game.i18n.lang === 'en' ? 'Characters Monitor' : 'Monitor de Personagens'
   }
-
   function getBloodPotency(level) {
     const BLOOD_POTENCY_TEXT = [
       {
@@ -147,57 +166,68 @@ async function main() {
       {
         surge: 1,
         power: 0,
-        rouse: 0
+        rouse: 0,
+        mend: 1
       },
       {
         surge: 2,
         power: 0,
-        rouse: 1
+        rouse: 1,
+        mend: 1
       },
       {
         surge: 2,
         power: 1,
-        rouse: 1
+        rouse: 1,
+        mend: 2
       },
       {
         surge: 3,
         power: 1,
-        rouse: 2
+        rouse: 2,
+        mend: 2
       },
       {
         surge: 3,
         power: 2,
-        rouse: 2
+        rouse: 2,
+        mend: 3
       },
       {
         surge: 4,
         power: 2,
-        rouse: 3
+        rouse: 3,
+        mend: 3
       },
       {
         surge: 4,
         power: 3,
-        rouse: 3
+        rouse: 3,
+        mend: 3
       },
       {
         surge: 5,
         power: 3,
-        rouse: 4
+        rouse: 4,
+        mend: 3
       },
       {
         surge: 5,
         power: 4,
-        rouse: 4
+        rouse: 4,
+        mend: 4
       },
       {
         surge: 6,
         power: 4,
-        rouse: 5
+        rouse: 5,
+        mend: 4
       },
       {
         surge: 6,
         power: 5,
-        rouse: 5
+        rouse: 5,
+        mend: 5
       }
     ]
 
@@ -206,15 +236,294 @@ async function main() {
       value: BLOOD_POTENCY_VALUE[level]
     }
   }
+  const predators = {
+    alleycat: {
+      name: 'Alleycat',
+      roll: [
+        {
+          dice1: 'strength',
+          dice2: 'brawl'
+        },
+        {
+          dice1: 'wits',
+          dice2: 'streetwise'
+        }
+      ]
+    },
+    bagger: {
+      name: 'Bagger',
+      roll: [
+        {
+          dice1: 'intelligence',
+          dice2: 'streetwise'
+        }
+      ]
+    },
+    bloodLeech: {
+      name: 'Blood Leech',
+      roll: []
+    },
+    cleaver: {
+      name: 'Cleaver',
+      roll: [
+        {
+          dice1: 'manipulation',
+          dice2: 'subterfuge'
+        }
+      ]
+    },
+    consensualist: {
+      name: 'Consensualist',
+      roll: [
+        {
+          dice1: 'manipulation',
+          dice2: 'persuasion'
+        }
+      ]
+    },
+    extortionist: {
+      name: 'Extortionist',
+      roll: [
+        {
+          dice1: 'strength',
+          dice2: 'intimidation'
+        },
+        {
+          dice1: 'strength',
+          dice2: 'intimidation'
+        }
+      ]
+    },
+    farmer: {
+      name: 'Farmer',
+      roll: [
+        {
+          dice1: 'composure',
+          dice2: 'animal ken'
+        }
+      ]
+    },
+    graverobber: {
+      name: 'Graverobber',
+      roll: [
+        {
+          dice1: 'resolve',
+          dice2: 'medicine'
+        },
+        {
+          dice1: 'manipulation',
+          dice2: 'insight'
+        }
+      ]
+    },
+    osiris: {
+      name: 'Osiris',
+      roll: [
+        {
+          dice1: 'manipulation',
+          dice2: 'subterfuge'
+        }
+      ]
+    },
+    roadsideKiller: {
+      name: 'Roadside Killer',
+      roll: [
+        {
+          dice1: 'charisma',
+          dice2: 'drive'
+        },
+        {
+          dice1: 'dexterity',
+          dice2: 'drive'
+        }
+      ]
+    },
+    sandman: {
+      name: 'Sandman',
+      roll: [
+        {
+          dice1: 'dexterity',
+          dice2: 'stealth'
+        }
+      ]
+    },
+    sceneQueen: {
+      name: 'Scene Queen',
+      roll: [
+        {
+          dice1: 'manipulation',
+          dice2: 'persuasion'
+        }
+      ]
+    },
+    siren: {
+      name: 'Siren',
+      roll: [
+        {
+          dice1: 'charisma',
+          dice2: 'subterfuge'
+        }
+      ]
+    }
+  }
 
-  window._handleMouseEvents = event => {
+  const getHtmlScripts = (window.getHtmlScripts = actorId => {
+    const actor = game.actors.find(act => act.id === actorId)
+
+    const {
+      headers: { predator }
+    } = actor.data.data
+
+    const htmlCircleStep = (objectKey, className, object, dataState = '-') => {
+      const thisEntity = object[objectKey.replace(/\s+/g, '')]
+
+      const circleMarks = numLoop => {
+        const marks = []
+        for (let index = 0; index < numLoop; index++) {
+          marks.push(getHtmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, dataState, 'circle'))
+        }
+        return marks.join('')
+      }
+
+      if (thisEntity === undefined || thisEntity.value === 0) {
+        if ($(`.${className[0]}`)[0] !== undefined) return $(`.${className[0]}`).remove()
+        return
+      }
+
+      if ($(`.${className[0]}`)[0] === undefined) {
+        const wrapper = document.createElement('div')
+        wrapper.className = `${className[0]} ${className[1]} title`
+        $('.wrapper-roll-dices').append(wrapper)
+      }
+      const thisClass = $(`.${className[0]}`)
+      const { value, name } = thisEntity
+
+      const treatedValue = Math.abs(parseInt(value, 10))
+
+      thisClass.css('margin-right', '5px')
+      thisClass.prop('dataset').title = game.i18n.localize(name)
+      thisClass.prop('dataset').value = value
+
+      if (className[1] !== 'modifier') return (thisClass[0].innerHTML = circleMarks(treatedValue))
+      thisClass[0].innerHTML = circleMarks(1)
+    }
+
+    const htmlPredatorType = () => {
+      const getPercentMatchString = (string1, string2) => {
+        let matches = 0
+
+        // Exit early if either are empty.
+        if (string1.length === 0 || string2.length === 0) return 0
+
+        // Exit early if they're an exact match.
+        if (string1 === string2) return 1
+
+        const range = Math.floor(Math.max(string1.length, string2.length) / 2) - 1
+        const string1Matches = new Array(string1.length)
+        const string2Matches = new Array(string2.length)
+
+        for (let i = 0; i < string1.length; i++) {
+          const low = i >= range ? i - range : 0
+          const high = i + range <= string2.length ? i + range : string2.length - 1
+
+          for (let j = low; j <= high; j++) {
+            if (string1Matches[i] !== true && string2Matches[j] !== true && string1[i] === string2[j]) {
+              ++matches
+              string2Matches[j] = true
+              string1Matches[i] = string2Matches[j]
+              break
+            }
+          }
+        }
+
+        // Exit early if no matches were found.
+        if (matches === 0) return 0
+
+        // Count the transpositions.
+        let transpositions = 0
+        let k = transpositions
+        let i = 0
+        let j = k
+        for (i; i < string1.length; i++)
+          if (string1Matches[i] === true) {
+            for (j = k; j < string2.length; j++)
+              if (string2Matches[j] === true) {
+                k = j + 1
+                break
+              }
+            if (string1[i] !== string2[j]) ++transpositions
+          }
+
+        let weight =
+          (matches / string1.length + matches / string2.length + (matches - transpositions / 2) / matches) / 3
+        let l = 0
+        const p = 0.1
+
+        if (weight > 0.7) {
+          while (string1[l] === string2[l] && l < 4) ++l
+          weight += l * p * (1 - weight)
+        }
+        return weight
+      }
+      let predatorControl = { predator: '', matchPercent: 0 }
+      Object.keys(predators).forEach(key => {
+        const matching = getPercentMatchString(key, predator)
+        if (predatorControl.matchPercent < matching)
+          predatorControl = {
+            predator: key,
+            matchPercent: matching
+          }
+      })
+      return { ...predators[predatorControl.predator], key: predatorControl.predator }
+    }
+    const htmlFeatureSelectControl = () => {
+      $(document).ready(() => {
+        const abilitySelect = $('#ability-select')
+        const skillSelect = $('#skill-select')
+        const inputSurge = $('#input-surge')
+        inputSurge.prop({ disabled: true })
+
+        abilitySelect.change(() => {
+          $('#skill-select option:contains(👁)').prop({ selected: true })
+          inputSurge.prop({ disabled: false })
+          htmlCircleStep('1', ['roll-skill-select', 'skill'], {
+            1: {
+              value: 0,
+              name: ''
+            }
+          })
+          if (abilitySelect[0].value === '') inputSurge.prop({ disabled: true })
+        })
+
+        skillSelect.change(() => {
+          $('#ability-select option:contains(👁)').prop({ selected: true })
+          htmlCircleStep('1', ['roll-ability-select', 'ability'], {
+            1: {
+              value: 0,
+              name: ''
+            }
+          })
+          inputSurge.prop({ disabled: true })
+        })
+      })
+    }
+
+    return {
+      HTML__PREDATOR_TYPE: htmlPredatorType,
+      HTML__CIRCLE_STEP: htmlCircleStep,
+      HTML__FEATURE_SELECT_CONTROL: htmlFeatureSelectControl
+    }
+  })
+
+  const _handleEvents = (window._handleEvents = event => {
     const { currentTarget } = event
 
     const { dataset, parentNode } = currentTarget
 
     if (dataset.id) {
-      const actor = game.actors.find(act => act.id === dataset.id)
-      const { items } = actor.data
+      const actor = getActor(dataset.id)
+
+      const { _id: actorId } = actor.data
       const {
         exp,
         abilities,
@@ -222,12 +531,11 @@ async function main() {
         hunger: { value: hungerValue },
         willpower: { aggravated, max, superficial },
         humanity: { value: humanityValue, stains },
-        blood: { potency },
-        headers: { predator }
+        health: { aggravated: healthAggravated, superficial: healthSuperficial },
+        blood: { potency }
       } = actor.data.data
 
-      const { power, surge } = getBloodPotency(potency).value
-
+      const { surge, mend } = getBloodPotency(potency).value
       const _rollDice = async (
         numDice,
         label = '',
@@ -341,6 +649,7 @@ async function main() {
           speaker: ChatMessage.getSpeaker({ actor }),
           content: chatMessage
         })
+
         // Automatically add hunger to the actor on a failure (for rouse checks)
         if (increaseHunger && game.settings.get('vtm5e', 'automatedRouse')) {
           // Check if the roll failed (matters for discipline
@@ -355,23 +664,23 @@ async function main() {
               })
             } else {
               // Define the new number of hunger points
-              const newHunger = hungerValue + 1
-
+              const actualHungerValue = getActor(dataset.id).data.data.hunger.value
+              const newHunger = actualHungerValue + 1
               // Push it to the actor's sheet
-              actor.update({ 'data.hunger.value': newHunger })
+              return actor.update({ 'data.hunger.value': newHunger })
             }
           }
         }
 
         if (changeHumanity) {
           if (totalSuccess >= difficulty) return actor.update({ 'data.humanity.stains': 0 })
-          const newHumanity = humanity.value - 1
-          actor.update({ 'data.humanity.stains': 0 })
-          actor.update({ 'data.humanity.value': newHumanity })
+          const newHumanity = humanityValue - 1
+          await actor.update({ 'data.humanity.stains': 0 })
+          await actor.update({ 'data.humanity.value': newHumanity })
         }
 
         // Automatically track willpower damage as a result of willpower rerolls
-        ;(() => {
+        ;(async () => {
           if (subtractWillpower && game.settings.get('vtm5e', 'automatedWillpower')) {
             // If the willpower boxes are fully ticked with aggravated damage
             // then tell the chat and don't increase any values.
@@ -387,7 +696,7 @@ async function main() {
               const newWillpower = superficial + 1
 
               // Update the actor sheet
-              actor.update({ 'data.willpower.superficial': newWillpower })
+              await actor.update({ 'data.willpower.superficial': newWillpower })
               return
             }
             // If there aren't any superficial boxes left, add an aggravated one
@@ -399,189 +708,54 @@ async function main() {
             const newAggrWillpower = aggravated + 1
 
             // Update the actor sheet
-            actor.update({ 'data.willpower.superficial': newSuperWillpower })
-            actor.update({ 'data.willpower.aggravated': newAggrWillpower })
+            await actor.update({ 'data.willpower.superficial': newSuperWillpower })
+            await actor.update({ 'data.willpower.aggravated': newAggrWillpower })
           }
         })()
       }
-      const getSelector = (condition, object, label, selectId, className, objectKey) => {
+      const getOption = (selectOption, object) => {
+        const isSelect = selectOption === '' ? 'selected' : ''
+        let option = `<option value="" ${isSelect} >👁</option>`
+        for (const [key, value] of Object.entries(object)) {
+          const selected = selectOption === key ? 'selected' : ''
+          option = option.concat(`<option value="${key}" ${selected}>${game.i18n.localize(value.name)}</option>`)
+        }
+        return option
+      }
+
+      const getSelector = (condition, object, label, selectId, optionSelected = '', name = selectId) => {
         let selector = ''
         if (condition) {
-          let options = '<option value="">👁</option>'
-          for (const [key, value] of Object.entries(object))
-            options = options.concat(`<option value="${key}">${game.i18n.localize(value.name)}</option>`)
-          selector = `
-            <div class="form-group">
-              <label>${label}</label>
-              <select id="${selectId}" onchange="setRollCircleStep('${selectId}',${className}, ${objectKey})">
-                ${options}
-              </select>
-            </div>
-          `
+          let className = ''
+          selectId.replace(/(.*?)-/, (match, p1) => (className = p1))
+          const options = getOption(optionSelected, object)
+          selector = getHtmlElements(actor).DIALOG__FORM_SELECTOR(label, selectId, name, className, object, options)
         }
-
         return selector
       }
+
       const rollDialog = (
         titleLabel = '',
-        callback = {
-          header: '',
-          formGroups: '',
-          onRollCallback: () => ({ rouses: 0, addDices: [], rollLabel: '' })
-        },
-        rollLabel = { label: '', numDices: 0 },
+        header = '',
+        formGroups = '',
+        addDices = [],
+        onRollCallback = () => ({ rouses: 0, rollLabel: '' }),
         isPowerBonus = false,
         isAbilities = false,
         isSkills = false
       ) => {
-        const { header, formGroups, onRollCallback } = callback
-        const skillsSelector = getSelector(
-          isSkills,
-          skills,
-          getLanguage.selectSkill,
-          'skillSelect',
-          'roll-skill',
-          'skills'
+        const skillsSelector = getSelector(isSkills, skills, getLanguage.selectSkill, 'skill-select')
+        const abilitiesSelector = getSelector(isAbilities, abilities, getLanguage.selectAbility, 'ability-select')
+
+        const content = getHtmlElements(actor).DIALOG__FORM_ROLL_DICES_CONTENT(
+          isPowerBonus,
+          addDices,
+          header,
+          formGroups,
+          abilitiesSelector,
+          skillsSelector
         )
-        const abilitiesSelector = getSelector(
-          isAbilities,
-          abilities,
-          getLanguage.selectAbility,
-          'abilitySelect',
-          'roll-ability',
-          'abilities'
-        )
-        window.getNumMarks = (numLoop, dataState = '-') => {
-          const marks = []
-          for (let index = 0; index < numLoop; index++) {
-            marks.push(htmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, dataState, 'circle'))
-          }
-          return marks.join('')
-        }
-        const getRollDices = () => `
-            <script>
-              $(document).ready(() => {
-                const numMarks = getNumMarks(${rollLabel.numDices})
-                const rollDicesValue = document.querySelector('#roll-dices-value')
-                rollDicesValue.innerHTML = numMarks
-              })
-            </script>
-            <style>
-              .wrapper-discipline-roll-dices {
-                display: flex;
-                transition: all 0.3s ease-in-out;
-              }
-              .wrapper-discipline-roll-dices div {
-                padding: 2px;
-                border-radius: 5px;
-                min-width: min-content;
-                transition: all 0.3s ease-in-out;
-              }
-            </style>
-            <div class="wrapper-discipline-roll-dices">
-              ${
-                isPowerBonus && power !== 0
-                  ? `<div class='title' data-title='${getLanguage.powerBonus}'>${getNumMarks(power)}</div>`
-                  : ''
-              }
-              <div class="title" data-title="${rollLabel.label}" id="roll-dices-value"></div>
-              <div class="title" data-title="${getLanguage.bloodSurge}" id="surge-dice-value"></div>
-              <div class="title" data-title="${getLanguage.modifier}" id="modifier-dice-value"></div>
-            </div>
-          `
-        getNewNumDices = dices => getNumMarks(rollLabel.numDices + dices)
 
-        setRollCircleStep = (idSelect, className, objectKey) => {
-          const getStatValue = key =>
-            abilities[key] ? abilities[key] : skills[key] ? skills[key] : { name: '', value: 0 }
-
-          const test = actor.data.data[objectKey]
-
-          console.log(test)
-
-          if ($(`.${className}`)[0] === undefined) {
-            const wrapper = document.createElement('div')
-            wrapper.className = `${className} title`
-            $('.wrapper-discipline-roll-dices').prepend(wrapper)
-          }
-
-          const circleWrapper = $(`.${className}`)
-          const resourceSelector = document.getElementById(idSelect).value
-
-          const { value, name } = getStatValue(resourceSelector)
-
-          console.log(abilities)
-          console.log(skills)
-          console.log(items._source.filter(item => item.type === 'feature'))
-
-          circleWrapper.prop('dataset').title = `${game.i18n.localize(name)}`
-          circleWrapper.css('margin-right', '5px')
-
-          circleWrapper[0].innerHTML = getNewNumDices(parseInt(value, 10))
-
-          $('.predator-wrapper :radio[name="radio-predator"]:checked')
-        }
-
-        const content = `
-          <script>
-            $(document).ready(() => {
-              const inputSurge = $('#inputSurge')
-              const inputMod = $('#inputMod')
-              const modifierDiceValue = document.getElementById('modifier-dice-value')
-              inputSurge.click(() => {
-                if (inputSurge.prop('checked')) {
-                  document.getElementById('surge-dice-value').innerHTML = getNumMarks(${surge})
-                  return
-                }
-                document.getElementById('surge-dice-value').innerHTML = ''
-              })
-              selectResourceChange = (event) => {
-                const { currentTarget } = event
-                const { dataset, parentNode } = currentTarget
-
-                console.log(currentTarget.value)
-
-                console.log(dataset)
-              }
-              inputMod.on('keyup', () => {
-                const value = parseInt(inputMod.prop('value') || 0, 10)
-                if (value != 0) {
-                  if (value < 0) {
-                    modifierDiceValue.innerHTML = getNumMarks(Math.abs(value), ${false})
-                    $('#modifier-dice-value .resources-counter-step').addClass('subtract-value')
-                    return
-                  }
-                  modifierDiceValue.innerHTML = getNumMarks(Math.abs(value))
-                  return
-                }
-                modifierDiceValue.innerHTML = ''
-              })
-
-              if (${isSkills}) setRollCircleStep('skillSelect', 'dice-skill', skills)
-              if (${isAbilities}) setRollCircleStep('abilitySelect', 'dice-ability', abilities)
-            })
-          </script>
-          <form id='roll-dialog'>
-            ${header !== undefined ? header : ''}
-            <div class="form-group">
-              <label>${getLanguage.bloodSurge}?</label>
-              <input type="checkbox" id="inputSurge" value="0" />
-            </div>
-            ${formGroups !== undefined ? formGroups : ''} ${abilitiesSelector} ${skillsSelector}
-            <div class="form-group">
-              <label>${getLanguage.modifier}</label>
-              <input type="text" id="inputMod" value="0" />
-            </div>
-            <div class="form-group">
-              <label>${getLanguage.difficulty}</label>
-              <input type="text" min="0" id="inputDif" value="0" />
-            </div>
-            <div class="form-group" id="form-roll">
-              <label>${getLanguage.roll}</label>
-              ${getRollDices()}
-            </div>
-          </form>
-        `
         const buttons = {
           draw: {
             icon: '<i class="fas fa-check"></i>',
@@ -589,56 +763,39 @@ async function main() {
             callback: async html => {
               const getHtmlValue = id => html.find(id)[0].value
 
-              const getElement = (condition, id, object) => {
+              const getLabel = (condition, id, object) => {
                 if (condition) {
                   const value = getHtmlValue(id)
-                  if (value === '')
-                    return {
-                      label: '',
-                      value: 0
-                    }
-                  return {
-                    label: ` + ${game.i18n.localize(object[value].name)}`,
-                    value: object[value].value
-                  }
+                  if (value === '') return ''
+                  return ` + ${game.i18n.localize(object[value].name)}`
                 }
-                return {
-                  label: '',
-                  value: 0
-                }
+                return ''
               }
 
-              const { label: abilityLabel, value: abilityValue } = getElement(isAbilities, '#abilitySelect', abilities)
-              const { label: skillLabel, value: skillValue } = getElement(isSkills, '#skillSelect', skills)
+              const abilityLabel = getLabel(isAbilities, '#ability-select', abilities)
+              const skillLabel = getLabel(isSkills, '#skill-select', skills)
 
-              // const modifier = getHtmlValue('#inputMod')
-              const difficulty = getHtmlValue('#inputDif')
-              const isSurge = html.find('#inputSurge').prop('checked')
-
-              // const surgeDice = isSurge ? surge : 0
-
-              // const numDices = checks => {
-              //   let dices = 0
-              //   checks.forEach(value => (dices += parseInt(value, 10)))
-              //   return dices
-              // }
+              const difficulty = getHtmlValue('#input-dif')
+              const isSurge = html.find('#input-surge').prop('checked')
 
               const { rouses, rollLabel: label } = onRollCallback(html)
 
-              // const numDice = numDices([abilityValue, skillValue, modifier, surgeDice].concat(addDices))
-
               const ChatLabel = label.concat(`${abilityLabel}${skillLabel}`)
 
-              const testVal = $('.wrapper-discipline-roll-dices .resources-counter-step').length
-              const subtractVal = $('.wrapper-discipline-roll-dices .subtract-value').length * 2
+              let numDice = 0
+              $('.wrapper-roll-dices')
+                .find('div')
+                .each(function getChildProp() {
+                  numDice += parseInt($(this).prop('dataset').value, 10)
+                })
 
-              if (isSurge) console.log(event.currentTarget)
-              for (let index = 0; index < rouses; index++) console.log('rouse check')
-              console.log(`numDice = ${testVal - subtractVal} ChatLabel = ${ChatLabel} Difficulty = ${difficulty}`)
+              // if (isSurge) console.log('Blood Surge')
+              // for (let index = 0; index < rouses; index++) console.log('rouse check')
+              // console.log(`numDice = ${numDice} ChatLabel = ${ChatLabel} Difficulty = ${difficulty}`)
 
-              // if (isSurge) _rollDice(1, getLanguage.rouse, 1, true, true)
-              // for (let index = 0; index < rouses; index++) _rollDice(1, getLanguage.rouse, 1, true, true)
-              // _rollDice(numDice, ChatLabel, difficulty, true)
+              if (isSurge) _rollDice(1, getLanguage.rouse, 1, true, true)
+              for (let index = 0; index < rouses; index++) _rollDice(1, getLanguage.rouse, 1, true, true)
+              _rollDice(numDice, ChatLabel, difficulty, true)
             }
           },
           cancel: {
@@ -646,6 +803,7 @@ async function main() {
             label: getLanguage.cancel
           }
         }
+
         new Dialog({
           title: `${getLanguage.rolling} ${titleLabel}...`,
           content,
@@ -653,679 +811,350 @@ async function main() {
           default: 'draw'
         }).render(true)
       }
-      return {
-        onOpenSheet: () => actor.sheet.render(true),
-        onOpenItem: () => actor.items.find(item => item.id === dataset.itemId).sheet.render(true),
-        onAddExp: () => actor.update({ 'data.exp.value': exp.value + 1 }),
-        onSubExp: () => actor.update({ 'data.exp.value': exp.value - 1 }),
-        onRollDiscipline: () => {
-          const {
-            id,
-            itemId,
-            dice1,
-            dice2,
-            disciplineLevel,
-            img,
-            name: powerName,
-            discipline: disciplineName,
-            level: powerLevel,
-            rouse: powerRouse
-          } = event.currentTarget.dataset
+      // CHANGE actorActions
+      const onSheetRender = () => actor.sheet.render(true)
+      const onItemRender = () => actor.items.find(item => item.id === dataset.itemId).sheet.render(true)
+      const onAddExp = () => actor.update({ 'data.exp.value': exp.value + 1 })
+      const onSubExp = () => actor.update({ 'data.exp.value': exp.value - 1 })
+      // CHANGE handleJQuery
+      const onInputChange = value => (document.querySelector('.rouse-value').innerHTML = value)
+      const onPredatorChange = (window.onPredatorChange = () => {
+        const predatorSelect = $('#predator-select')
+        const predatorGroup = $('#predator-group')
+        const predatorKey = predatorSelect[0].value
+        const dialog = $('#hunting-roll').parent().parent().parent().parent()
+        const dialogHeight = parseInt(dialog.css('height'), 10)
 
-          const headerRollDiscipline = `
-            <style>
-              .header-roll-discipline {
-                position: relative;
-                display: flex;
-              }
-              .header-roll-discipline h1,
-              p,
-              label {
-                font-family: var(--dialog-font-family);
-                font-weight: bold;
-              }
-              .header-roll-discipline img {
-                filter: invert(10%) sepia(10%) saturate(99999%) hue-rotate(6deg) brightness(90%) contrast(50%);
-                height: 28px;
-                width: 60px;
-                height: 60px;
-                margin-right: 10px;
-                border-radius: 50%;
-              }
-              .header-roll-discipline div {
-                display: flex;
-                flex-direction: column;
-              }
-              .header-roll-discipline div h1 {
-                font-size: 16px;
-                margin: 0.5rem 0 0;
-                min-width: min-content;
-                color: var(--dialog-red-primary);
-              }
-              .header-roll-discipline div p {
-                font-size: 12px;
-                color: var(--dialog-dark);
-              }
-              .header-roll-discipline .p-roll-discipline-power-level {
-                position: absolute;
-                display: flex;
-                color: var(--dialog-red-primary);
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                top: 0;
-                right: 0;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                box-shadow: 4px 4px 5px var(--dialog-dark);
-              }
-            </style>
-            <div class="header-roll-discipline">
-              <img class="img-roll-discipline" src=${img} data-id="${id}" data-item-id${itemId} />
-              <div>
-                <h1 class="h1-roll-discipline-power-name">${powerName}</h1>
-                <p class="p-roll-discipline-discipline-name">${disciplineName}</p>
-              </div>
-              <p class="p-roll-discipline-power-level">${powerLevel}</p>
-            </div>
-          `
-          const rollRouse = `
-            <style>
-              .rouse-value {
-                color: var(--dialog-red-primary);
-                text-align: center;
-                font-weight: bold;
-                text-family: var(--dialog-font-primary);
-              }
+        predatorGroup[0].innerHTML = getHtmlElements(actor).DIALOG__PREDATOR_WRAPPER(predatorKey, getSelector)
 
-              input[type='range'] {
-                -webkit-appearance: none;
-                display: block;
-                margin: 0 auto;
-                outline: 0;
-              }
-              input[type='range']:focus {
-                outline: none;
-              }
-              input[type='range']::-webkit-slider-runnable-track {
-                height: 4px;
-                background: var(--dialog-primary-light);
-                border: 0;
-                transition: all 0.3s ease-in-out;
-                box-shadow: 0px 0px 0px #000;
-              }
-              input[type='range']::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                background-color: var(--dialog-red-primary);
-                min-width: 13px;
-                min-height: 13px;
-                border-radius: 0% 50% 50% 50%;
-                transform: rotate(45deg);
-                border: 2px solid var(--dialog-primary);
-                cursor: pointer;
-                transition: all 0.3s ease-in-out;
-                box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 1px 1px var(--dialog-dark);
-              }
+        $('.predator-roll-wrapper select').attr('disabled', 'disabled')
 
-              input[type='range']:active::-webkit-slider-runnable-track {
-                background: var(--dialog-primary-light);
-              }
-              input[type='range']:focus::-webkit-slider-runnable-track {
-                background: var(--dialog-primary-light);
-              }
+        const plusHeight = parseInt($('.predator-wrapper').css('height'), 10)
+        const newHeight = `${(dialogHeight + plusHeight).toString()}px`
 
-              input[type='range']::-webkit-slider-thumb:hover {
-                background-color: var(--dialog-primary);
-                min-width: 14px;
-                min-height: 14px;
-                border: 0;
-              }
-              input[type='range']::-webkit-slider-thumb:active {
-                min-width: 16px;
-                min-height: 16px;
-              }
-            </style>
-            <script>
-              $(document).ready(() => {
-                onRouseInputChange = value => {
-                  document.querySelector('.rouse-value').innerHTML = value
-                }
-                $('.img-roll-discipline').click(() => _handleMouseEvents(${event}).onOpenItem())
-              })
-            </script>
-            <div class="form-group">
-              <label>${getLanguage.rouse}?</label>
-              <div class="range-rouse">
-                <div class="rouse-value">1</div>
-                <input
-                  class="rouse-input"
-                  type="range"
-                  id="inputRouse"
-                  min="1"
-                  max="5"
-                  step="1"
-                  value="0"
-                  onchange="onRouseInputChange(this.value)"
-                />
-              </div>
-            </div>
-          `
-          const formGroup = powerRouse === 'true' ? rollRouse : ''
-          const getRollDice = dice => {
-            if (dice === 'discipline') return parseInt(disciplineLevel, 10)
-
-            const ability = abilities[dice]
-            const skill = skills[dice]
-
-            if (ability) return parseInt(ability.value, 10)
-            return parseInt(skill.value, 10)
-          }
-          const rollDice1 = getRollDice(dice1)
-          const rollDice2 = getRollDice(dice2)
-
-          const rollCallback = html => {
-            const rouses = parseInt(html.find('#inputRouse').prop('value'), 10)
-            return {
-              rouses,
-              addDices: [power, rollDice1, rollDice2],
-              rollLabel: powerName.toLowerCase()
-            }
-          }
-
-          rollDialog(
-            powerName.toLowerCase(),
-            {
-              header: headerRollDiscipline,
-              formGroups: formGroup,
-              onRollCallback: rollCallback
-            },
-            { label: `${dice1} + ${dice2}`, numDices: rollDice1 + rollDice2 },
-            true
-          )
-        },
-        onRollAbility: () => {
-          rollDialog(
-            dataset.label,
-            {
-              onRollCallback: () => ({ addDices: dataset.roll, rollLabel: dataset.label })
-            },
-            { label: dataset.label, numDices: parseInt(dataset.roll, 10) },
-            false,
-            true
-          )
-        },
-        onRollFeature: () => {
-          const { name, level, type } = dataset
-          rollDialog(
-            name,
-            {
-              formGroups: `
-                <script>
-                  $(document).ready(() => {
-                    const abilitySelect = $('#abilitySelect')
-                    const skillSelect = $('#skillSelect')
-                    const inputSurge = $('#inputSurge')
-                    inputSurge.prop({disabled:true})
-
-                    abilitySelect.change(() => {
-                      $('#skillSelect option:contains(👁)').prop({ selected: true })
-                      inputSurge.prop({disabled:false})
-                      if(abilitySelect[0].value === '') inputSurge.prop({disabled:true})
-                    })
-
-                    skillSelect.change(() => {
-                      $('#abilitySelect option:contains(👁)').prop({ selected: true })
-                      inputSurge.prop({disabled:true})
-                    })
-
-                  })
-                </script>
-              `,
-              onRollCallback: () => ({ addDices: level, rollLabel: `${getLanguage.rolling} ${type}: ${name}` })
-            },
-            { label: name, numDices: parseInt(level, 10) },
-            false,
-            true,
-            true
-          )
-        },
-        onRollHunting: () => {
-          const getPercentMatchString = (string1, string2) => {
-            let matches = 0
-
-            // Exit early if either are empty.
-            if (string1.length === 0 || string2.length === 0) return 0
-
-            // Exit early if they're an exact match.
-            if (string1 === string2) return 1
-
-            const range = Math.floor(Math.max(string1.length, string2.length) / 2) - 1
-            const string1Matches = new Array(string1.length)
-            const string2Matches = new Array(string2.length)
-
-            for (let i = 0; i < string1.length; i++) {
-              const low = i >= range ? i - range : 0
-              const high = i + range <= string2.length ? i + range : string2.length - 1
-
-              for (let j = low; j <= high; j++) {
-                if (string1Matches[i] !== true && string2Matches[j] !== true && string1[i] === string2[j]) {
-                  ++matches
-                  string2Matches[j] = true
-                  string1Matches[i] = string2Matches[j]
-                  break
-                }
-              }
-            }
-
-            // Exit early if no matches were found.
-            if (matches === 0) return 0
-
-            // Count the transpositions.
-            let transpositions = 0
-            let k = transpositions
-
-            for (i = 0; i < string1.length; i++)
-              if (string1Matches[i] === true) {
-                for (j = k; j < string2.length; j++)
-                  if (string2Matches[j] === true) {
-                    k = j + 1
-                    break
-                  }
-                if (string1[i] !== string2[j]) ++transpositions
-              }
-
-            let weight =
-              (matches / string1.length + matches / string2.length + (matches - transpositions / 2) / matches) / 3
-            let l = 0
-            const p = 0.1
-
-            if (weight > 0.7) {
-              while (string1[l] === string2[l] && l < 4) ++l
-              weight += l * p * (1 - weight)
-            }
-            return weight
-          }
-
-          const predators = {
-            alleycat: {
-              name: 'Alleycat',
-              roll: [
-                {
-                  dice1: 'strength',
-                  dice2: 'brawl'
-                },
-                {
-                  dice1: 'wits',
-                  dice2: 'streetwise'
-                }
-              ]
-            },
-            bagger: {
-              name: 'Bagger',
-              roll: [
-                {
-                  dice1: 'intelligence',
-                  dice2: 'streetwise'
-                }
-              ]
-            },
-            bloodLeech: {
-              name: 'Blood Leech',
-              roll: []
-            },
-            cleaver: {
-              name: 'Cleaver',
-              roll: [
-                {
-                  dice1: 'manipulation',
-                  dice2: 'subterfuge'
-                }
-              ]
-            },
-            consensualist: {
-              name: 'Consensualist',
-              roll: [
-                {
-                  dice1: 'manipulation',
-                  dice2: 'persuasion'
-                }
-              ]
-            },
-            extortionist: {
-              name: 'Extortionist',
-              roll: [
-                {
-                  dice1: 'strength',
-                  dice2: 'intimidation'
-                },
-                {
-                  dice1: 'strength',
-                  dice2: 'intimidation'
-                }
-              ]
-            },
-            farmer: {
-              name: 'Farmer',
-              roll: [
-                {
-                  dice1: 'composure',
-                  dice2: 'animal ken'
-                }
-              ]
-            },
-            graverobber: {
-              name: 'Graverobber',
-              roll: [
-                {
-                  dice1: 'resolve',
-                  dice2: 'medicine'
-                },
-                {
-                  dice1: 'manipulation',
-                  dice2: 'insight'
-                }
-              ]
-            },
-            osiris: {
-              name: 'Osiris',
-              roll: [
-                {
-                  dice1: 'manipulation',
-                  dice2: 'subterfuge'
-                }
-              ]
-            },
-            roadsideKiller: {
-              name: 'Roadside Killer',
-              roll: [
-                {
-                  dice1: 'charisma',
-                  dice2: 'drive'
-                },
-                {
-                  dice1: 'dexterity',
-                  dice2: 'drive'
-                }
-              ]
-            },
-            sandman: {
-              name: 'Sandman',
-              roll: [
-                {
-                  dice1: 'dexterity',
-                  dice2: 'stealth'
-                }
-              ]
-            },
-            sceneQueen: {
-              name: 'Scene Queen',
-              roll: [
-                {
-                  dice1: 'manipulation',
-                  dice2: 'persuasion'
-                }
-              ]
-            },
-            siren: {
-              name: 'Siren',
-              roll: [
-                {
-                  dice1: 'charisma',
-                  dice2: 'subterfuge'
-                }
-              ]
-            }
-          }
-          getPredatorType = () => {
-            let predatorControl = { predator: '', matchPercent: 0 }
-            Object.keys(predators).forEach(key => {
-              const matching = getPercentMatchString(key, predator)
-              if (predatorControl.matchPercent < matching)
-                predatorControl = {
-                  predator: key,
-                  matchPercent: matching
-                }
-            })
-            const predatorType = predators[predatorControl.predator]
-            return { ...predatorType, key: predatorControl.predator }
-          }
-
-          const getOption = (selectOption, object) => {
-            const isSelect = selectOption === '' ? 'selected' : ''
-            let option = `<option value="" ${isSelect} >👁</option>`
-            for (const [key, value] of Object.entries(object)) {
-              const selected = selectOption === key ? 'selected' : ''
-              option = option.concat(`<option value="${key}" ${selected}>${game.i18n.localize(value.name)}</option>`)
-            }
-            return option
-          }
-
-          const getHtmlStat = (statLabel, selectId, options) => `
-            <div>
-              <p>${statLabel}</p>
-              <select id="select-${selectId}">
-                ${options}
-              </select>
-            </div>
-          `
-
-          handlePredatorStats = key => {
-            const getPredatorRolls = predatorType => {
-              const array =
-                predatorType !== undefined && predatorType.roll.length > 0
-                  ? predatorType
-                  : { name: '', roll: [{ dice1: '', dice2: '' }] }
-              const { roll, key: predatorKey } = array
-
-              return `
-                <style>
-                  .predator-roll-wrapper {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: baseline;
-                    justify-content: center;
-                  }
-                  .predator-roll-wrapper div {
-                    border: 0;
-                  }
-                  .predator-roll-wrapper div p {
-                    top: -25px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                  }
-                  .predator-roll-wrapper + div {
-                    margin-top: 12px;
-                  }
-                </style>
-                ${roll
-                  .map(
-                    (value, index) => `
-                        <div class="predator-roll-wrapper">
-                          ${getHtmlStat(getLanguage.abilities, `ability-${index}`, getOption(value.dice1, abilities))}
-                          ${getHtmlStat(getLanguage.skills, `skill-${index}`, getOption(value.dice2, skills))}
-                          <input type="radio" id="radio-${predatorKey}-${index}" name="radio-predator" value="${index}" data-predator=${predatorKey} onchange='handleRadioChange(event)'/>
-                        </div>
-                      `
-                  )
-                  .join('')}
-              `
-            }
-            const getPredatorWrapper = () => `
-              <style>
-                .predator-wrapper {
-                  display: flex;
-                  flex-direction: column;
-                  border: 1px solid var(--dialog-primary-dark);
-                  position: relative;
-                  padding: 15px;
-                }
-                .predator-wrapper p {
-                  z-index: 1;
-                  position: absolute;
-                  top: -17px;
-                  background: var(--dialog-primary);
-                  padding: 1px;
-                  border-radius: 4px;
-                }
-                .predator-wrapper div {
-                  position: relative;
-                  padding: 8px;
-                  border: 1px solid var(--dialog-primary-dark);
-                }
-              </style>
-              <div class="predator-wrapper">
-                <p>possible roll</p>
-                ${getPredatorRolls({ ...predators[key], key })}
-              </div>
-            `
-
-            return getPredatorWrapper()
-          }
-
-          handleRadioChange = radioEvent => {
-            const {
-              currentTarget: { value }
-            } = radioEvent
-
-            setRollCircleStep(`select-skill-${value}`, 'roll-skill', 'skills')
-            setRollCircleStep(`select-ability-${value}`, 'roll-ability', 'abilities')
-            $('.predator-roll-wrapper :radio[name="radio-predator"]:checked')
-              .siblings('div')
-              .find('select')
-              .change(changeEvent => selectResourceChange(changeEvent))
-          }
-          const selector = `
-            <script>
-              $(document).ready(() => {
-
-                const inputSurge = $('#inputSurge')
-                const predatorSelect = $('#predator-select')
-                const predatorGroup = $('#predator-group')
-                const dialog = $('#hunting-roll').parent().parent().parent().parent()
-                let dialogHeight = parseInt(dialog.css('height'), 10)
-
-                const predatorName = getPredatorType().name
-
-
-                handlePredatorSelect = event => {
-                  const predatorKey = predatorSelect[0].value
-                  predatorGroup[0].innerHTML = handlePredatorStats(predatorKey)
-                  let plusHeight = parseInt($('.predator-wrapper').css('height'), 10)
-                  let newHeight = (dialogHeight + plusHeight).toString() + 'px'
-                  dialog.css('min-height', newHeight)
-                  if($('.roll-skill')[0] !== undefined && $('.roll-ability')[0] !== undefined){
-                    $('.roll-skill')[0].innerHTML = ''
-                    $('.roll-ability')[0].innerHTML = ''
-                  }
-                }
-                handlePredatorSelect()
-              })
-
-            </script>
-            <div class="form-group" id="hunting-roll">
-              <label>Predator</label>
-              <select id="predator-select" onchange="handlePredatorSelect(event)">
-                ${getOption(getPredatorType().key, predators)}
-              </select>
-            </div>
-            <div class="form-group" id="predator-group"></div>
-          `
-          // selector
-          rollDialog(
-            'roll hunting',
-            {
-              header: '',
-              formGroups: selector,
-              onRollCallback: () => ({
-                rouses: 0,
-                addDices: [],
-                rollLabel: ''
-              })
-            },
-            { label: '', numDices: 0 }
-          )
-        },
-        onRollHunger: () => _rollDice(1, getLanguage.rouse, 1, true, true),
-        onRollWillpower: () => {
-          const numDice = max - superficial - aggravated
-          _rollDice(numDice, getLanguage.rollingWillpower, 0, false, false, false)
-        },
-        onRollFrenzy: () => {
-          const actualWillpower = max - aggravated - superficial
-          const humanityMod = Math.floor(humanityValue / 3)
-
-          const content = `
-            <form>
-              <div class="form-group">
-                <label>${getLanguage.modifier}</label>
-                <input type="text" id="inputMod" value="0" />
-              </div>
-              <div class="form-group">
-                <label>${getLanguage.difficulty}</label>
-                <input type="text" min="0" id="inputDif" value="0" />
-              </div>
-            </form>
-          `
-
-          const buttons = {
-            draw: {
-              icon: '<i class="fas fa-check"></i>',
-              label: getLanguage.roll,
-              callback: async html => {
-                const modifier = parseInt(html.find('#inputMod')[0].value || 0, 10)
-                const difficulty = parseInt(html.find('#inputDif')[0].value || 0, 10)
-
-                const numDice = actualWillpower + humanityMod + modifier
-
-                _rollDice(numDice, getLanguage.resistingFrenzy, difficulty, false)
-              }
-            },
-            cancel: {
-              icon: '<i class="fas fa-times"></i>',
-              label: getLanguage.cancel
-            }
-          }
-
-          new Dialog({
-            title: getLanguage.frenzy,
-            content,
-            buttons,
-            default: 'draw'
-          }).render(true)
-        },
-        onRollRemorse: () => {
-          const emptyHumanity = 10 - (humanityValue + stains)
-          const numDice = emptyHumanity === 0 ? 1 : emptyHumanity
-          _rollDice(numDice, getLanguage.rollingRemorse, 1, false, false, false, true)
+        dialog.css('min-height', newHeight)
+        if ($('.roll-skill')[0] !== undefined && $('.roll-ability')[0] !== undefined) {
+          $('.roll-skill')[0].innerHTML = ''
+          $('.roll-ability')[0].innerHTML = ''
         }
+      })
+      // CHANGE
+      const onRadioChange = () => {
+        const { value } = currentTarget
+
+        $('.predator-roll-wrapper :radio[name="radio-predator"]:checked')
+          .siblings('div')
+          .find('select')
+          .attr('disabled', false)
+
+        $('.predator-roll-wrapper :radio[name="radio-predator"]:not(:checked)')
+          .siblings('div')
+          .find('select')
+          .attr('disabled', true)
+
+        getHtmlScripts(actorId).HTML__CIRCLE_STEP(
+          $(`#skill-select-${value}`)[0].value,
+          [`roll-skill-select`, 'skill'],
+          skills
+        )
+        getHtmlScripts(actorId).HTML__CIRCLE_STEP(
+          $(`#ability-select-${value}`)[0].value,
+          [`roll-ability-select`, 'ability'],
+          abilities
+        )
+      }
+
+      const onBloodSurgeClick = () => {
+        if (currentTarget.checked)
+          return getHtmlScripts(actorId).HTML__CIRCLE_STEP('1', ['roll-surge', 'surge'], {
+            1: {
+              value: surge,
+              name: getLanguage.bloodSurge
+            }
+          })
+        getHtmlScripts(actorId).HTML__CIRCLE_STEP('1', ['roll-surge', 'surge'], {
+          1: {
+            value: 0,
+            name: ''
+          }
+        })
+      }
+      const onModifierChange = () => {
+        const value = parseInt(event.currentTarget.value || 0, 10)
+        const modifierObj = { 1: { value, name: getLanguage.modifier } }
+        if (value !== 0) {
+          if (value < 0) {
+            getHtmlScripts(actorId).HTML__CIRCLE_STEP('1', ['roll-modifier', 'modifier'], modifierObj, false)
+            $('.modifier').addClass('modifier-minus')
+            return
+          }
+
+          getHtmlScripts(actorId).HTML__CIRCLE_STEP('1', ['roll-modifier', 'modifier'], modifierObj)
+          $('.modifier').addClass('modifier-plus')
+
+          return
+        }
+        getHtmlScripts(actorId).HTML__CIRCLE_STEP('1', ['roll-modifier', 'modifier'], { 1: { value: 0, name: '' } })
+      }
+      const onHandleSelect = () => {
+        const { individualClass, permanentClass, object } = dataset
+        const className = [`roll-${individualClass}`, `${permanentClass}`]
+        const newObject = JSON.parse(object)
+        getHtmlScripts(actorId).HTML__CIRCLE_STEP(currentTarget.value, className, newObject)
+      }
+      const onRollDiscipline = () => {
+        const {
+          itemId,
+          dice1,
+          dice2,
+          disciplineLevel,
+          img,
+          name: powerName,
+          discipline: disciplineName,
+          level: powerLevel,
+          rouse: powerRouse
+        } = event.currentTarget.dataset
+
+        const headerDiscipline = getHtmlElements(actor).DIALOG__FORM_DISCIPLINE_HEADER(
+          img,
+          itemId,
+          powerName,
+          disciplineName,
+          powerLevel
+        )
+
+        const rollRouse = getHtmlElements(actor).DIALOG__FORM_DISCIPLINE_ROUSE_CHECK()
+
+        const formGroup = powerRouse === 'true' ? rollRouse : ''
+
+        const getRollDice = dice => {
+          if (dice === 'discipline')
+            return { name: powerName.toLowerCase(), value: parseInt(disciplineLevel, 10), type: 'discipline' }
+
+          const ability = abilities[dice]
+          const skill = skills[dice]
+
+          if (ability) return { name: getLanguage[dice], value: parseInt(ability.value, 10), type: 'ability' }
+          return { name: getLanguage[dice], value: parseInt(skill.value, 10), type: 'skill' }
+        }
+
+        const rollCallback = html => ({
+          rouses: parseInt(html.find('#input-rouse').prop('value'), 10),
+          rollLabel: powerName.toLowerCase()
+        })
+
+        rollDialog(
+          powerName.toLowerCase(),
+          headerDiscipline,
+          formGroup,
+          [getRollDice(dice1), getRollDice(dice2)],
+          rollCallback,
+          true
+        )
+      }
+      const onRollAbility = () => {
+        rollDialog(
+          dataset.label,
+          '',
+          '',
+          [{ name: dataset.label, value: dataset.roll, type: dataset.type }],
+          () => ({ rollLabel: dataset.label }),
+          false,
+          true
+        )
+      }
+      const onRollFeature = () => {
+        const { name, level, type } = dataset
+        const formScript = `
+            <script>
+              getHtmlScripts('${actorId}').HTML__FEATURE_SELECT_CONTROL()
+            </script>
+          `
+        rollDialog(
+          name,
+          '',
+          formScript,
+          [{ name, value: level, type: 'feature' }],
+          () => ({ rollLabel: `${getLanguage.rolling} ${type}: ${name}` }),
+          false,
+          true,
+          true
+        )
+      }
+      const onRollHunting = () =>
+        rollDialog(getLanguage.rollHunting, '', getHtmlElements(actor).DIALOG__HUNTING_SELECTOR(getOption), [], () => ({
+          rouses: 0,
+          rollLabel: getLanguage.rollingHunting
+        }))
+      const onRollHunger = () => _rollDice(1, getLanguage.rouse, 1, true, true)
+      const onRollWillpower = () => _rollDice(max - superficial - aggravated, getLanguage.rollingWillpower, 0, false)
+      const onChangeState = async () => {
+        const getType = async type => {
+          const typeOf = {
+            health: async () => {
+              const stateOF = {
+                x: () => console.log('not heal'),
+                '': async () => actor.update({ 'data.health.superficial': healthSuperficial + 1 }),
+                '/': async () =>
+                  actor.update({
+                    'data.health.superficial': healthSuperficial - 1,
+                    'data.health.aggravated': healthAggravated + 1
+                  })
+              }
+
+              stateOF[dataset.state]()
+            },
+            hunger: async () => {
+              const stateOF = {
+                '-': async () => actor.update({ 'data.hunger.value': hungerValue - 1 }),
+                false: async () => actor.update({ 'data.hunger.value': hungerValue + 1 })
+              }
+
+              stateOF[dataset.state]()
+            }
+          }
+          if (typeOf[type] !== undefined) return typeOf[type]
+          return () => {
+            console.log(dataset)
+            alert('Desenvolvendo ...')
+          }
+        }
+
+        const change = await getType(dataset.type)
+        change()
+      }
+      const onHealthMarkSelect = () => {
+        for (const item of document.getElementsByClassName(currentTarget.className)) {
+          item === currentTarget
+            ? currentTarget.classList.toggle('resources-counter-selected')
+            : item.classList.remove('resources-counter-selected')
+        }
+
+        if (dataset.state === '') currentTarget.classList.toggle('resources-counter-selected')
+
+        currentTarget.classList.contains('resources-counter-selected')
+          ? ($(`.health-${dataset.id}`).prop('dataset').select = dataset.state)
+          : ($(`.health-${dataset.id}`).prop('dataset').select = '')
+      }
+      const onRollMendAmount = async () => {
+        console.log('onRollMendAmount')
+        // console.log(dataset)
+        if (dataset.select === '')
+          return alert('Clique com o botão direito para selecionar o nível de vitalidade que deseja curar')
+        if (dataset.select === '/') {
+          await _rollDice(1, getLanguage.rollingMendAmount, 1, true, true)
+
+          const newSuperficial = Math.max(0, healthSuperficial - mend)
+
+          await actor.update({ 'data.health.superficial': newSuperficial })
+
+          return
+        }
+
+        await _rollDice(1, getLanguage.rollingRiseCheck, 1, true, true)
+        await _rollDice(1, getLanguage.rollingMendAmount, 1, true, true)
+        await _rollDice(1, getLanguage.rollingMendAmount, 1, true, true)
+        await _rollDice(1, getLanguage.rollingMendAmount, 1, true, true)
+
+        const newAggravated = Math.max(0, healthAggravated - 1)
+
+        await actor.update({ 'data.health.aggravated': newAggravated })
+      }
+      const onRollFrenzy = () => {
+        const actualWillpower = max - aggravated - superficial
+        const humanityMod = Math.floor(humanityValue / 3)
+
+        const addedDice1 = { name: getLanguage.actualWillpower, value: actualWillpower, type: 'modifier' }
+        const addedDice2 = { name: getLanguage.humanityMod, value: humanityMod, type: 'power' }
+
+        rollDialog(getLanguage.frenzy, '', '', [addedDice1, addedDice2], () => ({
+          rouses: 0,
+          rollLabel: getLanguage.resistingFrenzy
+        }))
+      }
+      const onRollRemorse = () => {
+        const emptyHumanity = 10 - (humanityValue + stains)
+        const numDice = emptyHumanity === 0 ? 1 : emptyHumanity
+        _rollDice(numDice, getLanguage.rollingRemorse, 1, false, false, false, true)
+      }
+
+      return {
+        BUTTON__SHEET_RENDER_CLICK: onSheetRender,
+        BUTTON__ITEM_RENDER_CLICK: onItemRender,
+        BUTTON__ADD_EXP_CLICK: onAddExp,
+        BUTTON__SUB_EXP_CLICK: onSubExp,
+        BUTTON__ROLL_POWER_CLICK: onRollDiscipline,
+        BUTTON__ROLL_FEATURE_CLICK: onRollFeature,
+        BUTTON__ROLL_HUNTING_CLICK: onRollHunting,
+        LABEL__ROLL_HUNGER_CLICK: onRollHunger,
+        LABEL__ROLL_WILLPOWER_CLICK: onRollWillpower,
+        LABEL__ROLL_MEND_AMOUNT_CLICK: onRollMendAmount,
+        LABEL__ROLL_FRENZY_CLICK: onRollFrenzy,
+        LABEL__ROLL_REMORSE_CLICK: onRollRemorse,
+        SELECT__PREDATOR_CHANGE: onPredatorChange,
+        SELECT__CIRCLE_ROLL_CHANGE: onHandleSelect,
+        RANGE__ROUSE_CHECK_CHANGE: onInputChange,
+        P__RESOURCE_STATE_CHANGE: onChangeState,
+        P__RESOURCE_HEALTH_SELECT_CONTEXT_MENU: onHealthMarkSelect,
+        CHECK_BOX__BLOOD_SURGE_CLICK: onBloodSurgeClick,
+        INPUT_NUMBER__MODIFIER_CHANGE: onModifierChange,
+        RADIO__CHANGE: onRadioChange,
+        SPAN__ROLL_ABILITY_CLICK: onRollAbility
       }
     }
     return {
-      onScrollLeft: () => {
-        const hideContent = $(currentTarget).find('.stats-hide-content')
-        hideContent[0].addEventListener('wheel', evt => {
+      DIV__SCROLL_LEFT_MOUSE_OVER: () => {
+        currentTarget.addEventListener('wheel', evt => {
           evt.preventDefault()
-          // hideContent.animate({ scrollLeft: `+=${evt.deltaY}` }, 300)
-          hideContent[0].scrollLeft += evt.deltaY
+          currentTarget.scrollLeft += evt.deltaY
         })
       },
       onFeatureToggle: () => parentNode.classList.toggle('show-content'),
       onCollapsibleToggle: () =>
         $(currentTarget).closest('span').nextAll('.collapse')[0].classList.toggle('show-content')
     }
-  }
+  })
 
-  function htmlElements(actor) {
-    const { _id: actorId, name: actorName, img: actorImg, data: actorData } = actor.data
+  const getHtmlElements = (window.getHtmlElements = actor => {
+    let thisActor = {}
+    !actor ||
+      (thisActor = (() => {
+        const { _id: actorId, name: actorName, img: actorImg, data: actorData } = actor.data
+        const {
+          abilities: actorAbilities,
+          blood: { potency },
+          exp,
+          headers,
+          skills: actorSkills
+        } = actorData
+
+        const bloodPotencyText = getBloodPotency(potency).text
+        const { power } = getBloodPotency(potency).value
+        return {
+          actorId,
+          actorName,
+          actorImg,
+          potency,
+          actorAbilities,
+          exp,
+          headers,
+          actorSkills,
+          bloodPotencyText,
+          power
+        }
+      })())
     const {
-      abilities: actorAbilities,
-      blood: { potency },
+      actorId,
+      actorName,
+      actorImg,
+      potency,
+      actorAbilities,
       exp,
       headers,
-      skills: actorSkills
-    } = actorData
-
-    const bloodPotency = getBloodPotency(potency).text
+      actorSkills,
+      bloodPotencyText,
+      power
+    } = thisActor
 
     /**
      * It takes an integer and returns an array of objects with the same number of elements as the integer,
@@ -1340,10 +1169,184 @@ async function main() {
           ? activityArray.push({ index, isActive: '-' })
           : activityArray.push({ index, isActive: false })
       return activityArray
-        .map(({ index, isActive }) => htmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, isActive, 'circle'))
+        .map(({ index, isActive }) => getHtmlElements(actor).DIALOG__RESOURCE_COUNTER_STEP(index, isActive, 'circle'))
         .join('')
     }
 
+    /* -------------------------- dialogContentMainElement --------------------------  */
+    const dialogContent = () => `
+      <style>
+        :root {
+          --dialog-font-family: 'Playfair Display', serif !important;
+          --dialog-primary: rgb(224, 221, 212);
+          --dialog-primary-dark: rgb(204, 196, 175);
+          --dialog-primary-light: #f2eee1;
+          --dialog-primary-transparent: rgba(224, 221, 212, 0.8);
+          --dialog-primary-transparent-dark: rgba(224, 221, 212, 0.96);
+          --dialog-red-primary: #790813;
+          --dialog-red-dark: #5a0813;
+          --dialog-red-darker: #3c0813;
+          --dialog-red-darkest: #30070c;
+          --dialog-red-transparent: rgba(54, 29, 29, 0.8);
+          --dialog-darkest: #000;
+          --dialog-darker: #444;
+          --dialog-dark: #888;
+          --dialog-light: #ccc;
+        }
+        .tooltip {
+          border-radius: 100%;
+          position: absolute;
+          top: 2px;
+        }
+
+        .tooltip-hide-content {
+          z-index: 1000;
+          visibility: hidden;
+          opacity: 0;
+          width: 300px;
+          margin-top: 5px;
+          box-shadow: 4px 4px 5px var(--dialog-dark);
+
+          transition: all 0.4s;
+
+          /* Position the tooltip */
+          position: absolute;
+          top: 11px;
+        }
+
+        .tooltip:hover .tooltip-hide-content {
+          visibility: visible;
+          opacity: 1;
+
+          transition: all 0.3s;
+        }
+
+        .tooltip-label {
+          display: flex;
+          justify-content: center;
+          width: 175px;
+          font-size: 12px;
+          font-weight: bold;
+          color: var(--dialog-primary);
+          background-color: var(--dialog-red-primary);
+          padding: 2px 5px;
+          border-radius: 5px 5px 0 0;
+          top: -6px;
+          left: 50px;
+        }
+
+        .bi-tooltip {
+          color: var(--dialog-primary);
+          cursor: pointer;
+        }
+
+        .bi-tooltip:hover {
+          color: white;
+        }
+
+        .grid-column {
+          border-bottom: 2px solid var(--dialog-light);
+          margin-bottom: 5px;
+          display: grid;
+          grid-template-areas:
+            'header header header'
+            'feature feature feature';
+        }
+
+        .title-label {
+          font-family: var(--dialog-font-family);
+          font-weight: bold;
+          font-size: 24px;
+          color: var(--dialog-red-primary);
+        }
+
+        .is-roll:hover {
+          text-shadow: 0 0 10px white;
+          cursor: pointer;
+        }
+
+        .is-clickable {
+          cursor: pointer;
+          transition: all 0.3s ease-in;
+        }
+
+        .is-clickable:hover {
+          color: var(--dialog-primary);
+          text-shadow: 0 0 8px var(--dialog-red-primary);
+          transition: all 0.3s ease-out;
+        }
+
+        .title {
+          position: relative;
+        }
+        .title[position='right']::after {
+          right: 0;
+        }
+        .title[position='left']::after {
+          left: 0;
+        }
+
+        .title[data-title]::after {
+          z-index: 10000;
+          content: attr(data-title);
+          position: absolute;
+          top: -16px;
+          right: 0;
+
+          text-transform: uppercase;
+          font-family: var(--dialog-font-family);
+          font-weight: bold;
+          font-size: 12px;
+
+          font-size: 10px;
+          color: var(--dialog-red-primary);
+          background-color: var(--dialog-primary);
+          box-shadow: -10px 10px 23px -3px rgba(0, 0, 0, 0.53);
+          border-radius: 5px;
+          padding: 3px;
+
+          width: min-content;
+          white-space: nowrap;
+          overflow: visible;
+
+          visibility: hidden;
+          opacity: 0;
+          transition: all 0.35s ease-in-out;
+        }
+
+        .body-monitor {
+          overflow: hidden;
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+        }
+
+        .title:hover::after {
+          visibility: visible;
+          opacity: 1;
+          transition: all 1s ease-in-out;
+        }
+
+        .resources-counter {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+      </style>
+      <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+        <script type="text/javascript">
+          document.getElementById('monitor-container').appendChild(monitorContent)
+        </script>
+      </head>
+      <h1 class="title-label">${getLanguage.charactersMonitor}</h1>
+      <body id="body" class="body-monitor">
+        <div id="monitor-container"></div>
+      </body>
+    `
+    /* -------------------------- dialogCommonsElements--------------------------  */
     const dialogButton = (className, text, data, onClick) => `
       <style>
         .btn {
@@ -1558,30 +1561,30 @@ async function main() {
       ${
         data.type === '1'
           ? `
-              <p class="btn btn-type1 ${className}" onclick='${onClick}' data-id=${actorId}>
-                <span class="top-key"></span>
-                <span class="resources-label text title" data-title="${data.title}" position="left"> ${text} </span>
-                <span class="bottom-key-1"></span>
-                <span class="bottom-key-2"></span>
-              </p>
-            `
-          : `
-              <div class="wrapper-btn">
-                <p class="btn btn-type2 ${className}" onclick='${onClick}' data-id=${actorId} ${data.addData}>
-                  <span class="text"> ${text} </span>
+                <p class="btn btn-type1 ${className}" onclick='${onClick}' data-id=${actorId}>
+                  <span class="top-key"></span>
+                  <span class="resources-label text title" data-title="${data.title}" position="left"> ${text} </span>
+                  <span class="bottom-key-1"></span>
+                  <span class="bottom-key-2"></span>
                 </p>
-                ${data.element}
-                ${
-                  data.rollable
-                    ? `
-                        <a class="item-dice">
-                          <i class="fas fa-dice-d20"></i>
-                        </a>
-                      `
-                    : ''
-                }
-              </div>
-            `
+              `
+          : `
+                <div class="wrapper-btn">
+                  <p class="btn btn-type2 ${className}" onclick='${onClick}' data-id=${actorId} ${data.addData}>
+                    <span class="text"> ${text} </span>
+                  </p>
+                  ${data.element}
+                  ${
+                    data.rollable
+                      ? `
+                          <a class="item-dice">
+                            <i class="fas fa-dice-d20"></i>
+                          </a>
+                        `
+                      : ''
+                  }
+                </div>
+              `
       }
     `
     const dialogResourceCounterStep = (dataIndex, dataState, dataType) => `
@@ -1593,6 +1596,13 @@ async function main() {
           margin: 4px 4px 0 0;
           background-color: rgba(224, 221, 212, 0.3);
           box-shadow: inset 2px 3px 5px var(--dialog-red-darker);
+          transition: all 0.5s;
+        }
+
+        .resources-counter-selected {
+          clip-path: polygon(0 25%, 50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%);
+          box-shadow: inset 5px 3px 5px var(--dialog-red-primary);
+          transition: all 0.5s;
         }
 
         .resources-counter-step[data-state='-'] {
@@ -1640,20 +1650,32 @@ async function main() {
           transform: rotate(45deg);
         }
       </style>
-      <p class="resources-counter-step" data-index="${dataIndex}" data-state="${dataState}" data-type="${dataType}"></p>
-    `
-    const dialogResourcesContent = (placeholder, resourceMarks, title = '', onClick = '', hunger = '') => `
       <p
-        class="resources-label ${onClick !== '' ? 'is-clickable' : ''} ${title !== '' ? 'title' : ''}"
+        class="resources-counter-step is-clickable"
+        oncontextmenu="${dataType === 'health' ? '_handleEvents(event).P__RESOURCE_HEALTH_SELECT_CONTEXT_MENU()' : ''}"
+        onclick="_handleEvents(event).P__RESOURCE_STATE_CHANGE()"
+        data-index="${dataIndex}"
+        data-id="${actorId}"
+        data-state="${dataState}"
+        data-type="${dataType}"
+      ></p>
+    `
+    const dialogResourcesContent = (placeholder, resourceMarks, title = '', onClick = '', type = '', position = '') => `
+      <label
+        class="${type}-${actorId} resources-label ${onClick !== '' ? 'is-clickable' : ''} ${
+      title !== '' ? 'title' : ''
+    }"
         onclick="${onClick}"
         data-title="${title}"
         data-id="${actorId}"
+        data-select=""
+        position="${position}"
       >
         ${placeholder}
-      </p>
+      </label>
       <div class="resources-counter">
         ${resourceMarks
-          .map(({ dataIndex, dataState }) => dialogResourceCounterStep(dataIndex, dataState, hunger))
+          .map(({ dataIndex, dataState }) => dialogResourceCounterStep(dataIndex, dataState, type))
           .join('')}
       </div>
     `
@@ -1717,44 +1739,44 @@ async function main() {
     `
     /* -------------------------- dialogHeaderInnerContent --------------------------  */
     const dialogToolTipBloodPotency = () => `
-    <style>
-      .blood-potency[data] {
-        top: 2px;
-        left: 40px;
-        transition: all 0.4s;
-      }
-      .blood-potency[data]::after {
-        content: attr(data);
-        position: absolute;
-        color: var(--dialog-red-primary);
-        font-size: 12px;
-        font-weight: bold;
-        left: 3.2px;
-        top: 2px;
-        pointer-events: none;
-      }
-      .blood-potency-hide-content {
-        border-top: 2px solid var(--dialog-red-primary);
-      }
-      .blood-potency:hover::after {
-        text-shadow: 0 0 10px white;
-        transition: all 0.4s;
-      }
-    </style>
-    <div class="tooltip blood-potency" data="${potency}">
-      <i class="bi bi-droplet-fill bi-tooltip"></i>
-      <span class="tooltip-hide-content tooltip-label">${getLanguage.bloodPotency}</span>
-      <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
-        ${dialogBloodGift(getLanguage.bloodSurge, bloodPotency.surge)}
-        ${dialogBloodGift(getLanguage.powerBonus, bloodPotency.power)}
-        ${dialogBloodGift(getLanguage.FeedingPenalty, bloodPotency.feeding)}
-        ${dialogBloodGift(getLanguage.mendAmount, bloodPotency.mend)}
-        ${dialogBloodGift(getLanguage.rouseReRoll, bloodPotency.rouse)}
-        ${dialogBloodGift(getLanguage.baneSeverity, bloodPotency.bane)}
+      <style>
+        .blood-potency[data] {
+          top: 2px;
+          left: 40px;
+          transition: all 0.4s;
+        }
+        .blood-potency[data]::after {
+          content: attr(data);
+          position: absolute;
+          color: var(--dialog-red-primary);
+          font-size: 12px;
+          font-weight: bold;
+          left: 3.2px;
+          top: 2px;
+          pointer-events: none;
+        }
+        .blood-potency-hide-content {
+          border-top: 2px solid var(--dialog-red-primary);
+        }
+        .blood-potency:hover::after {
+          text-shadow: 0 0 10px white;
+          transition: all 0.4s;
+        }
+      </style>
+      <div class="tooltip blood-potency" data="${potency}">
+        <i class="bi bi-droplet-fill bi-tooltip"></i>
+        <span class="tooltip-hide-content tooltip-label">${getLanguage.bloodPotencyText}</span>
+        <div class="wrapper-dialog tooltip-hide-content blood-potency-hide-content">
+          ${dialogBloodGift(getLanguage.bloodSurge, bloodPotencyText.surge)}
+          ${dialogBloodGift(getLanguage.powerBonus, bloodPotencyText.power)}
+          ${dialogBloodGift(getLanguage.FeedingPenalty, bloodPotencyText.feeding)}
+          ${dialogBloodGift(getLanguage.mendAmount, bloodPotencyText.mend)}
+          ${dialogBloodGift(getLanguage.rouseReRoll, bloodPotencyText.rouse)}
+          ${dialogBloodGift(getLanguage.baneSeverity, bloodPotencyText.bane)}
+        </div>
       </div>
-    </div>
-  `
-    const dialogStatsWrapper = (name, index, value) => `
+    `
+    const dialogStatsWrapper = (name, index, value, type) => `
       <style>
         .stats-resource-wrapper {
           display: flex;
@@ -1803,9 +1825,9 @@ async function main() {
       </style>
       <div class="stats-resource-wrapper">
         <span
-          for="data.data.abilities.${name}.value"
-          class="header-label header-placeholder stats-placeholder is-rollable"
-          onclick="_handleMouseEvents(event).onRollAbility()"
+          for="data.data.${type}.${name}.value"
+          class="header-label header-placeholder stats-placeholder is-roll"
+          data-type=${type}
           data-id=${actorId}
           data-roll=${value}
           data-label=${game.i18n.localize(name)}
@@ -1834,210 +1856,237 @@ async function main() {
           left: 24px;
         }
       </style>
-      <div class="tooltip tooltip-stats" onmouseover="_handleMouseEvents(event).onScrollLeft()">
-        <i id="image" class="bi bi-bookmarks-fill bi-tooltip"></i>
+      <div class="tooltip tooltip-stats">
+        <i class="bi bi-bookmarks-fill bi-tooltip"></i>
         <span class="tooltip-hide-content tooltip-label">${getLanguage.attributes} & ${getLanguage.skills}</span>
-        <div class="wrapper-dialog tooltip-hide-content stats-hide-content">
+        <div id="div__scroll_left${actorId}" class="wrapper-dialog tooltip-hide-content stats-hide-content">
           ${Object.keys(actorAbilities)
-            .map((key, index) => dialogStatsWrapper(key, index, actorAbilities[key].value))
+            .map((key, index) => dialogStatsWrapper(key, index, actorAbilities[key].value, 'ability'))
             .join('')}
           ${Object.keys(actorSkills)
             .filter(key => actorSkills[key].value > 0)
-            .map((key, index) => dialogStatsWrapper(key, index, actorSkills[key].value))
+            .map((key, index) => dialogStatsWrapper(key, index, actorSkills[key].value, 'skill'))
             .join('')}
         </div>
       </div>
     `
     const dialogToolTipTouchstones = touchstonesList => `
-    <style>
-      .touchstones-body {
-        background-color: var(--dialog-primary-transparent);
-      }
-
-      .touchstones-content {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-      }
-
-      .touchstones-content + .touchstones-content::before {
-        display: inline-block;
-        white-space: pre;
-        content: '';
-      }
-
-      .bi-person-bounding-box {
-        font-size: 50px;
-        position: absolute;
-        right: -25px;
-        top: -18px;
-        color: var(--dialog-red-primary);
-        background-color: var(--dialog-primary-transparent);
-        border-radius: 6px;
-      }
-
-      .ts-convic-image {
-        position: absolute;
-        right: -40px;
-        top: -20px;
-      }
-
-      .ts-name {
-        border-top: 0;
-        width: 100%;
-      }
-
-      .ts-convic-conviction {
-        display: flex;
-        width: 95%;
-        min-height: 35px;
-        padding-left: 5px;
-      }
-
-      .touchstones {
-        left: 7px;
-      }
-    </style>
-    <div class="tooltip touchstones">
-      <i class="bi bi-people-fill bi-tooltip"></i>
-      <span class="tooltip-hide-content tooltip-label">${getLanguage.touchstonesAndConvictions}</span>
-      <div class="wrapper-dialog tooltip-hide-content touchstones-body">
-        ${touchstonesList
-          .map(
-            tsConvictions => `
-    <div class="touchstones-content">
-        ${
-          tsConvictions.touchstoneImage !== 'img'
-            ? `<img class="image ts-convic-image" src=${tsConvictions.touchstoneImage}/>`
-            : `<i class="bi bi-person-bounding-box"></i>`
-        }
-        <span class="header-label header-placeholder blood-gifts-label ts-name">${tsConvictions.touchstone}</span>
-    </div>
-    <span class="ts-convic-conviction">"${tsConvictions.conviction}"</span>`
-          )
-          .join('')}
-      </div>
-    </div>
-  `
-    const dialogHeaderInnerContent = touchstonesList => `
       <style>
-        .grid-column .header-wrapper {
-          grid-column: header;
+        .touchstones-body {
+          background-color: var(--dialog-primary-transparent);
+        }
+
+        .touchstones-content {
+          position: relative;
           display: flex;
           flex-direction: row;
-          align-items: center;
-          justify-content: flex-start;
         }
-        .tooltips-wrapper {
+
+        .touchstones-content + .touchstones-content::before {
+          display: inline-block;
+          white-space: pre;
+          content: '';
+        }
+
+        .bi-person-bounding-box {
+          font-size: 50px;
           position: absolute;
-          height: 18px;
-          width: 100%;
-          box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 2px 2px var(--dialog-light);
-          background-color: var(--dialog-red-primary);
-          border-radius: 10px 0 0 10px;
+          right: -25px;
+          top: -18px;
+          color: var(--dialog-red-primary);
+          background-color: var(--dialog-primary-transparent);
+          border-radius: 6px;
         }
 
-        .header-Wrapper-content {
-          display: flex;
-          position: relative;
-          flex-direction: column;
-          width: 100%;
-        }
-
-        .header-label-wrapper {
-          display: flex;
-          align-items: center;
-        }
-        .header-placeholder {
-          background: var(--dialog-red-primary);
-          width: 30%;
-        }
-
-        .header-placeholder[end='true'] {
-          border-radius: 0 0 0 12%;
-        }
-        .wrapper-dialog {
-          border-bottom: 2px solid var(--dialog-red-primary);
-          border-left: 2px solid var(--dialog-red-primary);
-          border-radius: 0 0 0 10px;
-          margin-bottom: 7px;
-        }
-        .header-label {
-          display: flex;
-          align-items: center;
-          font-size: 12px;
-          padding: 2px 2px 2px 2px;
-          font-weight: bold;
-          width: 100%;
-          color: var(--dialog-primary);
-        }
-        .image {
-          width: 50px;
-          margin-right: 15px;
-          border: 0;
-        }
-        .tooltip-image-wrapper {
-          position: relative;
-          width: 70px;
-          height: 100%;
-        }
-
-        .actor-image {
+        .ts-convic-image {
           position: absolute;
-          padding-top: 5px;
-          top: 50%; /* position the top  edge of the element at the middle of the parent */
-          left: 50%; /* position the left edge of the element at the middle of the parent */
-          transform: translate(-50%, -50%);
-        }
-        .actor-name {
-          color: black;
-          padding-left: 3px;
-          margin: 0;
+          right: -40px;
+          top: -20px;
         }
 
-        .open-sheet {
-          position: absolute;
+        .ts-name {
+          border-top: 0;
+          width: 100%;
+        }
+
+        .ts-convic-conviction {
           display: flex;
-          justify-content: center;
-          align-items: center;
+          width: 95%;
+          min-height: 35px;
+          padding-left: 5px;
+        }
 
-          top: -5px;
-          right: 0;
-        }
-        .open-sheet i {
-          color: black;
-          margin-top: 7px;
-          margin-left: 4px;
-        }
-        .open-sheet:hover i {
-          color: var(--dialog-primary);
+        .touchstones {
+          left: 7px;
         }
       </style>
-      <div class="tooltip-image-wrapper">
-        <div class="tooltips-wrapper">
-        ${dialogToolTipBloodPotency()}
-        ${dialogToolTipStats()}
-        ${dialogToolTipTouchstones(touchstonesList)}
-        </div>
-        <img class="image actor-image" src=${actorImg} alt="img" />
+      <div class="tooltip touchstones">
+        <i class="bi bi-people-fill bi-tooltip"></i>
+        <span class="tooltip-hide-content tooltip-label">${getLanguage.touchstonesAndConvictions}</span>
+        <div class="wrapper-dialog tooltip-hide-content touchstones-body">
+          ${touchstonesList
+            .map(
+              tsConvictions => `
+      <div class="touchstones-content">
+          ${
+            tsConvictions.touchstoneImage !== 'img'
+              ? `<img class="image ts-convic-image" src=${tsConvictions.touchstoneImage}/>`
+              : `<i class="bi bi-person-bounding-box"></i>`
+          }
+          <span class="header-label header-placeholder blood-gifts-label ts-name">${tsConvictions.touchstone}</span>
       </div>
-      <div class="header-Wrapper-content">
-        <a
-          class="open-sheet is-clickable title"
-          onclick='${event => _handleMouseEvents(event).onOpenSheet()}'
-          data-id="${actorId}"
-          data-title="${getLanguage.openSheet}"
-        >
-          <i class="bi bi-file-earmark-text-fill open-sheet-icon"></i>
-        </a>
-        <div class="wrapper-dialog">
-          <h1 class="header-label actor-name">${actorName}</h1>
-          ${dialogHeaderLabelContent(getLanguage.concept, headers.concept)}
-          ${dialogHeaderLabelContent(getLanguage.ambition, headers.ambition)}
-          ${dialogHeaderLabelContent(getLanguage.desire, headers.desire)}
+      <span class="ts-convic-conviction">"${tsConvictions.conviction}"</span>`
+            )
+            .join('')}
         </div>
       </div>
     `
+    const dialogHeaderInnerContent = touchstonesList => ({
+      js: (() => {
+        const js = document.createElement('script')
+        js.innerHTML = `
+        $('#${actorId}').click(function (e) {
+          e.preventDefault();
+          if(e.target && e.target.matches('span.stats-placeholder')){
+            $(e.target).click(function (event) {
+              event.preventDefault();
+              _handleEvents(event).SPAN__ROLL_ABILITY_CLICK()
+            });
+          }
+        })
+
+        $('#button__sheet_render_${actorId}').click(event => {
+          event.preventDefault()
+          _handleEvents(event).BUTTON__SHEET_RENDER_CLICK()
+        })
+
+        $('#div__scroll_left${actorId}').mouseover(event => {
+          event.preventDefault()
+          _handleEvents(event).DIV__SCROLL_LEFT_MOUSE_OVER()
+        })
+        `
+        return js
+      })(),
+      html: `
+        <style>
+          .grid-column .header-wrapper {
+            grid-column: header;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          .tooltips-wrapper {
+            position: absolute;
+            height: 18px;
+            width: 100%;
+            box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 2px 2px var(--dialog-light);
+            background-color: var(--dialog-red-primary);
+            border-radius: 10px 0 0 10px;
+          }
+
+          .header-Wrapper-content {
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            width: 100%;
+          }
+
+          .header-label-wrapper {
+            display: flex;
+            align-items: center;
+          }
+          .header-placeholder {
+            background: var(--dialog-red-primary);
+            width: 30%;
+          }
+
+          .header-placeholder[end='true'] {
+            border-radius: 0 0 0 12%;
+          }
+          .wrapper-dialog {
+            border-bottom: 2px solid var(--dialog-red-primary);
+            border-left: 2px solid var(--dialog-red-primary);
+            border-radius: 0 0 0 10px;
+            margin-bottom: 7px;
+          }
+          .header-label {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            padding: 2px 2px 2px 2px;
+            font-weight: bold;
+            width: 100%;
+            color: var(--dialog-primary);
+          }
+          .image {
+            width: 50px;
+            margin-right: 15px;
+            border: 0;
+          }
+          .tooltip-image-wrapper {
+            position: relative;
+            width: 70px;
+            height: 100%;
+          }
+
+          .actor-image {
+            position: absolute;
+            padding-top: 5px;
+            top: 50%; /* position the top  edge of the element at the middle of the parent */
+            left: 50%; /* position the left edge of the element at the middle of the parent */
+            transform: translate(-50%, -50%);
+          }
+          .actor-name {
+            color: black;
+            padding-left: 3px;
+            margin: 0;
+          }
+
+          .open-sheet {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            top: -5px;
+            right: 0;
+          }
+          .open-sheet i {
+            color: black;
+            margin-top: 7px;
+            margin-left: 4px;
+            user-select: none;
+            pointer-events: none;
+          }
+          .open-sheet:hover i {
+            color: var(--dialog-primary);
+          }
+        </style>
+        <div class="tooltip-image-wrapper">
+          <div class="tooltips-wrapper">
+            ${dialogToolTipBloodPotency()} ${dialogToolTipStats()} ${dialogToolTipTouchstones(touchstonesList)}
+          </div>
+          <img class="image actor-image" src=${actorImg} alt="img" />
+        </div>
+        <div class="header-Wrapper-content">
+          <a
+            id="button__sheet_render_${actorId}"
+            class="open-sheet is-clickable title"
+            data-id="${actorId}"
+            data-title="${getLanguage.openSheet}"
+          >
+            <i class="bi bi-file-earmark-text-fill open-sheet-icon"></i>
+          </a>
+          <div class="wrapper-dialog">
+            <h1 class="header-label actor-name">${actorName}</h1>
+            ${dialogHeaderLabelContent(getLanguage.concept, headers.concept)}
+            ${dialogHeaderLabelContent(getLanguage.ambition, headers.ambition)}
+            ${dialogHeaderLabelContent(getLanguage.desire, headers.desire)}
+          </div>
+        </div>
+      `
+    })
     /* -------------------------- dialogResourcesInnerContent --------------------------  */
     const dialogResourcesInnerContent = (hungerMarks, healthMarks, willpowerMarks, humanityMarks) => `
       <style>
@@ -2138,10 +2187,10 @@ async function main() {
         <div class="exp-content">
           <p class="resources-label exp-value">${exp.value}</p>
           <div class="exp-controls">
-            <a class="is-clickable add-exp" onclick="_handleMouseEvents(event).onAddExp()" data-id=${actorId}>
+            <a class="is-clickable add-exp" onclick="_handleEvents(event).BUTTON__ADD_EXP_CLICK()" data-id=${actorId}>
               <i class="fas fa-plus-circle"></i>
             </a>
-            <a class="is-clickable sub-exp" onclick="_handleMouseEvents(event).onSubExp()" data-id=${actorId}>
+            <a class="is-clickable sub-exp" onclick="_handleEvents(event).BUTTON__SUB_EXP_CLICK()" data-id=${actorId}>
               <i class="fas fa-minus-circle"></i>
             </a>
           </div>
@@ -2155,7 +2204,7 @@ async function main() {
             type: '1',
             title: getLanguage.rollFrenzy
           },
-          '_handleMouseEvents(event).onRollFrenzy()'
+          '_handleEvents(event).LABEL__ROLL_FRENZY_CLICK()'
         )}
         ${dialogButton(
           'hunting-button',
@@ -2164,7 +2213,7 @@ async function main() {
             type: '1',
             title: getLanguage.rollHunting
           },
-          '_handleMouseEvents(event).onRollHunting()'
+          '_handleEvents(event).BUTTON__ROLL_HUNTING_CLICK()'
         )}
       </div>
       <div class="hunger-wrapper wrapper">
@@ -2172,19 +2221,27 @@ async function main() {
           getLanguage.hunger,
           hungerMarks,
           getLanguage.rouse,
-          '_handleMouseEvents(event).onRollHunger()',
+          '_handleEvents(event).LABEL__ROLL_HUNGER_CLICK()',
           'hunger'
         )}
       </div>
       <div class="health-wrapper wrapper five-mark-resource">
-        ${dialogResourcesContent(getLanguage.health, healthMarks)}
+        ${dialogResourcesContent(
+          getLanguage.health,
+          healthMarks,
+          getLanguage.rollMendAmount,
+          '_handleEvents(event).LABEL__ROLL_MEND_AMOUNT_CLICK()',
+          'health',
+          'left'
+        )}
       </div>
       <div class="willpower-wrapper wrapper five-mark-resource">
         ${dialogResourcesContent(
           getLanguage.willpower,
           willpowerMarks,
           getLanguage.rollWillpower,
-          '_handleMouseEvents(event).onRollWillpower()'
+          '_handleEvents(event).LABEL__ROLL_WILLPOWER_CLICK()',
+          'willpower'
         )}
       </div>
       <div class="humanity-wrapper wrapper five-mark-resource">
@@ -2192,7 +2249,8 @@ async function main() {
           getLanguage.humanity,
           humanityMarks,
           getLanguage.remorse,
-          '_handleMouseEvents(event).onRollRemorse()'
+          '_handleEvents(event).LABEL__ROLL_REMORSE_CLICK()',
+          'humanity'
         )}
       </div>
     `
@@ -2265,72 +2323,72 @@ async function main() {
             const { name: disciplineName, powers, value } = actorDisciplines[discipline]
             const localizeName = game.i18n.localize(disciplineName)
             return `
-                <li class="card-discipline">
-                  <span class="discipline-name collapsible" onclick='_handleMouseEvents(event).onCollapsibleToggle()' data-title="${localizeName}">${localizeName}</span>
-                  <div class="discipline-value resources-counter">${getResourcesActivity(value)}</div>
-                  <!-- Empty box (for setting back to 0), and then iterate through the rest of the discipline dots -->
-                  <div class="power-container collapse hidden-content">
-                    ${powers
-                      .map(power => {
-                        const {
-                          id,
-                          img,
-                          data: {
-                            name: powerName,
-                            data: { rollable, level, dice1, dice2, discipline: dataDiscipline, rouse }
-                          }
-                        } = power
-                        const isRollable = rollable
-                          ? {
-                              addData: `
-                                dices="${dice1} + ${dice2}"
-                                data-id="${actorId}"
-                                data-item-id="${id}"
-                                data-discipline="${dataDiscipline}"
-                                data-discipline-level="${value}"
-                                data-img="${img}"
-                                data-name="${powerName}"
-                                data-rouse="${rouse}"
-                                data-rollable=${rollable}
-                                data-level="${level}"
-                                data-dice1="${dice1}"
-                                data-dice2="${dice2}"
-                              `
+                  <li class="card-discipline">
+                    <span class="discipline-name collapsible" onclick='_handleEvents(event).onCollapsibleToggle()' data-title="${localizeName}">${localizeName}</span>
+                    <div class="discipline-value resources-counter">${getResourcesActivity(value)}</div>
+                    <!-- Empty box (for setting back to 0), and then iterate through the rest of the discipline dots -->
+                    <div class="power-container collapse hidden-content">
+                      ${powers
+                        .map(elementPower => {
+                          const {
+                            id,
+                            img,
+                            data: {
+                              name: powerName,
+                              data: { rollable, level, dice1, dice2, discipline: dataDiscipline, rouse }
                             }
-                          : { addData: '' }
-                        const { addData } = isRollable
-                        return `
-                          <!-- Discipline power information -->
-                          ${dialogButton(
-                            'btn-power',
-                            powerName,
-                            {
-                              type: 2,
-                              addData,
-                              rollable,
-                              element: `
-                              ${
-                                rouse
-                                  ? `
-                                      <a class="item-blood item-dice">
-                                        <i class="fa fa-tint" aria-hidden="true"></i>
-                                      </a>
-                                    `
-                                  : ''
+                          } = elementPower
+                          const isRollable = rollable
+                            ? {
+                                addData: `
+                                  dices="${dice1} + ${dice2}"
+                                  data-id="${actorId}"
+                                  data-item-id="${id}"
+                                  data-discipline="${dataDiscipline}"
+                                  data-discipline-level="${value}"
+                                  data-img="${img}"
+                                  data-name="${powerName}"
+                                  data-rouse="${rouse}"
+                                  data-rollable=${rollable}
+                                  data-level="${level}"
+                                  data-dice1="${dice1}"
+                                  data-dice2="${dice2}"
+                                `
                               }
-                              <a class="icon-edit is-clickable" onclick='_handleMouseEvents(event).onOpenItem()' data-id="${actorId}" data-item-id="${id}">
-                                <i class="fas fa-edit"></i>
-                              </a>
-                            `
-                            },
-                            '_handleMouseEvents(event).onRollDiscipline()'
-                          )}
-                        `
-                      })
-                      .join('')}
-                  </div>
-                </li>
-              `
+                            : { addData: '' }
+                          const { addData } = isRollable
+                          return `
+                            <!-- Discipline power information -->
+                            ${dialogButton(
+                              'btn-power',
+                              powerName,
+                              {
+                                type: 2,
+                                addData,
+                                rollable,
+                                element: `
+                                ${
+                                  rouse
+                                    ? `
+                                        <a class="item-blood item-dice">
+                                          <i class="fa fa-tint" aria-hidden="true"></i>
+                                        </a>
+                                      `
+                                    : ''
+                                }
+                                <a class="icon-edit is-clickable" onclick='_handleEvents(event).BUTTON__ITEM_RENDER_CLICK()' data-id="${actorId}" data-item-id="${id}">
+                                  <i class="fas fa-edit"></i>
+                                </a>
+                              `
+                              },
+                              '_handleEvents(event).BUTTON__ROLL_POWER_CLICK()'
+                            )}
+                          `
+                        })
+                        .join('')}
+                    </div>
+                  </li>
+                `
           })
           .join('')}
       </ol>
@@ -2369,39 +2427,37 @@ async function main() {
         ${featuresTypes
           .map(
             type => `
-                <li class="card-feature">
-                  <span class="collapsible" onclick='_handleMouseEvents(event).onCollapsibleToggle()'>${
-                    type.name
-                  }</span>
-                  <div class="collapse hidden-content">
-                    ${
-                      type.content.length === 0
-                        ? ``
-                        : type.content
-                            .map(feature =>
-                              (() => {
-                                const {
-                                  data: { points },
-                                  name
-                                } = feature
-                                return dialogButton(
-                                  'btn-feature',
-                                  name,
-                                  {
-                                    type: '2',
-                                    addData: `data-name='${name}' data-level=${points} data-type='${type.name}'`,
-                                    rollable: true,
-                                    element: `<span class="feature-level">${points}</span>`
-                                  },
-                                  '_handleMouseEvents(event).onRollFeature()'
-                                )
-                              })()
-                            )
-                            .join('')
-                    }
-                  </div>
-                </li>
-              `
+                  <li class="card-feature">
+                    <span class="collapsible" onclick='_handleEvents(event).onCollapsibleToggle()'>${type.name}</span>
+                    <div class="collapse hidden-content">
+                      ${
+                        type.content.length === 0
+                          ? ``
+                          : type.content
+                              .map(feature =>
+                                (() => {
+                                  const {
+                                    data: { points },
+                                    name
+                                  } = feature
+                                  return dialogButton(
+                                    'btn-feature',
+                                    name,
+                                    {
+                                      type: '2',
+                                      addData: `data-name='${name}' data-level=${points} data-type='${type.name}'`,
+                                      rollable: true,
+                                      element: `<span class="feature-level">${points}</span>`
+                                    },
+                                    '_handleEvents(event).BUTTON__ROLL_FEATURE_CLICK()'
+                                  )
+                                })()
+                              )
+                              .join('')
+                      }
+                    </div>
+                  </li>
+                `
           )
           .join('')}
       </ol>
@@ -2541,7 +2597,7 @@ async function main() {
           transition: all 0.4s linear;
         }
       </style>
-      <div class="feature-header" onclick="_handleMouseEvents(event).onFeatureToggle()">
+      <div class="feature-header" onclick="_handleEvents(event).onFeatureToggle()">
         <a>
           <i class="fas fa-solid fa-eye toggle-arrow"></i>
         </a>
@@ -2557,19 +2613,406 @@ async function main() {
         })}
       </div>
     `
+    /*  */
+    const dialogFormSelector = (label, selectId, individualClass, permanentClass, object, options) => `
+      <div class="form-group">
+        <label>${label}</label>
+        <select
+          id="${selectId}"
+          data-id="${actorId}"
+          data-individual-class="${individualClass}"
+          data-permanent-class="${permanentClass}"
+          data-object=${JSON.stringify(object).replace(/\s+/g, '')}
+          onchange="_handleEvents(event).SELECT__CIRCLE_ROLL_CHANGE()"
+          onselect="this.onchange()"
+          onsubmit="this.onchange()"
+          onkeydown="this.onchange()"
+          onkeypress="this.onchange()"
+          onkeyup="this.onchange()"
+        >
+          ${options}
+        </select>
+      </div>
+    `
+    const dialogFormRollDices = (isPowerBonus, addDices) => `
+      <script>
+        $(document).ready(() => {
+          if (${isPowerBonus} && ${power > 0}) {
+            getHtmlScripts('${actorId}').HTML__CIRCLE_STEP(
+              '1',
+              ${JSON.stringify(['roll-power', 'power'])},
+              ${JSON.stringify({
+                1: { value: power, name: getLanguage.powerBonus }
+              })}
+            )
+          }
+          if (${JSON.stringify(addDices).length > 0}) {
+            ${addDices.map(
+              (roll, index) =>
+                `getHtmlScripts('${actorId}').HTML__CIRCLE_STEP(
+                  '1',
+                  ${JSON.stringify([`roll-${roll.type}-${index}`, `${roll.type}`])},
+                  ${JSON.stringify({ 1: roll })}
+              )
+              `
+            )}
+          }
+        })
+      </script>
+      <style>
+        .wrapper-roll-dices {
+          display: flex;
+          transition: all 0.3s ease-in-out;
+        }
+
+        .wrapper-roll-dices .feature {
+          order: 1;
+        }
+        .wrapper-roll-dices .discipline {
+          order: 2;
+        }
+        .wrapper-roll-dices .ability {
+          order: 3;
+        }
+        .wrapper-roll-dices .skill {
+          order: 4;
+        }
+        .wrapper-roll-dices .power {
+          order: 5;
+        }
+        .wrapper-roll-dices .surge {
+          order: 6;
+        }
+        .wrapper-roll-dices .modifier {
+          order: 7;
+          position: relative;
+        }
+
+        .wrapper-roll-dices .modifier:before{
+          content: attr(data-value);
+          position: absolute;
+          font-family: var(--dialog-font-family);
+          font-size:12px;
+          font-weight: bold;
+          left: 50%;
+          transform: translateX(-50%);
+          color:var(--dialog-primary);
+        }
+
+        .wrapper-roll-dices .modifier-minus:before{
+          color:var(--dialog-red-primary);
+
+        }
+        .wrapper-roll-dices div {
+          padding: 2px;
+          border-radius: 5px;
+          min-width: min-content;
+          transition: all 0.3s ease-in-out;
+        }
+      </style>
+      <div class="wrapper-roll-dices" data-value='0'></div>
+    `
+    const dialogRollDicesContent = (isPowerBonus, addDices, header, formGroups, selectorAbilities, selectorSkills) => `
+      <style>
+        input[type='number']:hover::-webkit-inner-spin-button,
+        input[type='number']:hover::-webkit-outer-spin-button {
+          -webkit-appearance: auto !important;
+          position: relative;
+          padding: 4px !important;
+          width: 14px !important;
+          height: 14px !important;
+          border-radius: 50% !important;
+        }
+      </style>
+      <form id="roll-dialog">
+        ${header !== undefined ? header : ''}
+        ${
+          !!selectorAbilities
+            ? `<div class="form-group">
+                <label>${getLanguage.bloodSurge}?</label>
+                <input
+                  type="checkbox"
+                  id="input-surge"
+                  data-id="${actorId}"
+                  value="0"
+                  onclick="_handleEvents(event).CHECK_BOX__BLOOD_SURGE_CLICK()"
+                />
+              </div>`
+            : ''
+        }
+        ${formGroups !== undefined ? formGroups : ''} ${selectorAbilities} ${selectorSkills}
+        <div class="form-group">
+          <label for="modifier">${getLanguage.modifier}</label>
+          <input
+            type="number"
+            min="-5"
+            max="5"
+            name="modifier"
+            id="input-mod"
+            value="0"
+            data-id="${actorId}"
+            onchange="_handleEvents(event).INPUT_NUMBER__MODIFIER_CHANGE();"
+          />
+        </div>
+        <div class="form-group">
+          <label>${getLanguage.difficulty}</label>
+          <input type="text" min="0" id="input-dif" value="0" />
+        </div>
+        <div class="form-group" id="form-roll">
+          <label>${getLanguage.roll}</label>
+          ${dialogFormRollDices(isPowerBonus, addDices)}
+        </div>
+      </form>
+    `
+    const dialogFormDisciplineHeader = (itemImg, itemId, powerName, disciplineName, powerLevel) => `
+      <style>
+        .header-roll-discipline {
+          position: relative;
+          display: flex;
+        }
+        .header-roll-discipline h1,
+        p,
+        label {
+          font-family: var(--dialog-font-family);
+          font-weight: bold;
+        }
+        .header-roll-discipline img {
+          filter: invert(10%) sepia(10%) saturate(99999%) hue-rotate(6deg) brightness(90%) contrast(50%);
+          height: 28px;
+          width: 60px;
+          height: 60px;
+          margin-right: 10px;
+          border-radius: 50%;
+        }
+        .header-roll-discipline div {
+          display: flex;
+          flex-direction: column;
+        }
+        .header-roll-discipline div h1 {
+          font-size: 16px;
+          margin: 0.5rem 0 0;
+          min-width: min-content;
+          color: var(--dialog-red-primary);
+        }
+        .header-roll-discipline div p {
+          font-size: 12px;
+          color: var(--dialog-dark);
+        }
+        .header-roll-discipline .p-roll-discipline-power-level {
+          position: absolute;
+          display: flex;
+          color: var(--dialog-red-primary);
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          top: 0;
+          right: 0;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          box-shadow: 4px 4px 5px var(--dialog-dark);
+        }
+      </style>
+      <div class="header-roll-discipline">
+        <img
+          class="img-roll-discipline"
+          src=${itemImg}
+          data-id="${actorId}"
+          data-item-id${itemId}
+          onclick="_handleEvents(event).onOpenItem()"
+        />
+        <div>
+          <h1 class="h1-roll-discipline-power-name">${powerName}</h1>
+          <p class="p-roll-discipline-discipline-name">${disciplineName}</p>
+        </div>
+        <p class="p-roll-discipline-power-level">${powerLevel}</p>
+      </div>
+    `
+    const dialogFormDisciplineRouseCheck = () => `
+      <style>
+        .rouse-value {
+          color: var(--dialog-red-primary);
+          text-align: center;
+          font-weight: bold;
+          font-family: var(--dialog-font-primary);
+        }
+
+        input[type='range'] {
+          -webkit-appearance: none;
+          display: block;
+          margin: 0 auto;
+          outline: 0;
+        }
+        input[type='range']:focus {
+          outline: none;
+        }
+        input[type='range']::-webkit-slider-runnable-track {
+          height: 4px;
+          background: var(--dialog-primary-light);
+          border: 0;
+          transition: all 0.3s ease-in-out;
+          box-shadow: 0px 0px 0px #000;
+        }
+        input[type='range']::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          background-color: var(--dialog-red-primary);
+          min-width: 13px;
+          min-height: 13px;
+          border-radius: 0% 50% 50% 50%;
+          transform: rotate(45deg);
+          border: 2px solid var(--dialog-primary);
+          cursor: pointer;
+          transition: all 0.3s ease-in-out;
+          box-shadow: inset 2px 3px 5px var(--dialog-darkest), 0px 1px 1px var(--dialog-dark);
+        }
+
+        input[type='range']:active::-webkit-slider-runnable-track {
+          background: var(--dialog-primary-light);
+        }
+        input[type='range']:focus::-webkit-slider-runnable-track {
+          background: var(--dialog-primary-light);
+        }
+
+        input[type='range']::-webkit-slider-thumb:hover {
+          background-color: var(--dialog-primary);
+          min-width: 14px;
+          min-height: 14px;
+          border: 0;
+        }
+        input[type='range']::-webkit-slider-thumb:active {
+          min-width: 16px;
+          min-height: 16px;
+        }
+      </style>
+      <div class="form-group">
+        <label>${getLanguage.rouse}</label>
+        <div class="range-rouse">
+          <div class="rouse-value">1</div>
+          <input
+            class="rouse-input"
+            type="range"
+            id="input-rouse"
+            min="1"
+            max="5"
+            step="1"
+            value="0"
+            data-id="${actorId}"
+            onchange="_handleEvents(event).RANGE__ROUSE_CHECK_CHANGE(this.value)"
+          />
+        </div>
+      </div>
+    `
+    const dialogPredatorRollSelector = (roll, getSelector, predatorKey) => `
+      <style>
+        .predator-roll-wrapper {
+          display: flex;
+          flex-direction: row;
+          align-items: baseline;
+          justify-content: center;
+        }
+        .predator-roll-wrapper div {
+          border: 0;
+        }
+        .predator-roll-wrapper div p {
+          top: -25px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .predator-roll-wrapper + div {
+          margin-top: 12px;
+        }
+      </style>
+      ${roll
+        .map(
+          (value, index) => `
+              <div class="predator-roll-wrapper">
+                ${getSelector(
+                  true,
+                  actorAbilities,
+                  getLanguage.abilities,
+                  `ability-select-${index}`,
+                  value.dice1,
+                  'ability-select'
+                )}
+                ${getSelector(
+                  true,
+                  actorSkills,
+                  getLanguage.skills,
+                  `skill-select-${index}`,
+                  value.dice2,
+                  'skill-select'
+                )}
+                <input type="radio" id="radio-${predatorKey}-${index}" name="radio-predator" value="${index}" data-id='${actorId}' data-predator=${predatorKey} onchange='_handleEvents(event).RADIO__CHANGE()'/>
+              </div>
+            `
+        )
+        .join('')}
+    `
+    const dialogPredatorWrapper = (key, getSelector) => `
+      <style>
+        .predator-wrapper {
+          display: flex;
+          flex-direction: column;
+          border: 1px solid var(--dialog-primary-dark);
+          position: relative;
+          padding: 15px;
+        }
+        .predator-wrapper p {
+          z-index: 1;
+          position: absolute;
+          top: -17px;
+          background: var(--dialog-primary);
+          padding: 1px;
+          border-radius: 4px;
+        }
+        .predator-wrapper div {
+          position: relative;
+          padding: 8px;
+          border: 1px solid var(--dialog-primary-dark);
+        }
+      </style>
+      <div class="predator-wrapper">
+        <p>possible roll</p>
+        ${((predatorType = { ...predators[key], key }) => {
+          const array =
+            predatorType !== undefined && predatorType.roll.length > 0
+              ? predatorType
+              : { name: '', roll: [{ dice1: '', dice2: '' }] }
+
+          const { roll, key: predatorKey } = array
+
+          return dialogPredatorRollSelector(roll, getSelector, predatorKey)
+        })()}
+      </div>
+    `
+    const dialogHuntingSelector = getOption => `
+      <script>
+        $(document).ready(() => {
+          onPredatorChange()
+        })
+      </script>
+      <div class="form-group" id="hunting-roll">
+        <label>Predator</label>
+        <select id="predator-select" onchange="_handleEvents(event).SELECT__PREDATOR_CHANGE()">
+          ${getOption(getHtmlScripts(actorId).HTML__PREDATOR_TYPE().key, predators)}
+        </select>
+      </div>
+      <div class="form-group" id="predator-group"></div>
+    `
     return {
-      DIALOG__RESOURCE_COUNTER_STEP: dialogResourceCounterStep,
+      DIALOG__CONTENT: dialogContent,
       DIALOG__HEADER_INNER_CONTENT: dialogHeaderInnerContent,
       DIALOG__RESOURCES_INNER_CONTENT: dialogResourcesInnerContent,
-      DIALOG__FEATURE_INNER_CONTENT: dialogFeatureInnerContent
+      DIALOG__FEATURE_INNER_CONTENT: dialogFeatureInnerContent,
+      DIALOG__RESOURCE_COUNTER_STEP: dialogResourceCounterStep,
+      DIALOG__FORM_ROLL_DICES_CONTENT: dialogRollDicesContent,
+      DIALOG__FORM_SELECTOR: dialogFormSelector,
+      DIALOG__FORM_DISCIPLINE_HEADER: dialogFormDisciplineHeader,
+      DIALOG__FORM_DISCIPLINE_ROUSE_CHECK: dialogFormDisciplineRouseCheck,
+      DIALOG__PREDATOR_WRAPPER: dialogPredatorWrapper,
+      DIALOG__HUNTING_SELECTOR: dialogHuntingSelector
     }
-  }
-  const createWrapper = (className, resourcesGridWrapper) => {
-    const wrapper = document.createElement('div')
-    wrapper.className = className
-    resourcesGridWrapper.appendChild(wrapper)
-    return wrapper
-  }
+  })
+
   /**
    * It takes an actor and a wrapper, and creates a wrapper for the actor's resources, and then creates
    * the HTML for the actor's resources
@@ -2589,7 +3032,7 @@ async function main() {
     const resourcesWrapper = createWrapper('resource-wrapper', resourcesGridWrapper)
     const featureWrapper = createWrapper('feature-wrapper hidden-content', resourcesGridWrapper)
 
-    headerWrapper.innerHTML += (() => {
+    const { html, js } = (() => {
       /**
        * It takes a string, creates a new DOMParser, parses the string as HTML, and returns the text content
        * of the document element
@@ -2610,8 +3053,11 @@ async function main() {
         touchstonesList.push({ conviction: p1, touchstone: p2, touchstoneImage })
       })
 
-      return htmlElements(actor).DIALOG__HEADER_INNER_CONTENT(touchstonesList)
+      return getHtmlElements(actor).DIALOG__HEADER_INNER_CONTENT(touchstonesList)
     })()
+
+    headerWrapper.innerHTML += html
+    headerWrapper.appendChild(js)
 
     resourcesWrapper.innerHTML += (() => {
       const {
@@ -2659,12 +3105,13 @@ async function main() {
       const willpowerStep = createResourceList(willpower)
       const humanityStep = createResourceList(humanity)
 
-      return htmlElements(actor).DIALOG__RESOURCES_INNER_CONTENT(hungerStep, healthStep, willpowerStep, humanityStep)
+      return getHtmlElements(actor).DIALOG__RESOURCES_INNER_CONTENT(hungerStep, healthStep, willpowerStep, humanityStep)
     })()
 
     featureWrapper.innerHTML += (() => {
       const getFeatureType = type =>
         actorItems._source.filter(item => item.type === 'feature' && item.data.featuretype === type)
+
       const background = {
         name: getLanguage.background,
         content: getFeatureType('background')
@@ -2682,219 +3129,42 @@ async function main() {
       const { disciplines } = actorData.data
       const actorDisciplines = Object.fromEntries(Object.entries(disciplines).filter(([, value]) => value.visible))
       const actorPowers = actorItems.filter(item => item.type === 'power')
+
       Object.keys(actorDisciplines).forEach(discipline => {
         actorDisciplines[discipline].powers = actorPowers.filter(power =>
           actorDisciplines[discipline].name.toLowerCase().includes(power.data.data.discipline)
         )
       })
-      return htmlElements(actor).DIALOG__FEATURE_INNER_CONTENT(actorDisciplines, featuresTypes)
+
+      return getHtmlElements(actor).DIALOG__FEATURE_INNER_CONTENT(actorDisciplines, featuresTypes)
     })()
   }
 
-  /**
-   * It creates a wrapper for the actor's resources and then creates the actor's wrapper
-   * @param actor - The actor object that is being created.
-   */
-  /**
-   * `composeDialog` creates a wrapper for the actor's resources and then calls `createActorWrapper` to
-   * create the actor's wrapper.
-   * @param actor - The actor object that is being created.
-   */
-  function composeDialog(actor) {
-    const resourcesGridWrapper = createWrapper('resources grid-column', div)
-    resourcesGridWrapper.id = actor.id
-    createActorWrapper(actor, resourcesGridWrapper)
-  }
+  ;(function compoundDialogWrapper() {
+    function composeDialog(actor) {
+      const resourcesGridWrapper = createWrapper('resources grid-column', monitorContent)
+      resourcesGridWrapper.id = actor.id
+      createActorWrapper(actor, resourcesGridWrapper)
+    }
 
-  const gmFilter = actor => actor.type === 'vampire' || actor.type === 'character'
-  const playerFilter = actor => gmFilter(actor) && actor.data.permission[game.userId] !== undefined
-  const filter = game.user.isGM ? gmFilter : playerFilter
-  game.actors.filter(actor => filter(actor)).forEach(actor => composeDialog(actor))
+    const gmFilter = actor => actor.type === 'vampire' || actor.type === 'character'
+    const playerFilter = actor => gmFilter(actor) && actor.data.permission[game.userId] !== undefined
+    const filter = game.user.isGM ? gmFilter : playerFilter
+    game.actors.filter(actor => filter(actor)).forEach(actor => composeDialog(actor))
+  })()
 
-  const content = `
-    <style>
-      :root {
-        --dialog-font-family: 'Playfair Display', serif !important;
-        --dialog-primary: rgb(224, 221, 212);
-        --dialog-primary-dark: rgb(204, 196, 175);
-        --dialog-primary-light: #f2eee1;
-        --dialog-primary-transparent: rgba(224, 221, 212, 0.8);
-        --dialog-primary-transparent-dark: rgba(224, 221, 212, 0.96);
-        --dialog-red-primary: #790813;
-        --dialog-red-dark: #5a0813;
-        --dialog-red-darker: #3c0813;
-        --dialog-red-darkest: #30070c;
-        --dialog-red-transparent: rgba(54, 29, 29, 0.8);
-        --dialog-darkest: #000;
-        --dialog-darker: #444;
-        --dialog-dark: #888;
-        --dialog-light: #ccc;
-      }
-      .tooltip {
-        border-radius: 100%;
-        position: absolute;
-        top: 2px;
-      }
+  const content = getHtmlElements().DIALOG__CONTENT('monitorContent')
 
-      .tooltip-hide-content {
-        z-index: 1000;
-        visibility: hidden;
-        opacity: 0;
-        width: 300px;
-        margin-top: 5px;
-        box-shadow: 4px 4px 5px var(--dialog-dark);
-
-        transition: all .4s;
-
-        /* Position the tooltip */
-        position: absolute;
-        top: 11px;
-      }
-
-      .tooltip:hover .tooltip-hide-content {
-        visibility: visible;
-        opacity: 1;
-
-        transition: all .3s;
-      }
-
-      .tooltip-label {
-        display: flex;
-        justify-content: center;
-        width: 175px;
-        font-size: 12px;
-        font-weight: bold;
-        color: var(--dialog-primary);
-        background-color: var(--dialog-red-primary);
-        padding: 2px 5px;
-        border-radius: 5px 5px 0 0;
-        top: -6px;
-        left: 50px;
-      }
-
-      .bi-tooltip {
-        color: var(--dialog-primary);
-        cursor: pointer;
-      }
-
-      .bi-tooltip:hover {
-        color: white;
-      }
-
-      .grid-column {
-        border-bottom: 2px solid var(--dialog-light);
-        margin-bottom: 5px;
-        display: grid;
-        grid-template-areas:
-          'header header header'
-          'feature feature feature';
-      }
-
-      .title-label {
-        font-family: var(--dialog-font-family);
-        font-weight: bold;
-        font-size: 24px;
-        color: var(--dialog-red-primary);
-      }
-
-      .is-rollable:hover {
-        color: var(--dialog-light);
-        text-shadow: 0 0 10px white;
-        cursor: pointer;
-      }
-
-      .is-clickable {
-        cursor: pointer;
-        transition: all 0.3s ease-in;
-      }
-
-      .is-clickable:hover {
-        color: var(--dialog-primary);
-        text-shadow: 0 0 8px var(--dialog-red-primary);
-        transition: all 0.3s ease-out;
-      }
-
-      .title {
-        position: relative;
-      }
-      .title[position='right']::after {
-        right: 0;
-      }
-      .title[position='left']::after {
-        left: 0;
-      }
-
-      .title[data-title]::after {
-        z-index: 10000;
-        content: attr(data-title);
-        position: absolute;
-        top: -16px;
-        right: 0;
-
-        text-transform: uppercase;
-        font-family: var(--dialog-font-family);
-        font-weight: bold;
-        font-size: 12px;
-
-        font-size: 10px;
-        color: var(--dialog-red-primary);
-        background-color: var(--dialog-primary);
-        box-shadow: -10px 10px 23px -3px rgba(0, 0, 0, 0.53);
-        border-radius: 5px;
-        padding: 3px;
-
-        width: min-content;
-        white-space: nowrap;
-        overflow: visible;
-
-        visibility: hidden;
-        opacity: 0;
-        transition: all 0.35s ease-in-out;
-      }
-
-      .body-monitor {
-        overflow: hidden;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-      }
-
-      .title:hover::after {
-        visibility: visible;
-        opacity: 1;
-        transition: all 1s ease-in-out;
-      }
-
-      .resources-counter {
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
-    </style>
-    <head>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
-      <script type="text/javascript">
-        document.getElementById('monitor-container').appendChild(div)
-      </script>
-    </head>
-    <h1 class="title-label">Characters Monitor</h1>
-    <body id="body" class="body-monitor">
-      <div id="monitor-container"></div>
-    </body>
-  `
   const dialog = new Dialog({
     allowMaximize: true,
-    width: 600,
     title: 'Monitor',
     content,
     buttons: {}
   })
 
-  const container = document.getElementById('monitor-container')
-
-  if (!container) dialog.render(true)
+  const monitor = Object.values(ui.windows).find(w => w.data.title === 'Monitor')
+  if (!monitor) return dialog.render(true)
+  monitor.close()
 
   // onUpdateActor(actor, updateData, options, userId)
   Hooks.on('updateActor', actor => {
