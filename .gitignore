@@ -1,5 +1,6 @@
 .husky
 node_modules
+.vscode
 .editorconfig
 .eslintrc.json
 .prettierrc.js
