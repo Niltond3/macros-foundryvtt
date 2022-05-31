@@ -953,12 +953,13 @@ async function main() {
         )
       }
       const onRollAbility = () => {
+        event.target.dataset
         rollDialog(
-          dataset.label,
+          event.target.dataset.label,
           '',
           '',
-          [{ name: dataset.label, value: dataset.roll, type: dataset.type }],
-          () => ({ rollLabel: dataset.label }),
+          [{ name: event.target.dataset.label, value: event.target.dataset.roll, type: event.target.dataset.type }],
+          () => ({ rollLabel: event.target.dataset.label }),
           false,
           true
         )
@@ -1342,7 +1343,7 @@ async function main() {
         </script>
       </head>
       <h1 class="title-label">${getLanguage.charactersMonitor}</h1>
-      <body id="body" class="body-monitor">
+      <body id="monitor-container" class="body-monitor">
         <div id="monitor-container"></div>
       </body>
     `
@@ -1948,10 +1949,7 @@ async function main() {
         $('#${actorId}').click(function (e) {
           e.preventDefault();
           if(e.target && e.target.matches('span.stats-placeholder')){
-            $(e.target).click(function (event) {
-              event.preventDefault();
-              _handleEvents(event).SPAN__ROLL_ABILITY_CLICK()
-            });
+            e.target.onclick= _handleEvents(event).SPAN__ROLL_ABILITY_CLICK()
           }
         })
 
@@ -3144,6 +3142,7 @@ async function main() {
     function composeDialog(actor) {
       const resourcesGridWrapper = createWrapper('resources grid-column', monitorContent)
       resourcesGridWrapper.id = actor.id
+      resourcesGridWrapper.dataset.id = actor.id
       createActorWrapper(actor, resourcesGridWrapper)
     }
 
@@ -3153,7 +3152,7 @@ async function main() {
     game.actors.filter(actor => filter(actor)).forEach(actor => composeDialog(actor))
   })()
 
-  const content = getHtmlElements().DIALOG__CONTENT('monitorContent')
+  const content = getHtmlElements().DIALOG__CONTENT()
 
   const dialog = new Dialog({
     allowMaximize: true,
@@ -3162,14 +3161,14 @@ async function main() {
     buttons: {}
   })
 
-  const monitor = Object.values(ui.windows).find(w => w.data.title === 'Monitor')
-  if (!monitor) return dialog.render(true)
-  monitor.close()
-
   // onUpdateActor(actor, updateData, options, userId)
   Hooks.on('updateActor', actor => {
     const dialogElement = document.getElementById(actor.id)
     dialogElement.innerHTML = ''
     createActorWrapper(actor, dialogElement)
   })
+
+  const monitor = Object.values(ui.windows).find(w => w.title === 'Monitor')
+  if (!monitor) return dialog.render(true)
+  monitor.close()
 }
